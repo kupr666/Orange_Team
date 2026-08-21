@@ -37,10 +37,10 @@ migrate-down:
 
 migrate-action:
 	@if [ -z "$(action)" ]; then \
-		echo "Missing required parameter action. Example: migrate-action action=up 1"; \
+		echo "Missing required parameter action. Example: make migrate-action action=up action_args=1"; \
 		exit 1; \
 	fi; 
 	@docker compose run  --rm app-postgres-migrate \
 		-path /migrations \
 		-database "postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@app-postgres:5432/${POSTGRES_DB}?sslmode=disable" \
-		"$(action)"
+		"$(action)" $(action_args)
