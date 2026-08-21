@@ -58,7 +58,7 @@ func (s *HTTPServer) Run(ctx context.Context) error {
 
 	ch := make(chan error, 1)
 
-	s.log.Warn("Start http server addr: %s", s.config.Addr)
+	s.log.Info("HTTP server started", "addr", s.config.Addr)
 
 	go func() {
 		defer close(ch)
