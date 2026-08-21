@@ -4,7 +4,7 @@ CREATE TABLE app.user_challenges (
     challenge_id   INTEGER     NOT NULL REFERENCES app.challenges (id) ON DELETE RESTRICT,
     progress       INTEGER     NOT NULL DEFAULT 0 CHECK (progress >= 0),
     status         VARCHAR(16) NOT NULL DEFAULT 'active',
-    assigned_at    TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    assigned_at    TIMESTAMPTZ NOT NULL,
     expires_at     TIMESTAMPTZ NOT NULL,
     completed_at   TIMESTAMPTZ,
 

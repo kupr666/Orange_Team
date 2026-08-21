@@ -4,7 +4,7 @@ CREATE TABLE app.point_transactions (
     source_type  VARCHAR(64) NOT NULL,
     source_id    INTEGER,
     amount       INTEGER     NOT NULL,
-    created_at   TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    created_at   TIMESTAMPTZ NOT NULL
 );
 
 CREATE INDEX point_transactions_user_created_at_idx

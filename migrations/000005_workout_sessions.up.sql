@@ -2,10 +2,10 @@ CREATE TABLE app.workout_sessions (
     id           SERIAL      PRIMARY KEY,
     user_id      INTEGER     NOT NULL REFERENCES app.users (id) ON DELETE CASCADE,
     status       VARCHAR(32) NOT NULL DEFAULT 'in_progress',
-    started_at   TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    started_at   TIMESTAMPTZ NOT NULL,
     finished_at  TIMESTAMPTZ,
-    created_at   TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    updated_at   TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    created_at   TIMESTAMPTZ NOT NULL,
+    updated_at   TIMESTAMPTZ NOT NULL,
 
     CONSTRAINT workout_sessions_status_check
         CHECK (status IN ('in_progress', 'completed', 'cancelled')),

@@ -8,7 +8,7 @@ CREATE TABLE app.workout_exercises (
     position             INTEGER        NOT NULL CHECK (position >= 0),
     duration_seconds     INTEGER        CHECK (duration_seconds > 0),
     points_earned        INTEGER        NOT NULL DEFAULT 0 CHECK (points_earned >= 0),
-    created_at           TIMESTAMPTZ    NOT NULL DEFAULT NOW(),
+    created_at           TIMESTAMPTZ    NOT NULL,
 
     CONSTRAINT workout_exercises_session_position_unique
         UNIQUE (workout_session_id, position)
