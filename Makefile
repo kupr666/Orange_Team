@@ -3,6 +3,9 @@ export
 
 export PROJECT_ROOT=${shell pwd}
 
+app-run:
+	@go run ./cmd/api
+
 env-up:
 	@docker compose up -d app-postgres
 
