@@ -30,10 +30,7 @@ migrate-up:
 	@make migrate-action action=up
 
 migrate-down:
-	@make migrate-action action=down action_args=1
-
-migrate-down-all:
-	@make migrate-action action=down action_args=-all
+	@make migrate-action action=down
 
 migrate-action:
 	@if [ -z "$(action)" ]; then \
