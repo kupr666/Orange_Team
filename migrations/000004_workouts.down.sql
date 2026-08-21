@@ -1,1 +1,1 @@
-DROP TABLE IF EXISTS app.workouts;
+DROP TABLE IF EXISTS app.workouts CASCADE;
