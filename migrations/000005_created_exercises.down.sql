@@ -1,1 +1,1 @@
-DROP TABLE IF EXISTS app.workout_exercises;
+DROP TABLE IF EXISTS app.created_exercises;
