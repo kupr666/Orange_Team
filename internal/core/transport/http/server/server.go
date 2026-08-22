@@ -4,22 +4,23 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"log/slog"
+
 	"net/http"
 
+	core_logger "github.com/kupr666/Orange_Team/internal/core/logger"
 	core_http_middleware "github.com/kupr666/Orange_Team/internal/core/transport/http/middleware"
 )
 
 type HTTPServer struct {
 	mux        *http.ServeMux
 	config     Config
-	log        *slog.Logger
+	log        *core_logger.Logger
 	middleware []core_http_middleware.Middleware
 }
 
 func NewHTTPServer(
 	config Config,
-	log *slog.Logger,
+	log *core_logger.Logger,
 	middleware ...core_http_middleware.Middleware,
 ) *HTTPServer {
 	return &HTTPServer{
