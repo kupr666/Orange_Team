@@ -25,6 +25,7 @@ func main() {
 		fmt.Println("failed to init application logger:", err)
 		os.Exit(1)
 	}
+	defer log.Close()
 
 	ctx, cancel := signal.NotifyContext(
 		context.Background(),
