@@ -11,6 +11,9 @@ import (
 	core_pgx_pool "github.com/kupr666/Orange_Team/internal/core/repository/postgres/pool/pgx"
 	core_http_middleware "github.com/kupr666/Orange_Team/internal/core/transport/http/middleware"
 	core_http_server "github.com/kupr666/Orange_Team/internal/core/transport/http/server"
+	exercises_postgres_repository "github.com/kupr666/Orange_Team/internal/features/exercises/repository/postgres"
+	exercises_service "github.com/kupr666/Orange_Team/internal/features/exercises/service"
+	exercises_transport_http "github.com/kupr666/Orange_Team/internal/features/exercises/transport/http"
 )
 
 func main() {
@@ -44,8 +47,13 @@ func main() {
 	}
 	defer pool.Close()
 
+
+	exercisesRepository := exercises_postgres_repository.NewExercisesRepository(pool)
+	exercisesService := exercises_service.NewExercisesService(exercisesRepository)
+	exercisesTransportHTTP := exercises_transport_http.NewExercisesHTTPHandler(exercisesService)
 	/*
 
+		
 		WORKOUT FEATURE
 
 	*/
@@ -55,6 +63,16 @@ func main() {
 		httpConfig,
 		log,
 		core_http_middleware.RequestID(),
+		core_http_middleware.Logger(log),
+		core_http_middleware.Trace(),
+		core_http_middleware.Panic(),
+	)
+
+	apiVersionRouterV1 := core_http_server.NewApiVersionRouter(core_http_server.ApiVersion1)
+	apiVersionRouterV1.RegisterRoutes(exercisesTransportHTTP.Routes()...)
+
+	httpServer.RegisterRouters(
+		apiVersionRouterV1,
 	)
 
 	if err := httpServer.Run(ctx); err != nil {
