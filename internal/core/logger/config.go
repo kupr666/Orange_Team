@@ -11,6 +11,7 @@ import (
 type Config struct {
 	Level  string `envconfig:"LEVEL" default:"INFO"`
 	Format string `envconfig:"FORMAT" default:"text"`
+	Folder string `envconfig:"FOLDER" default:"logs"`
 }
 
 func NewConfig() (Config, error) {

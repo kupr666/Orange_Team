@@ -20,11 +20,12 @@ func main() {
 		os.Exit(1)
 	}
 
-	log, err := core_logger.New(loggerConfig)
+	log, err := core_logger.NewLogger(loggerConfig)
 	if err != nil {
 		fmt.Println("failed to init application logger:", err)
 		os.Exit(1)
 	}
+	defer log.Close()
 
 	ctx, cancel := signal.NotifyContext(
 		context.Background(),

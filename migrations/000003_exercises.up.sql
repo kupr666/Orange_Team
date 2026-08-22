@@ -1,10 +1,12 @@
 CREATE TABLE IF NOT EXISTS app.exercises (
-    id             SERIAL        PRIMARY KEY,
-    name           VARCHAR(100)  NOT NULL,
-    description    VARCHAR(1000) NOT NULL,
-    exercise_score INTEGER       NOT NULL,
-    created_at     TIMESTAMPTZ   NOT NULL,
-    updated_at     TIMESTAMPTZ
+    id           SERIAL        PRIMARY KEY,
+    version      BIGINT        NOT NULL DEFAULT 1, --Опционально. Если таблица справочная и никогда не изменяется можно удалить 
+    name         VARCHAR(100)  NOT NULL,
+    description  VARCHAR(1000) NOT NULL,
+    difficulty   SMALLINT      NOT NULL,
+    created_at   TIMESTAMPTZ   NOT NULL,
+    updated_at   TIMESTAMPTZ,
+    type         VARCHAR(20)   NOT NULL
 );
 
 ALTER TABLE app.exercises ADD CONSTRAINT exercises_name_unique UNIQUE (name);
@@ -16,4 +18,6 @@ ALTER TABLE app.exercises ADD CONSTRAINT exercises_description_no_leading_traili
 ALTER TABLE app.exercises ADD CONSTRAINT exercises_description_characters CHECK (description ~* '^[A-Za-zА-Яа-яёЁ ]+$');
 ALTER TABLE app.exercises ADD CONSTRAINT exercises_description_length CHECK (char_length(description) BETWEEN 1 AND 1000);
 
-ALTER TABLE app.exercises ADD CONSTRAINT exercises_exercise_score_check CHECK (exercise_score BETWEEN 1 AND 100);
+ALTER TABLE app.exercises ADD CONSTRAINT exercises_difficulty_check CHECK (difficulty BETWEEN 1 AND 10);
+
+ALTER TABLE app.exercises ADD CONSTRAINT exercises_type_check CHECK (type IN ('weight', 'duration'));
