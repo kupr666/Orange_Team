@@ -14,13 +14,7 @@ import (
 )
 
 func main() {
-	loggerConfig, err := core_logger.NewConfig()
-	if err != nil {
-		fmt.Println("failed to get logger config:", err)
-		os.Exit(1)
-	}
-
-	log, err := core_logger.NewLogger(loggerConfig)
+	log, err := core_logger.NewLogger(core_logger.NewConfigMust())
 	if err != nil {
 		fmt.Println("failed to init application logger:", err)
 		os.Exit(1)
