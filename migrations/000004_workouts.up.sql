@@ -1,5 +1,6 @@
 CREATE TABLE IF NOT EXISTS app.workouts (
     id                          SERIAL        PRIMARY KEY,
+    version                     BIGINT        NOT NULL DEFAULT 1,
     user_id                     INTEGER       NOT NULL REFERENCES app.users (id) ON DELETE CASCADE,
     status                      VARCHAR(20)   NOT NULL,
     started_at                  TIMESTAMPTZ,

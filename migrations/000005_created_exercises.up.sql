@@ -1,5 +1,6 @@
 CREATE TABLE IF NOT EXISTS app.created_exercises (
-    id          SERIAL PRIMARY KEY,
+    id          SERIAL  PRIMARY KEY,
+    version     BIGINT  NOT NULL DEFAULT 1,
     exercise_id INTEGER NOT NULL REFERENCES app.exercises (id),
     workout_id  INTEGER NOT NULL REFERENCES app.workouts (id) ON DELETE CASCADE,
     weight      INTEGER,

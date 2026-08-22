@@ -1,5 +1,6 @@
 CREATE TABLE IF NOT EXISTS app.users (
     id                  SERIAL       PRIMARY KEY,
+    version             BIGINT       NOT NULL DEFAULT 1,
     mail                VARCHAR(30)  NOT NULL,
     pass_hash           VARCHAR(255) NOT NULL,
     full_name           VARCHAR(50)  NOT NULL,

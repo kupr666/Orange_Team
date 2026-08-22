@@ -1,5 +1,6 @@
 CREATE TABLE IF NOT EXISTS app.exercises (
     id           SERIAL        PRIMARY KEY,
+    version      BIGINT        NOT NULL DEFAULT 1, --Опционально. Если таблица справочная и никогда не изменяется можно удалить 
     name         VARCHAR(100)  NOT NULL,
     description  VARCHAR(1000) NOT NULL,
     difficulty   SMALLINT      NOT NULL,
