@@ -10,6 +10,11 @@ import (
 	"time"
 )
 
+const (
+	FormatText = "text"
+	FormatJSON = "json"
+)
+
 type loggerContextKey struct{}
 
 var (
@@ -64,22 +69,31 @@ func NewLogger(config Config) (*Logger, error) {
 		return nil, fmt.Errorf("open log file: %w", err)
 	}
 
-	// MultiWriter направляет логи одновременно в stdout и файл.
 	writer := io.MultiWriter(os.Stdout, logFile)
 
-	handler := slog.NewTextHandler(writer, &slog.HandlerOptions{
+	opts := &slog.HandlerOptions{
 		Level:     slogLvl,
-		AddSource: true, // Добавляет имя файла и строку.
+		AddSource: true,
 		ReplaceAttr: func(_ []string, attr slog.Attr) slog.Attr {
 			if attr.Key == slog.TimeKey {
 				attr.Value = slog.StringValue(
 					attr.Value.Time().Format("2006-01-02T15:04:05.000000"),
 				)
 			}
-
 			return attr
 		},
-	})
+	}
+
+	var handler slog.Handler
+	switch config.Format {
+	case FormatJSON:
+		handler = slog.NewJSONHandler(writer, opts)
+	case FormatText:
+		handler = slog.NewTextHandler(writer, opts)
+	default:
+		return nil, fmt.Errorf("unsupported log format %q (allowed: %q, %q)",
+			config.Format, FormatText, FormatJSON)
+	}
 
 	return &Logger{
 		Logger: slog.New(handler),
