@@ -1,4 +1,4 @@
-package workout_repository
+package workouts_postgres_repository
 
 import core_postgres_pool "github.com/kupr666/Orange_Team/internal/core/repository/postgres/pool"
 

@@ -9,7 +9,7 @@ import (
 
 type ExerciseModel struct {
 	ID          uuid.UUID
-	Version     int64
+	Version     int
 	Name        string
 	Description string
 	Difficulty  int

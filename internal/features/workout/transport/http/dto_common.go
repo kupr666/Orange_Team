@@ -7,9 +7,9 @@ import (
 	"github.com/kupr666/Orange_Team/internal/core/domain"
 )
 
-type WorkoutResponseDTO struct {
+type WorkoutDTOResponse struct {
 	ID                       uuid.UUID  `json:"id"`
-	Version                  int64      `json:"version"`
+	Version                  int        `json:"version"`
 	UserID                   uuid.UUID  `json:"user_id"`
 	Status                   string     `json:"status"`
 	StartedAt                *time.Time `json:"started_at"`
@@ -21,10 +21,8 @@ type WorkoutResponseDTO struct {
 	PersonalScoreCoefficient int        `json:"personal_score_coefficient"`
 }
 
-func workoutDTOFromDomain(
-	workout domain.Workout,
-) WorkoutResponseDTO {
-	return WorkoutResponseDTO{
+func workoutDTOFromDomain(workout domain.Workout) WorkoutDTOResponse {
+	return WorkoutDTOResponse{
 		ID:                       workout.ID,
 		Version:                  workout.Version,
 		UserID:                   workout.UserID,
@@ -39,14 +37,12 @@ func workoutDTOFromDomain(
 	}
 }
 
-func workoutDTOsFromDomains(
-	workouts []domain.Workout,
-) []WorkoutResponseDTO {
-	response := make([]WorkoutResponseDTO, len(workouts))
+func workoutDTOsFromDomains(workouts []domain.Workout) []WorkoutDTOResponse {
+	workoutDTO := make([]WorkoutDTOResponse, len(workouts))
 
 	for i, workout := range workouts {
-		response[i] = workoutDTOFromDomain(workout)
+		workoutDTO[i] = workoutDTOFromDomain(workout)
 	}
 
-	return response
+	return workoutDTO
 }

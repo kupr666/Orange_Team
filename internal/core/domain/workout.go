@@ -8,13 +8,13 @@ import (
 
 type Workout struct {
 	ID                       uuid.UUID
-	Version                  int64
+	Version                  int
 	UserID                   uuid.UUID
 	Status                   string
-	StartedAt               *time.Time
-	CompletedAt             *time.Time
-	CreatedAt               time.Time
-	UpdatedAt               time.Time
+	StartedAt                *time.Time
+	CompletedAt              *time.Time
+	CreatedAt                time.Time
+	UpdatedAt                time.Time
 	WorkoutScore             int
 	Intensity                *int
 	PersonalScoreCoefficient int
@@ -22,7 +22,7 @@ type Workout struct {
 
 func NewWorkout(
 	id uuid.UUID,
-	version int64,
+	version int,
 	userID uuid.UUID,
 	status string,
 	startedAt *time.Time,
@@ -34,18 +34,16 @@ func NewWorkout(
 	personalScoreCoefficient int,
 ) Workout {
 	return Workout{
-		ID: id,
-		Version: version,
-		UserID: userID,
-		Status: status,
-		StartedAt: startedAt,
-		CompletedAt: completedAt,
-		CreatedAt: createdAt,
-		UpdatedAt: updatedAt,
-		WorkoutScore: workoutScore,
-		Intensity: intensity,
+		ID:                       id,
+		Version:                  version,
+		UserID:                   userID,
+		Status:                   status,
+		StartedAt:                startedAt,
+		CompletedAt:              completedAt,
+		CreatedAt:                createdAt,
+		UpdatedAt:                updatedAt,
+		WorkoutScore:             workoutScore,
+		Intensity:                intensity,
 		PersonalScoreCoefficient: personalScoreCoefficient,
 	}
 }
-
-

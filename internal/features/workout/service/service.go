@@ -1,4 +1,4 @@
-package service
+package workouts_service
 
 import (
 	"context"
@@ -12,16 +12,27 @@ type WorkoutsService struct {
 }
 
 type WorkoutsRepository interface {
-	GetWorkouts(
-		ctx context.Context,
-		userID uuid.UUID,
-	) ([]domain.Workout, error)
+	// PostWorkout(
+	// args
+	// ) (retun values)
+
+	// GetWorkouts(
+	// 	ctx context.Context,
+	// 	userID uuid.UUID,
+	// ) ([]domain.Workout, error)
 
 	GetWorkout(
 		ctx context.Context,
-		userID uuid.UUID,
 		workoutID uuid.UUID,
 	) (domain.Workout, error)
+
+	// PatchWorkout(
+	// args
+	// ) (retun values)
+
+	// DeletetWorkout(
+	// args
+	// ) (retun values)
 }
 
 func NewWorkoutsService(repo WorkoutsRepository) *WorkoutsService {

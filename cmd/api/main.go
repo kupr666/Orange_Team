@@ -14,6 +14,9 @@ import (
 	exercises_postgres_repository "github.com/kupr666/Orange_Team/internal/features/exercises/repository/postgres"
 	exercises_service "github.com/kupr666/Orange_Team/internal/features/exercises/service"
 	exercises_transport_http "github.com/kupr666/Orange_Team/internal/features/exercises/transport/http"
+	workouts_postgres_repository "github.com/kupr666/Orange_Team/internal/features/workout/repository/postgres"
+	workouts_service "github.com/kupr666/Orange_Team/internal/features/workout/service"
+	workouts_transport_http "github.com/kupr666/Orange_Team/internal/features/workout/transport/http"
 )
 
 func main() {
@@ -41,14 +44,19 @@ func main() {
 	}
 	defer pool.Close()
 
-
+	log.Debug("initializing feature", "feature", "exercises")
 	exercisesRepository := exercises_postgres_repository.NewExercisesRepository(pool)
 	exercisesService := exercises_service.NewExercisesService(exercisesRepository)
 	exercisesTransportHTTP := exercises_transport_http.NewExercisesHTTPHandler(exercisesService)
+
+	log.Debug("initializing feature", "feature", "exercises")
+	workoutsRepository := workouts_postgres_repository.NewWorkoutsRepository(pool)
+	workoutsService := workouts_service.NewWorkoutsService(workoutsRepository)
+	workoutsTransportHTTP := workouts_transport_http.NewWorkoutsHTTPHandler(workoutsService)
 	/*
 
-		
-		WORKOUT FEATURE
+
+		SOME FEATURE
 
 	*/
 
@@ -64,6 +72,7 @@ func main() {
 
 	apiVersionRouterV1 := core_http_server.NewApiVersionRouter(core_http_server.ApiVersion1)
 	apiVersionRouterV1.RegisterRoutes(exercisesTransportHTTP.Routes()...)
+	apiVersionRouterV1.RegisterRoutes(workoutsTransportHTTP.Routes()...)
 
 	httpServer.RegisterRouters(
 		apiVersionRouterV1,
