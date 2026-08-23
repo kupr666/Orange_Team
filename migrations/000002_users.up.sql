@@ -1,5 +1,5 @@
 CREATE TABLE IF NOT EXISTS app.users (
-    id                  UUID       PRIMARY KEY,
+    id                  UUID         PRIMARY KEY,
     version             BIGINT       NOT NULL DEFAULT 1,
     mail                VARCHAR(30)  NOT NULL,
     pass_hash           VARCHAR(255) NOT NULL,

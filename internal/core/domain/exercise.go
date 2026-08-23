@@ -8,7 +8,7 @@ import (
 
 type Exercise struct {
 	ID          uuid.UUID
-	Version     int64
+	Version     int
 	Name        string
 	Description string
 	Difficulty  int
@@ -19,7 +19,7 @@ type Exercise struct {
 
 func NewExercise(
 	id uuid.UUID,
-	version int64,
+	version int,
 	name string,
 	description string,
 	difficulty int,

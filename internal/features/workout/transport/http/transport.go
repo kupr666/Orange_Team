@@ -10,16 +10,27 @@ import (
 )
 
 type WorkoutsService interface {
-	GetWorkouts(
-		ctx context.Context,
-		userID uuid.UUID,
-	) ([]domain.Workout, error)
+	// PostWorkout(
+	// args
+	// ) (retun values)
+
+	// GetWorkouts(
+	// 	ctx context.Context,
+	// 	userID uuid.UUID,
+	// ) ([]domain.Workout, error)
 
 	GetWorkout(
 		ctx context.Context,
-		userID uuid.UUID,
 		workoutID uuid.UUID,
 	) (domain.Workout, error)
+
+	// PatchWorkout(
+	// args
+	// ) (retun values)
+
+	// DeleteWorkout(
+	// args
+	// ) (retun values)
 }
 
 type WorkoutsHTTPHandler struct {
@@ -37,27 +48,27 @@ func (h *WorkoutsHTTPHandler) Routes() []core_http_server.Route {
 		// {
 		// 	Method: http.MethodPost,
 		// 	Path:   "/workouts",
-		// 	// Handler: h.CreateWorkout,
+		// 	Handler: h.CreateWorkout,
+		// },
+		// {
+		// 	Method: http.MethodGet,
+		// 	Path:   "/workouts",
+		// 	// Handler: h.GetWorkouts,
 		// },
 		{
-			Method: http.MethodGet,
-			Path:   "/workouts",
-			// Handler: h.GetWorkouts,
-		},
-		{
-			Method: http.MethodGet,
-			Path:   "/workouts/{workoutId}",
-			// Handler: h.GetWorkout,
+			Method:  http.MethodGet,
+			Path:    "/workouts/{workoutId}",
+			Handler: h.GetWorkout,
 		},
 		// {
 		// 	Method: http.MethodPatch,
 		// 	Path:   "/workouts/{workoutId}",
-		// 	// Handler: h.PatchWorkout,
+		// 	Handler: h.PatchWorkout,
 		// },
 		// {
 		// 	Method: http.MethodDelete,
 		// 	Path:   "/workouts/{workoutId}",
-		// 	// Handler: h.DeleteWorkout,
+		// 	Handler: h.DeleteWorkout,
 		// },
 	}
 }
