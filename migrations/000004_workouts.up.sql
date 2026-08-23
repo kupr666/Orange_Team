@@ -1,15 +1,15 @@
 CREATE TABLE IF NOT EXISTS app.workouts (
-    id                          SERIAL        PRIMARY KEY,
+    id                          UUID          PRIMARY KEY,
     version                     BIGINT        NOT NULL DEFAULT 1,
-    user_id                     INTEGER       NOT NULL REFERENCES app.users (id) ON DELETE CASCADE,
+    user_id                     UUID          NOT NULL REFERENCES app.users (id) ON DELETE CASCADE,
     status                      VARCHAR(20)   NOT NULL,
     started_at                  TIMESTAMPTZ,
     completed_at                TIMESTAMPTZ,
     created_at                  TIMESTAMPTZ   NOT NULL,
     updated_at                  TIMESTAMPTZ   NOT NULL, -- NOT NULL ?
     workout_score               INTEGER       NOT NULL DEFAULT 0,
-    intensity                   SMALLINT, -- NOT NULL
-    personal_score_coefficient  SMALLINT NOT NULL
+    intensity                   SMALLINT,
+    personal_score_coefficient  SMALLINT      NOT NULL
 );
 
 ALTER TABLE app.workouts ADD CONSTRAINT workouts_status_check CHECK (status IN ('planned', 'in_progress', 'completed', 'cancelled'));
