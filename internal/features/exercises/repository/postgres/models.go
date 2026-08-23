@@ -3,11 +3,12 @@ package exercises_postgres_repository
 import (
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/kupr666/Orange_Team/internal/core/domain"
 )
 
 type ExerciseModel struct {
-	ID          int
+	ID          uuid.UUID
 	Version     int64
 	Name        string
 	Description string

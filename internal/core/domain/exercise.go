@@ -2,10 +2,12 @@ package domain
 
 import (
 	"time"
+
+	"github.com/google/uuid"
 )
 
 type Exercise struct {
-	ID          int
+	ID          uuid.UUID
 	Version     int64
 	Name        string
 	Description string
@@ -16,7 +18,7 @@ type Exercise struct {
 }
 
 func NewExercise(
-	id int,
+	id uuid.UUID,
 	version int64,
 	name string,
 	description string,

@@ -4,13 +4,14 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/kupr666/Orange_Team/internal/core/domain"
 	core_logger "github.com/kupr666/Orange_Team/internal/core/logger"
 	core_http_response "github.com/kupr666/Orange_Team/internal/core/transport/http/response"
 )
 
 type ExerciseResponseDTO struct {
-	ID          int        `json:"id"`
+	ID          uuid.UUID        `json:"id"`
 	Version     int64      `json:"version"`
 	Name        string     `json:"name"`
 	Description string     `json:"description"`

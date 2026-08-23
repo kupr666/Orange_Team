@@ -6,9 +6,9 @@ CREATE TABLE IF NOT EXISTS app.workouts (
     started_at                  TIMESTAMPTZ,
     completed_at                TIMESTAMPTZ,
     created_at                  TIMESTAMPTZ   NOT NULL,
-    updated_at                  TIMESTAMPTZ   NOT NULL,
+    updated_at                  TIMESTAMPTZ   NOT NULL, -- NOT NULL ?
     workout_score               INTEGER       NOT NULL DEFAULT 0,
-    intensity                   SMALLINT,
+    intensity                   SMALLINT, -- NOT NULL
     personal_score_coefficient  SMALLINT NOT NULL
 );
 
