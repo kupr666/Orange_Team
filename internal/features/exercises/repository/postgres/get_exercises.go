@@ -59,7 +59,7 @@ func (r *ExercisesRepository) GetExercises(
 		return nil, fmt.Errorf("next rows: %w", err)
 	}
 
-	exercisesDomains := exerciseDomainsFromModels(exercisesModels)
+	exercisesDomains := domainsFromModels(exercisesModels)
 
 	return exercisesDomains, nil
 }

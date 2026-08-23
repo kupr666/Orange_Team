@@ -11,7 +11,7 @@ import (
 )
 
 type ExerciseResponseDTO struct {
-	ID          uuid.UUID        `json:"id"`
+	ID          uuid.UUID  `json:"id"`
 	Version     int64      `json:"version"`
 	Name        string     `json:"name"`
 	Description string     `json:"description"`
