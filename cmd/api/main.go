@@ -14,9 +14,9 @@ import (
 	exercises_postgres_repository "github.com/kupr666/Orange_Team/internal/features/exercises/repository/postgres"
 	exercises_service "github.com/kupr666/Orange_Team/internal/features/exercises/service"
 	exercises_transport_http "github.com/kupr666/Orange_Team/internal/features/exercises/transport/http"
-	workouts_postgres_repository "github.com/kupr666/Orange_Team/internal/features/workout/repository/postgres"
-	workouts_service "github.com/kupr666/Orange_Team/internal/features/workout/service"
-	workouts_transport_http "github.com/kupr666/Orange_Team/internal/features/workout/transport/http"
+	workouts_postgres_repository "github.com/kupr666/Orange_Team/internal/features/workouts/repository/postgres"
+	workouts_service "github.com/kupr666/Orange_Team/internal/features/workouts/service"
+	workouts_transport_http "github.com/kupr666/Orange_Team/internal/features/workouts/transport/http"
 )
 
 func main() {
