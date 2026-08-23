@@ -14,10 +14,10 @@ type WorkoutsService interface {
 	// args
 	// ) (retun values)
 
-	// GetWorkouts(
-	// 	ctx context.Context,
-	// 	userID uuid.UUID,
-	// ) ([]domain.Workout, error)
+	GetWorkouts(
+		ctx context.Context,
+		userID uuid.UUID,
+	) ([]domain.Workout, error)
 
 	GetWorkout(
 		ctx context.Context,
@@ -50,11 +50,11 @@ func (h *WorkoutsHTTPHandler) Routes() []core_http_server.Route {
 		// 	Path:   "/workouts",
 		// 	Handler: h.CreateWorkout,
 		// },
-		// {
-		// 	Method: http.MethodGet,
-		// 	Path:   "/workouts",
-		// 	// Handler: h.GetWorkouts,
-		// },
+		{
+			Method: http.MethodGet,
+			Path:   "/workouts",
+			Handler: h.GetWorkouts,
+		},
 		{
 			Method:  http.MethodGet,
 			Path:    "/workouts/{workoutId}",

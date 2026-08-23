@@ -16,10 +16,10 @@ type WorkoutsRepository interface {
 	// args
 	// ) (retun values)
 
-	// GetWorkouts(
-	// 	ctx context.Context,
-	// 	userID uuid.UUID,
-	// ) ([]domain.Workout, error)
+	GetWorkouts(
+		ctx context.Context,
+		userID uuid.UUID,
+	) ([]domain.Workout, error)
 
 	GetWorkout(
 		ctx context.Context,
