@@ -7,9 +7,9 @@ import (
 
 func (s *WorkoutsService) DeleteWorkout(
 	ctx context.Context,
-	id int,
+	workoutID int,
 ) error {
-    if err := s.workoutsRepository.DeleteWorkout(ctx, id); err != nil {
+    if err := s.workoutsRepository.DeleteWorkout(ctx, workoutID); err != nil {
 		return fmt.Errorf("delete workout from repository: %w", err)
 	}
 
