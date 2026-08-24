@@ -1,0 +1,200 @@
+{
+  "info": {
+    "name": "Workouts API - Full Test with Updated Logic",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "0. GET all workouts (initial state)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:5050/api/v1/workouts",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "5050",
+          "path": ["api", "v1", "workouts"]
+        }
+      }
+    },
+    {
+      "name": "1. PATCH: planned → in_progress (success)",
+      "request": {
+        "method": "PATCH",
+        "header": [{"key": "Content-Type", "value": "application/json"}],
+        "body": {"mode": "raw", "raw": "{\"status\": \"in_progress\"}"},
+        "url": {"raw": "http://localhost:5050/api/v1/workouts/10000000-0000-0000-0000-000000000001", "protocol": "http", "host": ["localhost"], "port": "5050", "path": ["api", "v1", "workouts", "10000000-0000-0000-0000-000000000001"]}
+      }
+    },
+    {
+      "name": "2. GET after planned→in_progress",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {"raw": "http://localhost:5050/api/v1/workouts/10000000-0000-0000-0000-000000000001", "protocol": "http", "host": ["localhost"], "port": "5050", "path": ["api", "v1", "workouts", "10000000-0000-0000-0000-000000000001"]}
+      }
+    },
+    {
+      "name": "3. PATCH: planned → cancelled (success)",
+      "request": {
+        "method": "PATCH",
+        "header": [{"key": "Content-Type", "value": "application/json"}],
+        "body": {"mode": "raw", "raw": "{\"status\": \"cancelled\"}"},
+        "url": {"raw": "http://localhost:5050/api/v1/workouts/10000000-0000-0000-0000-000000000002", "protocol": "http", "host": ["localhost"], "port": "5050", "path": ["api", "v1", "workouts", "10000000-0000-0000-0000-000000000002"]}
+      }
+    },
+    {
+      "name": "4. GET after planned→cancelled",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {"raw": "http://localhost:5050/api/v1/workouts/10000000-0000-0000-0000-000000000002", "protocol": "http", "host": ["localhost"], "port": "5050", "path": ["api", "v1", "workouts", "10000000-0000-0000-0000-000000000002"]}
+      }
+    },
+    {
+      "name": "5. PATCH: in_progress → completed with intensity 9 (success)",
+      "request": {
+        "method": "PATCH",
+        "header": [{"key": "Content-Type", "value": "application/json"}],
+        "body": {"mode": "raw", "raw": "{\"status\": \"completed\", \"intensity\": 9}"},
+        "url": {"raw": "http://localhost:5050/api/v1/workouts/10000000-0000-0000-0000-000000000003", "protocol": "http", "host": ["localhost"], "port": "5050", "path": ["api", "v1", "workouts", "10000000-0000-0000-0000-000000000003"]}
+      }
+    },
+    {
+      "name": "6. GET after in_progress→completed",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {"raw": "http://localhost:5050/api/v1/workouts/10000000-0000-0000-0000-000000000003", "protocol": "http", "host": ["localhost"], "port": "5050", "path": ["api", "v1", "workouts", "10000000-0000-0000-0000-000000000003"]}
+      }
+    },
+    {
+      "name": "7. PATCH: in_progress → completed without intensity (should fail 400)",
+      "request": {
+        "method": "PATCH",
+        "header": [{"key": "Content-Type", "value": "application/json"}],
+        "body": {"mode": "raw", "raw": "{\"status\": \"completed\"}"},
+        "url": {"raw": "http://localhost:5050/api/v1/workouts/10000000-0000-0000-0000-000000000004", "protocol": "http", "host": ["localhost"], "port": "5050", "path": ["api", "v1", "workouts", "10000000-0000-0000-0000-000000000004"]}
+      }
+    },
+    {
+      "name": "8. GET after failed completed without intensity (should remain in_progress)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {"raw": "http://localhost:5050/api/v1/workouts/10000000-0000-0000-0000-000000000004", "protocol": "http", "host": ["localhost"], "port": "5050", "path": ["api", "v1", "workouts", "10000000-0000-0000-0000-000000000004"]}
+      }
+    },
+    {
+      "name": "9. PATCH: set intensity on in_progress (should fail 400)",
+      "request": {
+        "method": "PATCH",
+        "header": [{"key": "Content-Type", "value": "application/json"}],
+        "body": {"mode": "raw", "raw": "{\"intensity\": 10}"},
+        "url": {"raw": "http://localhost:5050/api/v1/workouts/10000000-0000-0000-0000-000000000005", "protocol": "http", "host": ["localhost"], "port": "5050", "path": ["api", "v1", "workouts", "10000000-0000-0000-0000-000000000005"]}
+      }
+    },
+    {
+      "name": "10. GET after failed intensity set (should remain without intensity)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {"raw": "http://localhost:5050/api/v1/workouts/10000000-0000-0000-0000-000000000005", "protocol": "http", "host": ["localhost"], "port": "5050", "path": ["api", "v1", "workouts", "10000000-0000-0000-0000-000000000005"]}
+      }
+    },
+    {
+      "name": "11. PATCH: try to change status of completed (should fail 400)",
+      "request": {
+        "method": "PATCH",
+        "header": [{"key": "Content-Type", "value": "application/json"}],
+        "body": {"mode": "raw", "raw": "{\"status\": \"in_progress\"}"},
+        "url": {"raw": "http://localhost:5050/api/v1/workouts/10000000-0000-0000-0000-000000000006", "protocol": "http", "host": ["localhost"], "port": "5050", "path": ["api", "v1", "workouts", "10000000-0000-0000-0000-000000000006"]}
+      }
+    },
+    {
+      "name": "12. GET after failed status change (should remain completed)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {"raw": "http://localhost:5050/api/v1/workouts/10000000-0000-0000-0000-000000000006", "protocol": "http", "host": ["localhost"], "port": "5050", "path": ["api", "v1", "workouts", "10000000-0000-0000-0000-000000000006"]}
+      }
+    },
+    {
+      "name": "13. PATCH: change intensity on completed (success)",
+      "request": {
+        "method": "PATCH",
+        "header": [{"key": "Content-Type", "value": "application/json"}],
+        "body": {"mode": "raw", "raw": "{\"intensity\": 10}"},
+        "url": {"raw": "http://localhost:5050/api/v1/workouts/10000000-0000-0000-0000-000000000006", "protocol": "http", "host": ["localhost"], "port": "5050", "path": ["api", "v1", "workouts", "10000000-0000-0000-0000-000000000006"]}
+      }
+    },
+    {
+      "name": "14. GET after intensity change on completed",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {"raw": "http://localhost:5050/api/v1/workouts/10000000-0000-0000-0000-000000000006", "protocol": "http", "host": ["localhost"], "port": "5050", "path": ["api", "v1", "workouts", "10000000-0000-0000-0000-000000000006"]}
+      }
+    },
+    {
+      "name": "15. PATCH: try to change status of cancelled (should fail 400)",
+      "request": {
+        "method": "PATCH",
+        "header": [{"key": "Content-Type", "value": "application/json"}],
+        "body": {"mode": "raw", "raw": "{\"status\": \"planned\"}"},
+        "url": {"raw": "http://localhost:5050/api/v1/workouts/10000000-0000-0000-0000-000000000007", "protocol": "http", "host": ["localhost"], "port": "5050", "path": ["api", "v1", "workouts", "10000000-0000-0000-0000-000000000007"]}
+      }
+    },
+    {
+      "name": "16. GET after failed status change (should remain cancelled)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {"raw": "http://localhost:5050/api/v1/workouts/10000000-0000-0000-0000-000000000007", "protocol": "http", "host": ["localhost"], "port": "5050", "path": ["api", "v1", "workouts", "10000000-0000-0000-0000-000000000007"]}
+      }
+    },
+    {
+      "name": "17. PATCH: try to change date on cancelled (should fail 400)",
+      "request": {
+        "method": "PATCH",
+        "header": [{"key": "Content-Type", "value": "application/json"}],
+        "body": {"mode": "raw", "raw": "{\"started_at\": \"2026-08-25T10:00:00Z\"}"},
+        "url": {"raw": "http://localhost:5050/api/v1/workouts/10000000-0000-0000-0000-000000000007", "protocol": "http", "host": ["localhost"], "port": "5050", "path": ["api", "v1", "workouts", "10000000-0000-0000-0000-000000000007"]}
+      }
+    },
+    {
+      "name": "18. GET after failed date change (should remain cancelled)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {"raw": "http://localhost:5050/api/v1/workouts/10000000-0000-0000-0000-000000000007", "protocol": "http", "host": ["localhost"], "port": "5050", "path": ["api", "v1", "workouts", "10000000-0000-0000-0000-000000000007"]}
+      }
+    },
+    {
+      "name": "19. PATCH: change started_at on in_progress (success)",
+      "request": {
+        "method": "PATCH",
+        "header": [{"key": "Content-Type", "value": "application/json"}],
+        "body": {"mode": "raw", "raw": "{\"started_at\": \"2026-08-25T08:00:00Z\"}"},
+        "url": {"raw": "http://localhost:5050/api/v1/workouts/10000000-0000-0000-0000-000000000008", "protocol": "http", "host": ["localhost"], "port": "5050", "path": ["api", "v1", "workouts", "10000000-0000-0000-0000-000000000008"]}
+      }
+    },
+    {
+      "name": "20. GET after started_at change",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {"raw": "http://localhost:5050/api/v1/workouts/10000000-0000-0000-0000-000000000008", "protocol": "http", "host": ["localhost"], "port": "5050", "path": ["api", "v1", "workouts", "10000000-0000-0000-0000-000000000008"]}
+      }
+    },
+    {
+      "name": "21. GET all workouts (final state)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {"raw": "http://localhost:5050/api/v1/workouts", "protocol": "http", "host": ["localhost"], "port": "5050", "path": ["api", "v1", "workouts"]}
+      }
+    }
+  ]
+}
