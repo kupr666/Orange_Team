@@ -13,7 +13,7 @@ func (h *WorkoutsHTTPHandler) DeleteWorkout(rw http.ResponseWriter, r *http.Requ
 	log := core_logger.FromContext(ctx)
 	responseHandler := core_http_response.NewHTTPResponseHandler(log, rw)
 
-	workoutID, err := core_http_request.GetIntPathValue(r, "id")
+	workoutID, err := core_http_request.GetUUIDPathValue(r, "workoutId")
 	if err != nil {
 		responseHandler.ErrorResponse(
 			err,

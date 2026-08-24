@@ -26,7 +26,7 @@ type WorkoutsService interface {
 
 	DeleteWorkout(
 		ctx context.Context,
-		workoutID int,
+		workoutID uuid.UUID,
 	) error
 
 	// PatchWorkout(
@@ -56,8 +56,8 @@ func (h *WorkoutsHTTPHandler) Routes() []core_http_server.Route {
 		// 	Handler: h.CreateWorkout,
 		// },
 		{
-			Method: http.MethodGet,
-			Path:   "/workouts",
+			Method:  http.MethodGet,
+			Path:    "/workouts",
 			Handler: h.GetWorkouts,
 		},
 		{
@@ -65,16 +65,16 @@ func (h *WorkoutsHTTPHandler) Routes() []core_http_server.Route {
 			Path:    "/workouts/{workoutId}",
 			Handler: h.GetWorkout,
 		},
-		
+
 		// {
 		// 	Method: http.MethodPatch,
 		// 	Path:   "/workouts/{workoutId}",
 		// 	Handler: h.PatchWorkout,
 		// },
 		{
-		    Method: http.MethodDelete,
-		 	Path:   "/workouts/{workoutId}",
-		 	Handler: h.DeleteWorkout,
-	    },
+			Method:  http.MethodDelete,
+			Path:    "/workouts/{workoutId}",
+			Handler: h.DeleteWorkout,
+		},
 	}
 }

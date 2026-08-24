@@ -28,7 +28,7 @@ type WorkoutsRepository interface {
 
 	DeleteWorkout(
 		ctx context.Context,
-		workoutID int,
+		workoutID uuid.UUID,
 	) error
 
 	// PatchWorkout(
