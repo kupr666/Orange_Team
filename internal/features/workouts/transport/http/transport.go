@@ -6,6 +6,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/kupr666/Orange_Team/internal/core/domain"
+	core_http_middleware "github.com/kupr666/Orange_Team/internal/core/transport/http/middleware"
 	core_http_server "github.com/kupr666/Orange_Team/internal/core/transport/http/server"
 )
 
@@ -24,6 +25,16 @@ type WorkoutsService interface {
 		workoutID uuid.UUID,
 	) (domain.Workout, error)
 
+	CreateExercise(
+		ctx context.Context,
+		userID uuid.UUID,
+		workoutID uuid.UUID,
+		exerciseID uuid.UUID,
+		weight *int,
+		sets *int,
+		reps *int,
+		duration *int,
+	) (domain.CreatedExercise, error)
 	// PatchWorkout(
 	// args
 	// ) (retun values)
@@ -43,7 +54,9 @@ func NewWorkoutsHTTPHandler(workoutsService WorkoutsService) *WorkoutsHTTPHandle
 	}
 }
 
-func (h *WorkoutsHTTPHandler) Routes() []core_http_server.Route {
+func (h *WorkoutsHTTPHandler) Routes(
+	authMiddleware core_http_middleware.Middleware,
+) []core_http_server.Route {
 	return []core_http_server.Route{
 		// {
 		// 	Method: http.MethodPost,
@@ -51,8 +64,8 @@ func (h *WorkoutsHTTPHandler) Routes() []core_http_server.Route {
 		// 	Handler: h.CreateWorkout,
 		// },
 		{
-			Method: http.MethodGet,
-			Path:   "/workouts",
+			Method:  http.MethodGet,
+			Path:    "/workouts",
 			Handler: h.GetWorkouts,
 		},
 		{
@@ -60,6 +73,13 @@ func (h *WorkoutsHTTPHandler) Routes() []core_http_server.Route {
 			Path:    "/workouts/{workoutId}",
 			Handler: h.GetWorkout,
 		},
+		{
+			Method:     http.MethodPost,
+			Path:       "/workouts/{workoutId}/exercises",
+			Handler:    h.CreateExercise,
+			Middleware: []core_http_middleware.Middleware{authMiddleware},
+		},
+
 		// {
 		// 	Method: http.MethodPatch,
 		// 	Path:   "/workouts/{workoutId}",

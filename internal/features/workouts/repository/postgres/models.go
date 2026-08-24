@@ -23,6 +23,21 @@ type WorkoutModel struct {
 	PersonalScoreCoefficient int
 }
 
+type CreatedExerciseModel struct {
+	ID           uuid.UUID
+	Version      int
+	ExerciseID   uuid.UUID
+	WorkoutID    uuid.UUID
+	Weight       *int
+	Sets         *int
+	Reps         *int
+	Duration     *int
+	CreatedAt    time.Time
+	UpdatedAt    *time.Time
+	Completed    bool
+	ExerciseLoad int
+}
+
 func (m *WorkoutModel) Scan(row core_postgres_pool.Row) error {
 	return row.Scan(
 		&m.ID,
@@ -39,6 +54,23 @@ func (m *WorkoutModel) Scan(row core_postgres_pool.Row) error {
 	)
 }
 
+func (m *CreatedExerciseModel) Scan(row core_postgres_pool.Row) error {
+	return row.Scan(
+		&m.ID,
+		&m.Version,
+		&m.ExerciseID,
+		&m.WorkoutID,
+		&m.Weight,
+		&m.Sets,
+		&m.Reps,
+		&m.Duration,
+		&m.CreatedAt,
+		&m.UpdatedAt,
+		&m.Completed,
+		&m.ExerciseLoad,
+	)
+}
+
 func domainFromModel(model WorkoutModel) domain.Workout {
 	return domain.NewWorkout(
 		model.ID,
@@ -52,6 +84,25 @@ func domainFromModel(model WorkoutModel) domain.Workout {
 		model.WorkoutScore,
 		model.Intensity,
 		model.PersonalScoreCoefficient,
+	)
+}
+
+func createdExerciseDomainFromModel(
+	model CreatedExerciseModel,
+) domain.CreatedExercise {
+	return domain.NewCreatedExercise(
+		model.ID,
+		model.Version,
+		model.ExerciseID,
+		model.WorkoutID,
+		model.Weight,
+		model.Sets,
+		model.Reps,
+		model.Duration,
+		model.CreatedAt,
+		model.UpdatedAt,
+		model.Completed,
+		model.ExerciseLoad,
 	)
 }
 

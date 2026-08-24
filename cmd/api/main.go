@@ -69,10 +69,16 @@ func main() {
 		core_http_middleware.Trace(),
 		core_http_middleware.Panic(),
 	)
+	jwtSecret, ok := os.LookupEnv("JWT_SECRET")
+	if !ok || jwtSecret == "" {
+		log.Error("JWT_SECRET is required")
+		os.Exit(1)
+	}
 
+	authMiddleware := core_http_middleware.JWT(jwtSecret)
 	apiVersionRouterV1 := core_http_server.NewApiVersionRouter(core_http_server.ApiVersion1)
 	apiVersionRouterV1.RegisterRoutes(exercisesTransportHTTP.Routes()...)
-	apiVersionRouterV1.RegisterRoutes(workoutsTransportHTTP.Routes()...)
+	apiVersionRouterV1.RegisterRoutes(workoutsTransportHTTP.Routes(authMiddleware)...)
 
 	httpServer.RegisterRouters(
 		apiVersionRouterV1,

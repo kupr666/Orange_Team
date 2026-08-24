@@ -46,3 +46,37 @@ func workoutDTOsFromDomains(workouts []domain.Workout) []WorkoutDTOResponse {
 
 	return workoutDTO
 }
+
+type CreatedExerciseDTOResponse struct {
+	ID           uuid.UUID  `json:"id"`
+	Version      int        `json:"version"`
+	ExerciseID   uuid.UUID  `json:"exercise_id"`
+	WorkoutID    uuid.UUID  `json:"workout_id"`
+	Weight       *int       `json:"weight"`
+	Sets         *int       `json:"sets"`
+	Reps         *int       `json:"reps"`
+	Duration     *int       `json:"duration"`
+	CreatedAt    time.Time  `json:"created_at"`
+	UpdatedAt    *time.Time `json:"updated_at"`
+	Completed    bool       `json:"completed"`
+	ExerciseLoad int        `json:"exercise_load"`
+}
+
+func createdExerciseDTOFromDomain(
+	exercise domain.CreatedExercise,
+) CreatedExerciseDTOResponse {
+	return CreatedExerciseDTOResponse{
+		ID:           exercise.ID,
+		Version:      exercise.Version,
+		ExerciseID:   exercise.ExerciseID,
+		WorkoutID:    exercise.WorkoutID,
+		Weight:       exercise.Weight,
+		Sets:         exercise.Sets,
+		Reps:         exercise.Reps,
+		Duration:     exercise.Duration,
+		CreatedAt:    exercise.CreatedAt,
+		UpdatedAt:    exercise.UpdatedAt,
+		Completed:    exercise.Completed,
+		ExerciseLoad: exercise.ExerciseLoad,
+	}
+}
