@@ -26,6 +26,11 @@ type WorkoutsRepository interface {
 		workoutID uuid.UUID,
 	) (domain.Workout, error)
 
+	DeleteWorkout(
+		ctx context.Context,
+		id int,
+	) error
+
 	// PatchWorkout(
 	// args
 	// ) (retun values)
