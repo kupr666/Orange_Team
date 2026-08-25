@@ -104,11 +104,11 @@ func (h *WorkoutsHTTPHandler) PatchWorkout(w http.ResponseWriter, r *http.Reques
 }
 
 func workoutPatchFromRequest(request PatchWorkoutRequest) (domain.WorkoutPatch, error) {
-	startedAt, err := toDomainNullableTime(request.StartedAt)
+	startedAt, err := core_http_request.ToDomainNullableTime(request.StartedAt)
 	if err != nil {
 		return domain.WorkoutPatch{}, fmt.Errorf("parse started_at: %w", err)
 	}
-	completedAt, err := toDomainNullableTime(request.CompletedAt)
+	completedAt, err := core_http_request.ToDomainNullableTime(request.CompletedAt)
 	if err != nil {
 		return domain.WorkoutPatch{}, fmt.Errorf("parse completed_at: %w", err)
 	}
@@ -119,18 +119,4 @@ func workoutPatchFromRequest(request PatchWorkoutRequest) (domain.WorkoutPatch, 
 		completedAt,
 		request.Intensity.ToDomain(),
 	), nil
-}
-
-func toDomainNullableTime(nullable core_http_types.Nullable[string]) (domain.Nullable[time.Time], error) {
-	if !nullable.Set {
-		return domain.Nullable[time.Time]{Set: false}, nil
-	}
-	if nullable.Value == nil {
-		return domain.Nullable[time.Time]{Value: nil, Set: true}, nil
-	}
-	t, err := time.Parse(time.RFC3339, *nullable.Value)
-	if err != nil {
-		return domain.Nullable[time.Time]{}, fmt.Errorf("invalid RFC3339 time: %w", err)
-	}
-	return domain.Nullable[time.Time]{Value: &t, Set: true}, nil
 }
