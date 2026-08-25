@@ -16,9 +16,10 @@ type WorkoutsService struct {
 }
 
 type WorkoutsRepository interface {
-	// PostWorkout(
-	// args
-	// ) (retun values)
+	CreateWorkout(
+		ctx context.Context,
+		userID uuid.UUID,
+	) (domain.Workout, error)
 
 	GetWorkouts(
 		ctx context.Context,
