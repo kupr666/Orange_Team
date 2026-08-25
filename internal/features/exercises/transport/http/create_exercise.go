@@ -15,6 +15,8 @@ type CreateExerciseRequest struct {
 	Type        string `json:"type"`
 }
 
+type CreateExerciseResponse ExerciseDTOResponse
+
 func (h *ExercisesHTTPHandler) CreateExercise(rw http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	log := core_logger.FromContext(ctx)
@@ -46,7 +48,7 @@ func (h *ExercisesHTTPHandler) CreateExercise(rw http.ResponseWriter, r *http.Re
 		return
 	}
 
-	response := exerciseDTOFromDomain(exerciseDomain)
+	response := CreateExerciseResponse(exerciseDTOFromDomain(exerciseDomain))
 
 	responseHandler.JSONResponse(response, http.StatusCreated)
 }

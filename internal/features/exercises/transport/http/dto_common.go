@@ -30,3 +30,13 @@ func exerciseDTOFromDomain(exercise domain.Exercise) ExerciseDTOResponse {
 		Type:        exercise.Type,
 	}
 }
+
+func exercisesDTOFromDomain(exercises []domain.Exercise) []ExerciseDTOResponse {
+	exercisesDTO := make([]ExerciseDTOResponse, len(exercises))
+
+	for i, exercise := range exercises {
+		exercisesDTO[i] = exerciseDTOFromDomain(exercise)
+	}
+
+	return exercisesDTO
+}
