@@ -12,6 +12,13 @@ type ExercisesService interface {
 	GetExercises(
 		ctx context.Context,
 	) ([]domain.Exercise, error)
+	CreateExercise(
+		ctx context.Context,
+		name string,
+		description string,
+		difficulty int,
+		exerciseType string,
+	) (domain.Exercise, error)
 }
 
 type ExercisesHTTPHandler struct {
@@ -30,6 +37,11 @@ func (h *ExercisesHTTPHandler) Routes() []core_http_server.Route {
 			Method:  http.MethodGet,
 			Path:    "/exercises",
 			Handler: h.GetExercises,
+		},
+		{
+			Method:  http.MethodPost,
+			Path:    "/exercises",
+			Handler: h.CreateExercise,
 		},
 	}
 }
