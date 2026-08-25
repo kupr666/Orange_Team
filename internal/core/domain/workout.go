@@ -8,6 +8,20 @@ import (
 	core_errors "github.com/kupr666/Orange_Team/internal/core/errors"
 )
 
+const (
+	StatusPlanned    = "planned"
+	StatusInProgress = "in_progress"
+	StatusCompleted  = "completed"
+	StatusCancelled  = "cancelled"
+)
+
+var AllowedStatuses = map[string]bool{
+	StatusPlanned:    true,
+	StatusInProgress: true,
+	StatusCompleted:  true,
+	StatusCancelled:  true,
+}
+
 type Workout struct {
 	ID                       uuid.UUID
 	Version                  int
@@ -51,44 +65,69 @@ func NewWorkout(
 }
 
 func (w *Workout) Validate() error {
-	allowed := map[string]bool{
-		"planned": true, "in_progress": true,
-		"completed": true, "cancelled": true,
-	}
-	if !allowed[w.Status] {
-		return fmt.Errorf("invalid status: %s: %w", w.Status, core_errors.ErrInvalidArgument)
+
+	if !AllowedStatuses[w.Status] {
+		return fmt.Errorf(
+			"invalid status: %s: %w",
+			w.Status,
+			core_errors.ErrInvalidArgument,
+		)
 	}
 
 	switch w.Status {
-	case "planned":
+	case StatusPlanned:
 		if w.StartedAt != nil || w.CompletedAt != nil {
-			return fmt.Errorf("planned workout must have started_at and completed_at NULL: %w", core_errors.ErrInvalidArgument)
+			return fmt.Errorf(
+				"planned workout must have started_at and completed_at NULL: %w",
+				core_errors.ErrInvalidArgument,
+			)
 		}
-	case "in_progress":
+	case StatusInProgress:
 		if w.StartedAt == nil || w.CompletedAt != nil {
-			return fmt.Errorf("in_progress workout must have started_at not NULL and completed_at NULL: %w", core_errors.ErrInvalidArgument)
+			return fmt.Errorf(
+				"in_progress workout must have started_at not NULL and completed_at NULL: %w",
+				core_errors.ErrInvalidArgument,
+			)
 		}
-	case "completed":
+	case StatusCompleted:
 		if w.StartedAt == nil || w.CompletedAt == nil {
-			return fmt.Errorf("completed workout must have started_at and completed_at not NULL: %w", core_errors.ErrInvalidArgument)
+			return fmt.Errorf(
+				"completed workout must have started_at and completed_at not NULL: %w",
+				core_errors.ErrInvalidArgument,
+			)
 		}
 		if w.CompletedAt.Before(*w.StartedAt) {
-			return fmt.Errorf("completed_at must be after started_at: %w", core_errors.ErrInvalidArgument)
+			return fmt.Errorf(
+				"completed_at must be after started_at: %w",
+				core_errors.ErrInvalidArgument,
+			)
 		}
 		if w.Intensity == nil {
-			return fmt.Errorf("completed workout must have intensity set: %w", core_errors.ErrInvalidArgument)
+			return fmt.Errorf(
+				"completed workout must have intensity set: %w",
+				core_errors.ErrInvalidArgument,
+			)
 		}
 		if *w.Intensity < 1 || *w.Intensity > 10 {
-			return fmt.Errorf("intensity must be between 1 and 10: %w", core_errors.ErrInvalidArgument)
+			return fmt.Errorf(
+				"intensity must be between 1 and 10: %w",
+				core_errors.ErrInvalidArgument,
+			)
 		}
-	case "cancelled":
+	case StatusCancelled:
 		if w.CompletedAt != nil {
-			return fmt.Errorf("cancelled workout must have completed_at NULL: %w", core_errors.ErrInvalidArgument)
+			return fmt.Errorf(
+				"cancelled workout must have completed_at NULL: %w",
+				core_errors.ErrInvalidArgument,
+			)
 		}
 	}
 
-	if w.Intensity != nil && (*w.Intensity < 1 || *w.Intensity > 10) {
-		return fmt.Errorf("intensity must be between 1 and 10: %w", core_errors.ErrInvalidArgument)
+	if w.Intensity != nil && w.Status != StatusCompleted {
+		return fmt.Errorf(
+			"intensity can only be set for completed workouts: %w",
+			core_errors.ErrInvalidArgument,
+		)
 	}
 
 	return nil
@@ -139,7 +178,16 @@ func (w *Workout) ApplyPatch(patch WorkoutPatch) error {
 		newStatus = *patch.Status.Value
 	}
 
-	if tmp.Status == "cancelled" {
+	if patch.Status.Set && newStatus == StatusCancelled {
+		if patch.StartedAt.Set || patch.CompletedAt.Set {
+			return fmt.Errorf(
+				"cannot change dates when cancelling workout: %w",
+				core_errors.ErrInvalidArgument,
+			)
+		}
+	}
+
+	if tmp.Status == StatusCancelled {
 		if patch.Status.Set || patch.StartedAt.Set || patch.CompletedAt.Set || patch.Intensity.Set {
 			return fmt.Errorf(
 				"cancelled workout cannot be modified: %w",
@@ -147,7 +195,7 @@ func (w *Workout) ApplyPatch(patch WorkoutPatch) error {
 			)
 		}
 	}
-	if tmp.Status == "completed" {
+	if tmp.Status == StatusCompleted {
 		if patch.Status.Set || patch.StartedAt.Set || patch.CompletedAt.Set {
 			return fmt.Errorf(
 				"completed workout cannot change status or dates: %w",
@@ -163,7 +211,7 @@ func (w *Workout) ApplyPatch(patch WorkoutPatch) error {
 	}
 
 	if patch.Status.Set {
-		if tmp.Status == "completed" || tmp.Status == "cancelled" {
+		if tmp.Status == StatusCompleted || tmp.Status == StatusCancelled {
 			return fmt.Errorf(
 				"cannot change status from terminal status %s: %w",
 				tmp.Status,
@@ -171,15 +219,15 @@ func (w *Workout) ApplyPatch(patch WorkoutPatch) error {
 			)
 		}
 		switch tmp.Status {
-		case "planned":
-			if newStatus != "in_progress" && newStatus != "cancelled" {
+		case StatusPlanned:
+			if newStatus != StatusInProgress && newStatus != StatusCancelled {
 				return fmt.Errorf(
 					"from planned can only go to in_progress or cancelled: %w",
 					core_errors.ErrInvalidArgument,
 				)
 			}
-		case "in_progress":
-			if newStatus != "completed" {
+		case StatusInProgress:
+			if newStatus != StatusCompleted {
 				return fmt.Errorf(
 					"from in_progress can only go to completed: %w",
 					core_errors.ErrInvalidArgument,
@@ -189,20 +237,20 @@ func (w *Workout) ApplyPatch(patch WorkoutPatch) error {
 	}
 
 	if patch.Intensity.Set {
-		if newStatus != "completed" && tmp.Status != "completed" {
+		if newStatus != StatusCompleted && tmp.Status != StatusCompleted {
 			return fmt.Errorf(
 				"intensity can only be set for completed workouts: %w",
 				core_errors.ErrInvalidArgument,
 			)
 		}
-		if patch.Status.Set && newStatus == "completed" && patch.Intensity.Value == nil {
+		if patch.Status.Set && newStatus == StatusCompleted && patch.Intensity.Value == nil {
 			return fmt.Errorf(
 				"intensity is required when moving to completed: %w",
 				core_errors.ErrInvalidArgument,
 			)
 		}
 	} else {
-		if patch.Status.Set && newStatus == "completed" {
+		if patch.Status.Set && newStatus == StatusCompleted {
 			return fmt.Errorf(
 				"intensity is required when moving to completed: %w",
 				core_errors.ErrInvalidArgument,
@@ -225,12 +273,12 @@ func (w *Workout) ApplyPatch(patch WorkoutPatch) error {
 
 	if patch.Status.Set {
 		switch tmp.Status {
-		case "in_progress":
+		case StatusInProgress:
 			if tmp.StartedAt == nil {
 				now := time.Now()
 				tmp.StartedAt = &now
 			}
-		case "completed":
+		case StatusCompleted:
 			if tmp.CompletedAt == nil {
 				now := time.Now()
 				tmp.CompletedAt = &now

@@ -29,11 +29,8 @@ func (r *PatchWorkoutRequest) Validate() error {
 			return fmt.Errorf("`Status` cannot be NULL")
 		}
 		status := *r.Status.Value
-		allowed := map[string]bool{
-			"planned": true, "in_progress": true,
-			"completed": true, "cancelled": true,
-		}
-		if !allowed[status] {
+
+		if !domain.AllowedStatuses[status] {
 			return fmt.Errorf("`Status` must be one of: planned, in_progress, completed, cancelled")
 		}
 	}
