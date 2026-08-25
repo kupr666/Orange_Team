@@ -1,4 +1,4 @@
-package auth_transport_http
+package authentication_transport_http
 
 import (
 	"context"
@@ -8,7 +8,7 @@ import (
 	core_http_server "github.com/kupr666/Orange_Team/internal/core/transport/http/server"
 )
 
-type AuthService interface {
+type AuthenticationService interface {
 	RegisterUser(
 		ctx context.Context,
 		email string,
@@ -16,26 +16,26 @@ type AuthService interface {
 		fullName string,
 	) (domain.User, error)
 
-	LoginUser(
-		ctx context.Context,
-		email string,
-		password string,
-	) (domain.User, error)
+	// LoginUser(
+	// 	ctx context.Context,
+	// 	email string,
+	// 	password string,
+	// ) (domain.User, error)
 }
 
-type AuthHTTPHandler struct {
-	authService AuthService
+type AuthenticationHTTPHandler struct {
+	authenticationService AuthenticationService
 }
 
-func NewAuthHTTPHandler(
-	authService AuthService,
-) *AuthHTTPHandler {
-	return &AuthHTTPHandler{
-		authService: authService,
+func NewAuthenticationHTTPHandler(
+	authenticationService AuthenticationService,
+) *AuthenticationHTTPHandler {
+	return &AuthenticationHTTPHandler{
+		authenticationService: authenticationService,
 	}
 }
 
-func (h *AuthHTTPHandler) Routes() []core_http_server.Route {
+func (h *AuthenticationHTTPHandler) Routes() []core_http_server.Route {
 	return []core_http_server.Route{
 		{
 			Method:  http.MethodPost,

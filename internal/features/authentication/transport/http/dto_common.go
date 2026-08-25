@@ -1,4 +1,4 @@
-package auth_transport_http
+package authentication_transport_http
 
 import (
 	"time"
@@ -7,11 +7,10 @@ import (
 	"github.com/kupr666/Orange_Team/internal/core/domain"
 )
 
-type UserResponse struct {
+type UserDTOResponse struct {
 	ID               uuid.UUID  `json:"id"`
 	Email            string     `json:"email"`
 	FullName         string     `json:"full_name"`
-	ProfileCompleted bool       `json:"profile_completed"`
 	CreatedAt        time.Time  `json:"created_at"`
 	UpdatedAt        *time.Time `json:"updated_at,omitempty"`
 	UserWorkoutScore int        `json:"user_workout_score"`
@@ -21,13 +20,11 @@ type UserResponse struct {
 	HeightCM         *int       `json:"height_cm,omitempty"`
 }
 
-// userDTOFromDomain преобразует доменную сущность пользователя в DTO.
-func userDTOFromDomain(user domain.User) UserResponse {
-	return UserResponse{
+func userDTOFromDomain(user domain.User) UserDTOResponse {
+	return UserDTOResponse{
 		ID:               user.ID,
 		Email:            user.Email,
 		FullName:         user.FullName,
-		ProfileCompleted: user.ProfileCompleted(),
 		CreatedAt:        user.CreatedAt,
 		UpdatedAt:        user.UpdatedAt,
 		UserWorkoutScore: user.UserWorkoutScore,
@@ -38,11 +35,10 @@ func userDTOFromDomain(user domain.User) UserResponse {
 	}
 }
 
-// userDTOsFromDomains преобразует слайс доменных пользователей в слайс DTO.
-func userDTOsFromDomains(users []domain.User) []UserResponse {
-	dtos := make([]UserResponse, len(users))
-	for i, u := range users {
-		dtos[i] = userDTOFromDomain(u)
+func userDTOsFromDomains(users []domain.User) []UserDTOResponse {
+	userDTO := make([]UserDTOResponse, len(users))
+	for i, user := range users {
+		userDTO[i] = userDTOFromDomain(user)
 	}
-	return dtos
+	return userDTO
 }

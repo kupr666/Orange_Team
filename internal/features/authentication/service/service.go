@@ -1,4 +1,4 @@
-package auth_service
+package authentication_service
 
 import (
 	"context"
@@ -6,21 +6,21 @@ import (
 	"github.com/kupr666/Orange_Team/internal/core/domain"
 )
 
-type AuthService struct {
-	authRepository AuthRepository
+type AuthenticationService struct {
+	authenticationRepository AuthenticationRepository
 }
 
-func NewAuthService(repo AuthRepository) *AuthService {
-	return &AuthService{
-		authRepository: repo,
-	}
-}
-
-type AuthRepository interface {
+type AuthenticationRepository interface {
 	RegisterUser(
 		ctx context.Context,
 		email string,
 		passwordHash string,
 		fullName string,
 	) (domain.User, error)
+}
+
+func NewAuthenticationService(repo AuthenticationRepository) *AuthenticationService {
+	return &AuthenticationService{
+		authenticationRepository: repo,
+	}
 }

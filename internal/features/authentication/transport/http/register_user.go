@@ -1,4 +1,4 @@
-package auth_transport_http
+package authentication_transport_http
 
 import (
 	"net/http"
@@ -17,14 +17,13 @@ type RegisterUserRequestDTO struct {
 }
 
 type RegisterUserResponseDTO struct {
-	ID               uuid.UUID `json:"id"`
-	Email            string    `json:"email"`
-	FullName         string    `json:"full_name"`
-	ProfileCompleted bool      `json:"profile_completed"`
-	CreatedAt        time.Time `json:"created_at"`
+	ID        uuid.UUID `json:"id"`
+	Email     string    `json:"email"`
+	FullName  string    `json:"full_name"`
+	CreatedAt time.Time `json:"created_at"`
 }
 
-func (h *AuthHTTPHandler) RegisterUser(
+func (h *AuthenticationHTTPHandler) RegisterUser(
 	w http.ResponseWriter,
 	r *http.Request,
 ) {
@@ -41,7 +40,7 @@ func (h *AuthHTTPHandler) RegisterUser(
 		return
 	}
 
-	createdUser, err := h.authService.RegisterUser(
+	createdUser, err := h.authenticationService.RegisterUser(
 		ctx,
 		request.Email,
 		request.Password,

@@ -1,4 +1,4 @@
-package auth_postgres_repository
+package authentication_postgres_repository
 
 import (
 	"time"
@@ -9,13 +9,13 @@ import (
 
 type UserModel struct {
 	id               uuid.UUID
-	version          int64
+	version          int
 	mail             string
 	fullName         string
 	createdAt        time.Time
 	updatedAt        *time.Time
 	userWorkoutScore int
-	sex              string
+	sex              *string
 	weightGrams      *int
 	birthDate        *time.Time
 	heightCm         *int

@@ -1,4 +1,4 @@
-package auth_postgres_repository
+package authentication_postgres_repository
 
 import (
 	"context"
@@ -10,7 +10,7 @@ import (
 	core_postgres_pool "github.com/kupr666/Orange_Team/internal/core/repository/postgres/pool"
 )
 
-func (r *AuthRepository) CreateUser(
+func (r *AuthenticationRepository) CreateUser(
 	ctx context.Context,
 	email string,
 	passwordHash string,

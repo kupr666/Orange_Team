@@ -1,4 +1,4 @@
-package auth_service
+package authentication_service
 
 import (
 	"context"
@@ -25,7 +25,7 @@ var emailPattern = regexp.MustCompile(
 	`^[a-z0-9][a-z0-9.]*[a-z0-9]@[a-z0-9.-]+\.[a-z]{2,}$`,
 )
 
-func (s *AuthService) RegisterUser(
+func (s *AuthenticationService) RegisterUser(
 	ctx context.Context,
 	email string,
 	password string,
@@ -52,7 +52,7 @@ func (s *AuthService) RegisterUser(
 		return domain.User{}, fmt.Errorf("hash password: %w", err)
 	}
 
-	createdUser, err := s.authRepository.RegisterUser(
+	createdUser, err := s.authenticationRepository.RegisterUser(
 		ctx,
 		email,
 		string(passwordHash),
