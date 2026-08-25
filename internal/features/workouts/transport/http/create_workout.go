@@ -8,6 +8,8 @@ import (
 	core_http_response "github.com/kupr666/Orange_Team/internal/core/transport/http/response"
 )
 
+type CreateWorkoutResponse WorkoutDTOResponse
+
 func (h *WorkoutsHTTPHandler) CreateWorkout(rw http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	log := core_logger.FromContext(ctx)
@@ -31,7 +33,6 @@ func (h *WorkoutsHTTPHandler) CreateWorkout(rw http.ResponseWriter, r *http.Requ
 		responseHandler.ErrorResponse(err, "failed to create new workout")
 		return
 	}
-	response := workoutDTOFromDomain(createdWorkout)
+	response := WorkoutDTOResponse(workoutDTOFromDomain(createdWorkout))
 	responseHandler.JSONResponse(response, http.StatusCreated)
-
 }
