@@ -15,12 +15,6 @@ type AuthenticationService interface {
 		password string,
 		fullName string,
 	) (domain.User, error)
-
-	// LoginUser(
-	// 	ctx context.Context,
-	// 	email string,
-	// 	password string,
-	// ) (domain.User, error)
 }
 
 type AuthenticationHTTPHandler struct {
@@ -42,10 +36,5 @@ func (h *AuthenticationHTTPHandler) Routes() []core_http_server.Route {
 			Path:    "/register",
 			Handler: h.RegisterUser,
 		},
-		// {
-		// 	Method:  http.MethodPost,
-		// 	Path:    "/login",
-		// 	Handler: h.LoginUser,
-		// },
 	}
 }
