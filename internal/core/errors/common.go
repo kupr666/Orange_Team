@@ -21,4 +21,12 @@ var (
 	// ErrConflict — конфликт при обновлении, обычно из-за конкурентного
 	// изменения той же записи (HTTP 409).
 	ErrConflict = errors.New("conflict")
+
+	// ErrUnauthorized — запрос не содержит корректных данных аутентификации
+	// (HTTP 401).
+	ErrUnauthorized = errors.New("unauthorized")
+
+	// ErrForbidden — пользователь аутентифицирован, но не имеет права выполнить
+	// операцию (HTTP 403).
+	ErrForbidden = errors.New("forbidden")
 )
