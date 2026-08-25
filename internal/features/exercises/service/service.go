@@ -14,6 +14,11 @@ type ExercisesRepository interface {
 	GetExercises(
 		ctx context.Context,
 	) ([]domain.Exercise, error)
+	CreateExercise(
+		ctx context.Context,
+		domain.Exercise,
+
+	)(domain.Exercise,error)
 }
 
 func NewExercisesService(repo ExercisesRepository) *ExercisesService {

@@ -15,7 +15,11 @@ type ExercisesService interface {
 
 	CreateExercise(
 		ctx context.Context,
-		exercise domain.Exercise,
+		name string,
+		description string,
+		difficulty int,
+		exerciseType string,
+
 	) (domain.Exercise, error)
 }
 
