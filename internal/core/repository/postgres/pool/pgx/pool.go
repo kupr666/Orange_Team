@@ -16,14 +16,14 @@ type Pool struct {
 
 func NewPool(ctx context.Context, config Config) (*Pool, error) {
 	connectionString := fmt.Sprintf(
-	"postgres://%s:%s@%s:%s/%s?sslmode=disable",
-	config.User,
-	config.Password,
-	config.Host,
-	config.Port,
-	config.Database,
+		"postgres://%s:%s@%s:%s/%s?sslmode=disable",
+		config.User,
+		config.Password,
+		config.Host,
+		config.Port,
+		config.Database,
 	)
-	
+
 	pgxconfig, err := pgxpool.ParseConfig(connectionString)
 	if err != nil {
 		return nil, fmt.Errorf("parse pgxconfig: %w", err)
@@ -39,7 +39,7 @@ func NewPool(ctx context.Context, config Config) (*Pool, error) {
 	}
 
 	return &Pool{
-		Pool: pool,
+		Pool:      pool,
 		opTimeout: config.Timeout,
 	}, nil
 }
@@ -51,7 +51,7 @@ func (p *Pool) Query(
 ) (core_postgres_pool.Rows, error) {
 	rows, err := p.Pool.Query(ctx, sql, args...)
 	if err != nil {
-		return nil, err
+		return nil, mapErrors(err)
 	}
 	return pgxRows{rows}, nil
 }
@@ -72,7 +72,7 @@ func (p *Pool) Exec(
 ) (core_postgres_pool.CommandTag, error) {
 	tag, err := p.Pool.Exec(ctx, sql, args...)
 	if err != nil {
-		return nil, err
+		return nil, mapErrors(err)
 	}
 	return pgxCommandTag{tag}, nil
 }

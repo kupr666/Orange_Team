@@ -7,10 +7,10 @@ CREATE TABLE IF NOT EXISTS app.users (
     created_at          TIMESTAMPTZ  NOT NULL,
     updated_at          TIMESTAMPTZ,
     user_workout_score  INTEGER      NOT NULL DEFAULT 0,
-    sex                 VARCHAR(16)  NOT NULL,
-    weight_grams        INTEGER      NOT NULL,
-    birth_date          DATE         NOT NULL,
-    height_cm           SMALLINT     NOT NULL
+    sex                 VARCHAR(16),
+    weight_grams        INTEGER,
+    birth_date          DATE,
+    height_cm           SMALLINT
 );
 
 ALTER TABLE app.users ADD CONSTRAINT users_mail_length_check CHECK (char_length(mail) BETWEEN 5 AND 30);

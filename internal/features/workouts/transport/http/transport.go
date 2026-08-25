@@ -10,10 +10,6 @@ import (
 )
 
 type WorkoutsService interface {
-	// PostWorkout(
-	// args
-	// ) (retun values)
-
 	GetWorkouts(
 		ctx context.Context,
 		userID uuid.UUID,
@@ -60,11 +56,6 @@ func NewWorkoutsHTTPHandler(workoutsService WorkoutsService) *WorkoutsHTTPHandle
 
 func (h *WorkoutsHTTPHandler) Routes() []core_http_server.Route {
 	return []core_http_server.Route{
-		// {
-		// 	Method: http.MethodPost,
-		// 	Path:   "/workouts",
-		// 	Handler: h.CreateWorkout,
-		// },
 		{
 			Method:  http.MethodGet,
 			Path:    "/workouts",
