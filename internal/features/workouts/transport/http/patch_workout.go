@@ -20,6 +20,10 @@ type PatchWorkoutRequest struct {
 }
 
 func (r *PatchWorkoutRequest) Validate() error {
+	if !r.Status.Set && !r.StartedAt.Set && !r.CompletedAt.Set && !r.Intensity.Set {
+		return fmt.Errorf("at least one field must be provided")
+	}
+
 	if r.Status.Set {
 		if r.Status.Value == nil {
 			return fmt.Errorf("`Status` cannot be NULL")
