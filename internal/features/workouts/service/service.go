@@ -9,12 +9,17 @@ import (
 
 type WorkoutsService struct {
 	workoutsRepository WorkoutsRepository
+
+	// Подключение репозитория workoutExercisesRepository
+
+	// workoutExercisesRepository WorkoutExercisesRepository
 }
 
 type WorkoutsRepository interface {
-	// PostWorkout(
-	// args
-	// ) (retun values)
+	CreateWorkout(
+		ctx context.Context,
+		userID uuid.UUID,
+	) (domain.Workout, error)
 
 	GetWorkouts(
 		ctx context.Context,
@@ -26,13 +31,15 @@ type WorkoutsRepository interface {
 		workoutID uuid.UUID,
 	) (domain.Workout, error)
 
-	// PatchWorkout(
-	// args
-	// ) (retun values)
+	DeleteWorkout(
+		ctx context.Context,
+		workoutID uuid.UUID,
+	) error
 
-	// DeletetWorkout(
-	// args
-	// ) (retun values)
+	PatchWorkout(
+		ctx context.Context,
+		workout domain.Workout,
+	) (domain.Workout, error)
 }
 
 func NewWorkoutsService(repo WorkoutsRepository) *WorkoutsService {
