@@ -1,4 +1,4 @@
-package authentication_transport_http
+package auth_transport_http
 
 import (
 	"net/http"
@@ -24,7 +24,7 @@ type RegisterUserResponseDTO struct {
 	CreatedAt        time.Time `json:"created_at"`
 }
 
-func (h *AuthenticationHTTPHandler) CreateUser(
+func (h *AuthHTTPHandler) RegisterUser(
 	w http.ResponseWriter,
 	r *http.Request,
 ) {
@@ -41,7 +41,7 @@ func (h *AuthenticationHTTPHandler) CreateUser(
 		return
 	}
 
-	createdUser, err := h.authenticationService.RegisterUser(
+	createdUser, err := h.authService.RegisterUser(
 		ctx,
 		request.Email,
 		request.Password,

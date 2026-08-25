@@ -1,4 +1,4 @@
-package authentication_postgres_repository
+package auth_postgres_repository
 
 import (
 	"time"

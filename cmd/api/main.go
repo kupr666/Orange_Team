@@ -11,9 +11,9 @@ import (
 	core_pgx_pool "github.com/kupr666/Orange_Team/internal/core/repository/postgres/pool/pgx"
 	core_http_middleware "github.com/kupr666/Orange_Team/internal/core/transport/http/middleware"
 	core_http_server "github.com/kupr666/Orange_Team/internal/core/transport/http/server"
-	authentication_postgres_repository "github.com/kupr666/Orange_Team/internal/features/authentication/repository/postgres"
-	authentication_service "github.com/kupr666/Orange_Team/internal/features/authentication/service"
-	authentication_transport_http "github.com/kupr666/Orange_Team/internal/features/authentication/transport/http"
+	auth_postgres_repository "github.com/kupr666/Orange_Team/internal/features/authentication/repository/postgres"
+	auth_service "github.com/kupr666/Orange_Team/internal/features/authentication/service"
+	auth_transport_http "github.com/kupr666/Orange_Team/internal/features/authentication/transport/http"
 	exercises_postgres_repository "github.com/kupr666/Orange_Team/internal/features/exercises/repository/postgres"
 	exercises_service "github.com/kupr666/Orange_Team/internal/features/exercises/service"
 	exercises_transport_http "github.com/kupr666/Orange_Team/internal/features/exercises/transport/http"
@@ -57,10 +57,10 @@ func main() {
 	workoutsService := workouts_service.NewWorkoutsService(workoutsRepository)
 	workoutsTransportHTTP := workouts_transport_http.NewWorkoutsHTTPHandler(workoutsService)
 
-	log.Debug("initializing feature", "feature", "authentication")
-	authRepository := authentication_postgres_repository.NewAuthenticationRepository(pool)
-	authService := authentication_service.NewAuthenticationService(authRepository)
-	authTransportHTTP := authentication_transport_http.NewAuthenticationHTTPHandler(authService)
+	log.Debug("initializing feature", "feature", "auth")
+	authRepository := auth_postgres_repository.NewAuthRepository(pool)
+	authService := auth_service.NewAuthService(authRepository)
+	authTransportHTTP := auth_transport_http.NewAuthHTTPHandler(authService)
 
 	/*
 
