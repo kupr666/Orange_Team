@@ -3,7 +3,6 @@ package workouts_transport_http
 import (
 	"fmt"
 	"net/http"
-	"time"
 
 	"github.com/kupr666/Orange_Team/internal/core/domain"
 	core_logger "github.com/kupr666/Orange_Team/internal/core/logger"
@@ -31,25 +30,22 @@ func (r *PatchWorkoutRequest) Validate() error {
 		status := *r.Status.Value
 
 		if !domain.AllowedStatuses[status] {
-			return fmt.Errorf("`Status` must be one of: planned, in_progress, completed, cancelled")
-		}
-	}
-
-	if r.StartedAt.Set && r.StartedAt.Value != nil {
-		if _, err := time.Parse(time.RFC3339, *r.StartedAt.Value); err != nil {
-			return fmt.Errorf("`StartedAt` must be a string in RFC3339 format")
-		}
-	}
-	if r.CompletedAt.Set && r.CompletedAt.Value != nil {
-		if _, err := time.Parse(time.RFC3339, *r.CompletedAt.Value); err != nil {
-			return fmt.Errorf("`CompletedAt` must be a string in RFC3339 format")
+			return fmt.Errorf("`Status` must be one of: %s, %s, %s, %s",
+				domain.StatusCancelled,
+				domain.StatusCompleted,
+				domain.StatusInProgress,
+				domain.StatusPlanned,
+			)
 		}
 	}
 
 	if r.Intensity.Set && r.Intensity.Value != nil {
 		intensity := *r.Intensity.Value
-		if intensity < 1 || intensity > 10 {
-			return fmt.Errorf("`Intensity` must be between 1 and 10 or NULL")
+		if intensity < domain.IntensityMin || intensity > domain.IntensityMax {
+			return fmt.Errorf("`Intensity` must be between %d and %d or NULL",
+				domain.IntensityMin,
+				domain.IntensityMax,
+			)
 		}
 	}
 

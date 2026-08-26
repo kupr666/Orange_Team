@@ -19,6 +19,9 @@ import (
 	leaderboard_service "github.com/kupr666/Orange_Team/internal/features/leaderboard/service"
 	leaderboard_transport_http "github.com/kupr666/Orange_Team/internal/features/leaderboard/transport/http"
 	leaderboard_worker "github.com/kupr666/Orange_Team/internal/features/leaderboard/worker"
+	users_postgres_repository "github.com/kupr666/Orange_Team/internal/features/users/repository/postgres"
+	users_service "github.com/kupr666/Orange_Team/internal/features/users/service"
+	users_transport_http "github.com/kupr666/Orange_Team/internal/features/users/transport/http"
 	workouts_postgres_repository "github.com/kupr666/Orange_Team/internal/features/workouts/repository/postgres"
 	workouts_service "github.com/kupr666/Orange_Team/internal/features/workouts/service"
 	workouts_transport_http "github.com/kupr666/Orange_Team/internal/features/workouts/transport/http"
@@ -75,6 +78,10 @@ func main() {
 		leaderboardConfig.SnapshotInterval,
 	)
 	go leaderboardSnapshotWorker.Run(ctx)
+	log.Debug("initializing feature", "feature", "users")
+	usersRepository := users_postgres_repository.NewUsersRepository(pool)
+	usersService := users_service.NewUsersService(usersRepository)
+	usersTransportHTTP := users_transport_http.NewUsersHTTPHandler(usersService)
 
 	// log.Debug("initializing feature", "feature", "authentication")
 	// authenticationRepository := authentication_postgres_repository.NewAuthenticationRepository(pool)
@@ -102,6 +109,7 @@ func main() {
 	apiVersionRouterV1.RegisterRoutes(exercisesTransportHTTP.Routes()...)
 	apiVersionRouterV1.RegisterRoutes(workoutsTransportHTTP.Routes()...)
 	apiVersionRouterV1.RegisterRoutes(leaderboardTransportHTTP.Routes()...)
+	apiVersionRouterV1.RegisterRoutes(usersTransportHTTP.Routes()...)
 	// apiVersionRouterV1.RegisterRoutes(authenticationTransportHTTP.Routes()...)
 
 	httpServer.RegisterRouters(
