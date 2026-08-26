@@ -1,0 +1,584 @@
+openapi: 3.0.3
+info:
+  title: Orange Team API
+  version: 1.0.0
+  description: |
+    HTTP API for exercises and workouts.
+
+    Workout operations declare their intended Bearer JWT authentication.
+    JWT middleware wiring is still under development, so authorization from
+    Swagger UI will work after that integration is completed.
+servers:
+  - url: /api/v1
+    description: Current server
+tags:
+  - name: Exercises
+    description: Exercise catalog
+  - name: Workouts
+    description: User workouts
+  - name: Leaderboard
+    description: Live daily and published weekly/monthly workout leaderboards
+
+paths:
+  /exercises:
+    get:
+      tags: [Exercises]
+      summary: List exercises
+      operationId: getExercises
+      responses:
+        "200":
+          description: Exercise list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Exercise"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+    post:
+      tags: [Exercises]
+      summary: Create an exercise
+      operationId: createExercise
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateExerciseRequest"
+            example:
+              name: Bench Press
+              description: Chest exercise
+              difficulty: 5
+              type: weight
+      responses:
+        "201":
+          description: Exercise created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Exercise"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  /workouts:
+    get:
+      tags: [Workouts]
+      summary: List workouts of the authenticated user
+      operationId: getWorkouts
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Workout list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Workout"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+    post:
+      tags: [Workouts]
+      summary: Create a planned workout
+      operationId: createWorkout
+      description: Creates a workout for the authenticated user. No request body is required.
+      security:
+        - bearerAuth: []
+      responses:
+        "201":
+          description: Workout created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Workout"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  /workouts/{workoutId}:
+    parameters:
+      - $ref: "#/components/parameters/WorkoutID"
+    get:
+      tags: [Workouts]
+      summary: Get a workout
+      operationId: getWorkout
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Workout
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Workout"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+    patch:
+      tags: [Workouts]
+      summary: Patch a workout
+      operationId: patchWorkout
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PatchWorkoutRequest"
+            examples:
+              startWorkout:
+                summary: Start a planned workout
+                value:
+                  status: in_progress
+              completeWorkout:
+                summary: Complete an in-progress workout
+                value:
+                  status: completed
+                  intensity: 7
+      responses:
+        "200":
+          description: Updated workout
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Workout"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+    delete:
+      tags: [Workouts]
+      summary: Delete a workout
+      operationId: deleteWorkout
+      security:
+        - bearerAuth: []
+      responses:
+        "204":
+          description: Workout deleted
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  /leaderboard/daily:
+    get:
+      tags: [Leaderboard]
+      summary: Get the live leaderboard for the current day
+      operationId: getDailyLeaderboard
+      parameters:
+        - $ref: "#/components/parameters/LeaderboardUserID"
+        - $ref: "#/components/parameters/LeaderboardLimit"
+      responses:
+        "200":
+          description: Live daily leaderboard
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Leaderboard"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  /leaderboard/weekly:
+    get:
+      tags: [Leaderboard]
+      summary: Get the latest published weekly leaderboard
+      operationId: getWeeklyLeaderboard
+      parameters:
+        - $ref: "#/components/parameters/LeaderboardUserID"
+        - $ref: "#/components/parameters/LeaderboardLimit"
+      responses:
+        "200":
+          description: Latest completed-week snapshot
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Leaderboard"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  /leaderboard/monthly:
+    get:
+      tags: [Leaderboard]
+      summary: Get the latest published monthly leaderboard
+      operationId: getMonthlyLeaderboard
+      parameters:
+        - $ref: "#/components/parameters/LeaderboardUserID"
+        - $ref: "#/components/parameters/LeaderboardLimit"
+      responses:
+        "200":
+          description: Latest completed-month snapshot
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Leaderboard"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  parameters:
+    WorkoutID:
+      name: workoutId
+      in: path
+      required: true
+      description: Workout UUID
+      schema:
+        type: string
+        format: uuid
+
+    LeaderboardUserID:
+      name: user_id
+      in: query
+      required: true
+      description: Temporary current-user UUID; it will later come from authentication context
+      schema:
+        type: string
+        format: uuid
+
+    LeaderboardLimit:
+      name: limit
+      in: query
+      required: false
+      description: Number of top leaderboard entries
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 50
+
+  schemas:
+    CreateExerciseRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - name
+        - description
+        - difficulty
+        - type
+      properties:
+        name:
+          type: string
+          minLength: 3
+          maxLength: 100
+          pattern: "^[A-Za-zА-Яа-яёЁ ]+$"
+          example: Bench Press
+        description:
+          type: string
+          minLength: 1
+          maxLength: 1000
+          pattern: "^[A-Za-zА-Яа-яёЁ ]+$"
+          example: Chest exercise
+        difficulty:
+          type: integer
+          minimum: 1
+          maximum: 10
+          example: 5
+        type:
+          type: string
+          enum: [weight, duration]
+          example: weight
+
+    Exercise:
+      type: object
+      required:
+        - id
+        - version
+        - name
+        - description
+        - difficulty
+        - created_at
+        - type
+      properties:
+        id:
+          type: string
+          format: uuid
+        version:
+          type: integer
+          format: int64
+          minimum: 1
+        name:
+          type: string
+        description:
+          type: string
+        difficulty:
+          type: integer
+          minimum: 1
+          maximum: 10
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+          nullable: true
+        type:
+          type: string
+          enum: [weight, duration]
+
+    PatchWorkoutRequest:
+      type: object
+      additionalProperties: false
+      minProperties: 1
+      properties:
+        status:
+          type: string
+          enum: [planned, in_progress, completed, cancelled]
+        started_at:
+          type: string
+          format: date-time
+          nullable: true
+        completed_at:
+          type: string
+          format: date-time
+          nullable: true
+        intensity:
+          type: integer
+          minimum: 1
+          maximum: 10
+          nullable: true
+
+    Workout:
+      type: object
+      required:
+        - id
+        - version
+        - user_id
+        - status
+        - created_at
+        - updated_at
+        - workout_score
+        - personal_score_coefficient
+      properties:
+        id:
+          type: string
+          format: uuid
+        version:
+          type: integer
+          format: int64
+          minimum: 1
+        user_id:
+          type: string
+          format: uuid
+        status:
+          type: string
+          enum: [planned, in_progress, completed, cancelled]
+        started_at:
+          type: string
+          format: date-time
+          nullable: true
+        completed_at:
+          type: string
+          format: date-time
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        workout_score:
+          type: integer
+          minimum: 0
+          maximum: 10000
+        intensity:
+          type: integer
+          minimum: 1
+          maximum: 10
+          nullable: true
+        personal_score_coefficient:
+          type: integer
+          minimum: 1
+          maximum: 10
+
+    LeaderboardUser:
+      type: object
+      required: [id, full_name]
+      properties:
+        id:
+          type: string
+          format: uuid
+        full_name:
+          type: string
+
+    LeaderboardEntry:
+      type: object
+      required:
+        - user
+        - score
+        - completed_workouts
+        - is_current_user
+      properties:
+        rank:
+          type: integer
+          format: int64
+          nullable: true
+        user:
+          $ref: "#/components/schemas/LeaderboardUser"
+        score:
+          type: integer
+          format: int64
+          minimum: 0
+        completed_workouts:
+          type: integer
+          format: int64
+          minimum: 0
+        last_activity_at:
+          type: string
+          format: date-time
+          nullable: true
+        is_current_user:
+          type: boolean
+
+    CurrentUserLeaderboardEntry:
+      allOf:
+        - $ref: "#/components/schemas/LeaderboardEntry"
+        - type: object
+          required: [eligible, in_top]
+          properties:
+            eligible:
+              type: boolean
+            in_top:
+              type: boolean
+
+    Leaderboard:
+      type: object
+      required:
+        - period
+        - status
+        - period_start
+        - period_end
+        - timezone
+        - metric
+        - generated_at
+        - next_refresh_at
+        - items
+        - current_user
+      properties:
+        period:
+          type: string
+          enum: [daily, weekly, monthly]
+        status:
+          type: string
+          enum: [live, published]
+        period_start:
+          type: string
+          format: date-time
+        period_end:
+          type: string
+          format: date-time
+        timezone:
+          type: string
+          example: Europe/Moscow
+        metric:
+          type: string
+          enum: [completed_workouts_v1]
+        generated_at:
+          type: string
+          format: date-time
+        next_refresh_at:
+          type: string
+          format: date-time
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/LeaderboardEntry"
+        current_user:
+          $ref: "#/components/schemas/CurrentUserLeaderboardEntry"
+
+    Error:
+      type: object
+      required:
+        - error
+        - message
+      properties:
+        error:
+          type: string
+          example: invalid argument
+        message:
+          type: string
+          example: failed to process request
+
+  responses:
+    BadRequest:
+      description: Invalid request
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    Unauthorized:
+      description: Valid Bearer JWT is required
+      headers:
+        WWW-Authenticate:
+          schema:
+            type: string
+          example: Bearer
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    Conflict:
+      description: Resource conflict
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    InternalServerError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
