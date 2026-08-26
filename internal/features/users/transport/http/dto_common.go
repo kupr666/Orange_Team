@@ -35,6 +35,7 @@ func userDTOFromDomain(user domain.User) UserDTOResponse {
 	}
 }
 
+// Возможно стоит удалить
 // func userDTOsFromDomains(users []domain.User) []UserDTOResponse {
 // 	userDTO := make([]UserDTOResponse, len(users))
 // 	for i, user := range users {
