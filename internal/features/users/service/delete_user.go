@@ -12,8 +12,11 @@ func (s *UsersService) DeleteUser(
 	userID uuid.UUID,
 ) error {
 	if err := s.usersRepository.DeleteUser(ctx, userID); err != nil {
-		return fmt.Errorf("delete user from repository: %w", err)
+		return fmt.Errorf(
+			"delete user from repository: %w",
+			err,
+		)
 	}
 
-	return  nil
+	return nil
 }
