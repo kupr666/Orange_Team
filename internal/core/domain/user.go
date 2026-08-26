@@ -96,6 +96,10 @@ func CreateUser(
 	)
 }
 
+var userEmailPattern = regexp.MustCompile(
+	`^[a-z0-9][a-z0-9.]*[a-z0-9]@[a-z0-9.-]+\.[a-z]{2,}$`,
+)
+
 func (u *User) Validate() error {
 	if len(u.Email) < 5 || len(u.Email) > 30 {
 		return fmt.Errorf(
@@ -104,8 +108,8 @@ func (u *User) Validate() error {
 		)
 	}
 
-	re := regexp.MustCompile(`^[a-z0-9]([a-z0-9]|[.](?![.]))*[a-z0-9]@[a-z0-9.-]+\.[a-z]{2,}$`)
-	if !re.MatchString(u.Email) {
+	if strings.Contains(u.Email, "..") ||
+		!userEmailPattern.MatchString(u.Email) {
 		return fmt.Errorf(
 			"invalid email format: %w",
 			core_errors.ErrInvalidArgument,

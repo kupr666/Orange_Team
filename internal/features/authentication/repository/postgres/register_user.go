@@ -10,7 +10,7 @@ import (
 	core_postgres_pool "github.com/kupr666/Orange_Team/internal/core/repository/postgres/pool"
 )
 
-func (r *AuthenticationRepository) CreateUser(
+func (r *AuthenticationRepository) RegisterUser(
 	ctx context.Context,
 	email string,
 	passwordHash string,

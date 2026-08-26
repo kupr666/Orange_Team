@@ -47,7 +47,7 @@ func (h *AuthenticationHTTPHandler) RegisterUser(
 		return
 	}
 
-	response := UserDTOResponse(userDTOFromDomain(createdUser))
+	response := RegisterUserResponseDTO(userDTOFromDomain(createdUser))
 
 	responseHandler.JSONResponse(response, http.StatusCreated)
 }
