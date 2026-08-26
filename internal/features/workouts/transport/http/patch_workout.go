@@ -3,7 +3,6 @@ package workouts_transport_http
 import (
 	"fmt"
 	"net/http"
-	"time"
 
 	"github.com/kupr666/Orange_Team/internal/core/domain"
 	core_logger "github.com/kupr666/Orange_Team/internal/core/logger"
@@ -37,17 +36,6 @@ func (r *PatchWorkoutRequest) Validate() error {
 				domain.StatusInProgress,
 				domain.StatusPlanned,
 			)
-		}
-	}
-
-	if r.StartedAt.Set && r.StartedAt.Value != nil {
-		if _, err := time.Parse(time.RFC3339, *r.StartedAt.Value); err != nil {
-			return fmt.Errorf("`StartedAt` must be a string in RFC3339 format")
-		}
-	}
-	if r.CompletedAt.Set && r.CompletedAt.Value != nil {
-		if _, err := time.Parse(time.RFC3339, *r.CompletedAt.Value); err != nil {
-			return fmt.Errorf("`CompletedAt` must be a string in RFC3339 format")
 		}
 	}
 
