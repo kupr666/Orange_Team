@@ -43,17 +43,17 @@ func (h *UsersHTTPHandler) Routes() []core_http_server.Route {
 	return []core_http_server.Route{
 		{
 			Method:  http.MethodGet,
-			Path:    "/me",
+			Path:    "/users/me",
 			Handler: h.GetUser,
 		},
 		{
 			Method:  http.MethodPatch,
-			Path:    "/me",
+			Path:    "/users/me",
 			Handler: h.PatchUser,
 		},
 		{
 			Method:  http.MethodDelete,
-			Path:    "/me",
+			Path:    "/users/me",
 			Handler: h.DeleteUser,
 		},
 	}
