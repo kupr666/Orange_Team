@@ -14,6 +14,9 @@ import (
 	exercises_postgres_repository "github.com/kupr666/Orange_Team/internal/features/exercises/repository/postgres"
 	exercises_service "github.com/kupr666/Orange_Team/internal/features/exercises/service"
 	exercises_transport_http "github.com/kupr666/Orange_Team/internal/features/exercises/transport/http"
+	users_postgres_repository "github.com/kupr666/Orange_Team/internal/features/users/repository/postgres"
+	users_service "github.com/kupr666/Orange_Team/internal/features/users/service"
+	users_transport_http "github.com/kupr666/Orange_Team/internal/features/users/transport/http"
 	workouts_postgres_repository "github.com/kupr666/Orange_Team/internal/features/workouts/repository/postgres"
 	workouts_service "github.com/kupr666/Orange_Team/internal/features/workouts/service"
 	workouts_transport_http "github.com/kupr666/Orange_Team/internal/features/workouts/transport/http"
@@ -54,6 +57,11 @@ func main() {
 	workoutsService := workouts_service.NewWorkoutsService(workoutsRepository)
 	workoutsTransportHTTP := workouts_transport_http.NewWorkoutsHTTPHandler(workoutsService)
 
+	log.Debug("initializing feature", "feature", "users")
+	usersRepository := users_postgres_repository.NewUsersRepository(pool)
+	usersService := users_service.NewUsersService(usersRepository)
+	usersTransportHTTP := users_transport_http.NewUsersHTTPHandler(usersService)
+
 	// log.Debug("initializing feature", "feature", "authentication")
 	// authenticationRepository := authentication_postgres_repository.NewAuthenticationRepository(pool)
 	// authenticationService := authentication_service.NewAuthenticationService(authenticationRepository)
@@ -79,6 +87,7 @@ func main() {
 	apiVersionRouterV1 := core_http_server.NewApiVersionRouter(core_http_server.ApiVersion1)
 	apiVersionRouterV1.RegisterRoutes(exercisesTransportHTTP.Routes()...)
 	apiVersionRouterV1.RegisterRoutes(workoutsTransportHTTP.Routes()...)
+	apiVersionRouterV1.RegisterRoutes(usersTransportHTTP.Routes()...)
 	// apiVersionRouterV1.RegisterRoutes(authenticationTransportHTTP.Routes()...)
 
 	httpServer.RegisterRouters(
