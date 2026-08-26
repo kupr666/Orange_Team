@@ -10,10 +10,6 @@ import (
 	core_postgres_pool "github.com/kupr666/Orange_Team/internal/core/repository/postgres/pool"
 )
 
-// PatchUser обновляет пользователя в БД с оптимистичной блокировкой.
-// Обновляются только поля, доступные для изменения через PATCH:
-// sex, weight_grams, birth_date, height_cm, updated_at, version.
-// WHERE id=$1 AND version=$6 — гарантирует, что запись не была параллельно изменена.
 func (r *UsersRepository) PatchUser(
 	ctx context.Context,
 	user domain.User,
