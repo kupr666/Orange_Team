@@ -21,7 +21,7 @@ ALTER TABLE app.users ADD CONSTRAINT users_full_name_no_leading_trailing_spaces 
 
 ALTER TABLE app.users ADD CONSTRAINT users_user_workout_score_check CHECK (user_workout_score >= 0);
 
-ALTER TABLE app.users ADD CONSTRAINT users_sex_check CHECK (sex IN ('male', 'female', 'unspecified'));
+ALTER TABLE app.users ADD CONSTRAINT users_sex_check CHECK (sex IN ('male', 'female'));
 ALTER TABLE app.users ADD CONSTRAINT users_weight_grams_check CHECK (weight_grams BETWEEN 20000 AND 300000);
 ALTER TABLE app.users ADD CONSTRAINT users_birth_date_check CHECK (birth_date BETWEEN DATE '1900-01-01' AND CURRENT_DATE);
 ALTER TABLE app.users ADD CONSTRAINT users_height_cm_check CHECK (height_cm BETWEEN 100 AND 250);

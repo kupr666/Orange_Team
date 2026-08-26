@@ -1,4 +1,3 @@
-// Package users_transport_http содержит HTTP-обработчики для управления профилем пользователя.
 package users_transport_http
 
 import (
