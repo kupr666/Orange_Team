@@ -4,13 +4,15 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"time"
 
+	"github.com/google/uuid"
 	"github.com/kupr666/Orange_Team/internal/core/domain"
 	core_errors "github.com/kupr666/Orange_Team/internal/core/errors"
 	core_postgres_pool "github.com/kupr666/Orange_Team/internal/core/repository/postgres/pool"
 )
 
-func (r *AuthenticationRepository) CreateUser(
+func (r *AuthenticationRepository) RegisterUser(
 	ctx context.Context,
 	email string,
 	passwordHash string,
@@ -19,14 +21,17 @@ func (r *AuthenticationRepository) CreateUser(
 	ctx, cancel := context.WithTimeout(ctx, r.pool.OpTimeout())
 	defer cancel()
 
+	userID := uuid.New()
+	createdAt := time.Now().UTC()
+
 	query := `
-	INSERT INTO app.users (mail, pass_hash, full_name)
-	VALUES ($1, $2, $3)
+	INSERT INTO app.users (id, created_at, mail, pass_hash, full_name)
+	VALUES ($1, $2, $3, $4, $5)
 	RETURNING id, version, mail, full_name, created_at, updated_at,
 	user_workout_score, sex, weight_grams, birth_date, height_cm;
 	`
 
-	row := r.pool.QueryRow(ctx, query, email, passwordHash, fullName)
+	row := r.pool.QueryRow(ctx, query, userID, createdAt, email, passwordHash, fullName)
 
 	var userModel UserModel
 

@@ -111,6 +111,10 @@ func CreateUser(
 	)
 }
 
+var userEmailPattern = regexp.MustCompile(
+	`^[a-z0-9][a-z0-9.]*[a-z0-9]@[a-z0-9.-]+\.[a-z]{2,}$`,
+)
+
 func (u *User) Validate() error {
 	if len(u.Email) < 5 || len(u.Email) > 30 {
 		return fmt.Errorf(

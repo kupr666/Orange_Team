@@ -14,6 +14,8 @@ import (
 
 const unauthorizedMessage = "valid JWT token is required"
 
+// verifier - обьект, который отвечает на вопрос: Кто отправил запрос и можно ли доверять его JWT ?
+// реализовано через интерфейс специально, чтобы можно было тестировать без настоящего JWT
 type AccessTokenVerifier interface {
 	VerifyAccessToken(token string) (core_auth.Principal, error)
 }

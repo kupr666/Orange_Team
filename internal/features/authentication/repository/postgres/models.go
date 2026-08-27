@@ -5,6 +5,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/kupr666/Orange_Team/internal/core/domain"
+	authentication_domain "github.com/kupr666/Orange_Team/internal/features/authentication/domain"
 )
 
 type UserModel struct {
@@ -34,5 +35,21 @@ func domainUserFromModel(model UserModel) domain.User {
 		WeightGrams:      model.weightGrams,
 		BirthDate:        model.birthDate,
 		HeightCM:         model.heightCm,
+	}
+}
+
+type CredentialsModel struct {
+	id           uuid.UUID
+	passwordHash string
+	role         string
+}
+
+func storedCredentialsFromModel(
+	model CredentialsModel,
+) authentication_domain.StoredCredentials {
+	return authentication_domain.StoredCredentials{
+		UserID:       model.id,
+		PasswordHash: model.passwordHash,
+		Role:         model.role,
 	}
 }

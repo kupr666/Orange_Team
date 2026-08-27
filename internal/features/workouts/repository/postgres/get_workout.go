@@ -13,6 +13,7 @@ import (
 
 func (r *WorkoutsRepository) GetWorkout(
 	ctx context.Context,
+	userID uuid.UUID,
 	workoutID uuid.UUID,
 ) (domain.Workout, error) {
 	ctx, cancel := context.WithTimeout(ctx, r.pool.OpTimeout())
@@ -32,10 +33,10 @@ func (r *WorkoutsRepository) GetWorkout(
         intensity,
         personal_score_coefficient
     FROM app.workouts
-    WHERE id = $1;
+    WHERE user_id = $1 AND id = $2;
 	`
 
-	row := r.pool.QueryRow(ctx, query, workoutID)
+	row := r.pool.QueryRow(ctx, query, userID, workoutID)
 
 	var workoutModel WorkoutModel
 	if err := workoutModel.Scan(row); err != nil {

@@ -10,6 +10,8 @@ import (
 	core_auth "github.com/kupr666/Orange_Team/internal/core/auth"
 )
 
+// обьект, который реализует интерфейс verifier (т.к у него есть)
+// метод VerifyAccessToken(token string) (core_auth.Principal, error)
 type Manager struct {
 	secret   []byte
 	issuer   string
@@ -20,7 +22,10 @@ type Manager struct {
 
 func NewManager(config Config) (*Manager, error) {
 	if err := config.Validate(); err != nil {
-		return nil, fmt.Errorf("validate JWT config: %w", err)
+		return nil, fmt.Errorf(
+			"validate JWT config: %w",
+			err,
+		)
 	}
 
 	return &Manager{
@@ -30,8 +35,9 @@ func NewManager(config Config) (*Manager, error) {
 		ttl:      config.TTL,
 		now:      time.Now,
 	}, nil
-}
+  }
 
+// creates new signed JWT for verified user
 func (m *Manager) IssueAccessToken(
 	principal core_auth.Principal,
 ) (string, error) {
@@ -71,7 +77,9 @@ func (m *Manager) VerifyAccessToken(
 		return core_auth.Principal{}, fmt.Errorf("access token is empty")
 	}
 
+	// prepare struct
 	tokenClaims := &claims{}
+	// move cliams to higher struct
 	token, err := jwt.ParseWithClaims(
 		tokenString,
 		tokenClaims,
@@ -91,6 +99,7 @@ func (m *Manager) VerifyAccessToken(
 		return core_auth.Principal{}, errors.New("access token is invalid")
 	}
 
+	// extract userID from claims
 	userID, err := uuid.Parse(tokenClaims.Subject)
 	if err != nil {
 		return core_auth.Principal{}, fmt.Errorf(

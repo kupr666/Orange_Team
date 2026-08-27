@@ -45,8 +45,6 @@ of providing unexplained code.
 
 ## Database migrations
 
-- Treat applied migrations as immutable.
-- Create a new numbered migration for every schema change.
 - Do not reset, delete, or recreate database data unless explicitly asked.
 - Entity identifiers use PostgreSQL `UUID` and Go `uuid.UUID`.
 - Mutable entities use a `BIGINT version` column for optimistic locking.
@@ -131,3 +129,22 @@ Run the API:
 Run all Go tests:
 
     go test ./...
+
+# 🎯 Response Verbosity & Communication Style
+
+You are assisting an experienced developer. Adjust your verbosity dynamically based on the intent of the prompt.
+
+## 1. Quick & Direct Mode (Default for specific questions)
+**Trigger:** The user asks a specific technical question, makes a binary choice ("A or B?"), asks how to fix a specific error, or asks for a specific command.
+* **Rule:** Answer IMMEDIATELY and DEFINITIVELY. 
+* **Format:** 1-5 sentences maximum + code snippet if needed.
+* **FORBIDDEN:** Do not explain basic concepts. Do not write "It depends" without immediately providing the most pragmatic default choice. Do not list pros/cons unless explicitly requested.
+
+## 2. Deep Dive Mode (Default for broad/learning questions)
+**Trigger:** The user asks to explain a concept ("How does JWT work?"), requests an architectural overview, asks for best practices, or uses words like "explain", "how to build", or "what is the flow".
+* **Rule:** Provide a comprehensive, full-length explanation.
+* **Format:** Use structured Markdown (headers, lists, tables). Break down the logic step-by-step, explain the "why", and provide complete code examples.
+
+## 3. Explicit Overrides
+* If the prompt starts with **"TLDR"** or **"Быстро"**: Force Quick Mode.
+* If the prompt starts with **"Explain"** or **"Подробно"**: Force Deep Dive Mode.

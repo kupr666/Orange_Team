@@ -1,6 +1,7 @@
 CREATE TABLE IF NOT EXISTS app.users (
     id                  UUID         PRIMARY KEY,
     version             BIGINT       NOT NULL DEFAULT 1,
+    role                VARCHAR(16)  NOT NULL DEFAULT 'user',
     mail                VARCHAR(30)  NOT NULL,
     pass_hash           VARCHAR(255) NOT NULL,
     full_name           VARCHAR(50)  NOT NULL,
@@ -13,6 +14,7 @@ CREATE TABLE IF NOT EXISTS app.users (
     height_cm           SMALLINT
 );
 
+ALTER TABLE app.users ADD CONSTRAINT users_role_check CHECK (role IN ('user', 'admin'));
 ALTER TABLE app.users ADD CONSTRAINT users_mail_length_check CHECK (char_length(mail) BETWEEN 5 AND 30);
 ALTER TABLE app.users ADD CONSTRAINT users_mail_format_check CHECK (mail ~* '^[a-z0-9]([a-z0-9]|[.](?![.]))*[a-z0-9]@[a-z0-9.-]+\.[a-z]{2,}$');
 

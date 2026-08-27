@@ -4,15 +4,41 @@ import (
 	"fmt"
 	"strings"
 	"time"
+
+	"github.com/kelseyhightower/envconfig"
 )
 
 const minimumSecretLengthBytes = 32
 
 type Config struct {
-	Secret   string
-	Issuer   string
-	Audience string
-	TTL      time.Duration
+	Secret   string        `envconfig:"SECRET" required:"true"`
+	Issuer   string        `envconfig:"ISSUER" required:"true"`
+	Audience string        `envconfig:"AUDIENCE" required:"true"`
+	TTL      time.Duration `envconfig:"TTL" required:"true"`
+}
+
+func NewConfig() (Config, error) { 
+	var config Config 
+
+	if err := envconfig.Process("JWT", &config); err != nil {
+		return Config{}, fmt.Errorf("process JWT config: %w", err)
+	}
+
+	if err := config.Validate(); err != nil {
+		return Config{}, fmt.Errorf("validate JWT config: %w", err)
+	}
+
+	return config, nil
+}
+
+func NewConfigMust() Config {
+	config, err := NewConfig()
+	if err != nil {
+		err = fmt.Errorf("get JWT config: %w", err)
+		panic(err)
+	}
+
+	return config
 }
 
 func (c Config) Validate() error {

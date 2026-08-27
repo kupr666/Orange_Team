@@ -1,9 +1,11 @@
 package workouts_transport_http
 
 import (
+	"fmt"
 	"net/http"
 
-	"github.com/google/uuid"
+	core_auth "github.com/kupr666/Orange_Team/internal/core/auth"
+	core_errors "github.com/kupr666/Orange_Team/internal/core/errors"
 	core_logger "github.com/kupr666/Orange_Team/internal/core/logger"
 	core_http_response "github.com/kupr666/Orange_Team/internal/core/transport/http/response"
 )
@@ -13,16 +15,19 @@ func (h *WorkoutsHTTPHandler) GetWorkouts(w http.ResponseWriter, r *http.Request
 	log := core_logger.FromContext(ctx)
 	responseHandler := core_http_response.NewHTTPResponseHandler(log, w)
 
-	// get userID from context
-	// path : request -> authentication middleware (token and session check) + 
-	// put userID in r.Context - > we get this userID via helper function
+	principal, ok := core_auth.PrincipalFromContext(ctx)
+	if !ok {
+		responseHandler.ErrorResponse(
+			fmt.Errorf(
+				"authenticated principal is missing: %w",
+				core_errors.ErrUnauthorized,
+			),
+			"valid JWT token is required",
+		)
+		return
+	}
 
-	// userID, err := 
-
-	// just because we haven't auth yet
-	var userID uuid.UUID
-
-	workouts, err := h.workoutsService.GetWorkouts(ctx, userID)
+	workouts, err := h.workoutsService.GetWorkouts(ctx, principal.UserID)
 	if err != nil {
 		responseHandler.ErrorResponse(
 			err, "failed to get workouts",
