@@ -9,7 +9,11 @@ import (
 	"github.com/kupr666/Orange_Team/internal/core/domain"
 )
 
-func (s *LeaderboardService) GetDaily(ctx context.Context, userID uuid.UUID, limit int) (domain.Leaderboard, error) {
+func (s *LeaderboardService) GetDaily(
+	ctx context.Context,
+	userID uuid.UUID,
+	limit int,
+) (domain.Leaderboard, error) {
 	now := s.now()
 	window := dailyWindow(now, s.location)
 
@@ -31,14 +35,24 @@ func (s *LeaderboardService) GetDaily(ctx context.Context, userID uuid.UUID, lim
 	}, nil
 }
 
-func (s *LeaderboardService) GetSnapshot(ctx context.Context, userID uuid.UUID, periodType string, limit int) (domain.Leaderboard, error) {
+func (s *LeaderboardService) GetSnapshot(
+	ctx context.Context,
+	userID uuid.UUID,
+	periodType string,
+	limit int,
+) (domain.Leaderboard, error) {
 	now := s.now()
 	window, err := previousWindow(now, periodType, s.location)
 	if err != nil {
 		return domain.Leaderboard{}, err
 	}
 
-	snapshot, err := s.repo.GetSnapshot(ctx, userID, periodType, window.start, limit)
+	snapshot, err := s.repo.GetSnapshot(
+		ctx,
+		userID,
+		periodType,
+		window.start,
+		limit)
 	if err != nil {
 		return domain.Leaderboard{}, err
 	}

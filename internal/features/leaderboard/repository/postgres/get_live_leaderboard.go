@@ -10,8 +10,6 @@ import (
 	core_errors "github.com/kupr666/Orange_Team/internal/core/errors"
 )
 
-// -------- GetLive (для daily) --------
-
 func (r *LeaderboardRepository) GetLive(
 	ctx context.Context,
 	userID uuid.UUID,

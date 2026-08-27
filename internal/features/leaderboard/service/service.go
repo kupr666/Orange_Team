@@ -14,9 +14,27 @@ const (
 )
 
 type LeaderboardRepository interface {
-	GetLive(ctx context.Context, userID uuid.UUID, periodStart, periodEnd time.Time, limit int) (domain.LeaderboardRanking, error)
-	GetSnapshot(ctx context.Context, userID uuid.UUID, periodType string, periodStart time.Time, limit int) (domain.LeaderboardSnapshot, error)
-	CreateSnapshot(ctx context.Context, periodType string, periodStart, periodEnd time.Time, timezone string) error
+	GetLive(
+		ctx context.Context,
+		userID uuid.UUID,
+		periodStart,
+		periodEnd time.Time,
+		limit int,
+	) (domain.LeaderboardRanking, error)
+	GetSnapshot(
+		ctx context.Context,
+		userID uuid.UUID,
+		periodType string,
+		periodStart time.Time,
+		limit int,
+	) (domain.LeaderboardSnapshot, error)
+	CreateSnapshot(
+		ctx context.Context,
+		periodType string,
+		periodStart,
+		periodEnd time.Time,
+		timezone string,
+	) error
 }
 
 type LeaderboardService struct {
