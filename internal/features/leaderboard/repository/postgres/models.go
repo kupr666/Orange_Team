@@ -12,10 +12,10 @@ type scanner interface {
 }
 
 type LeaderboardEntryModel struct {
-	Rank           *int64
+	Rank           *int
 	UserID         uuid.UUID
 	FullName       string
-	Score          int64
+	Score          int
 	LastActivityAt *time.Time
 	IsCurrentUser  bool
 	IsInTop        bool

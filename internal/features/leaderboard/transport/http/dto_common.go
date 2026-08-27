@@ -13,17 +13,17 @@ type LeaderboardUserResponse struct {
 }
 
 type LeaderboardEntryResponse struct {
-	Rank           *int64                  `json:"rank"`
+	Rank           *int                    `json:"rank"`
 	User           LeaderboardUserResponse `json:"user"`
-	Score          int64                   `json:"score"`
+	Score          int                     `json:"score"`
 	LastActivityAt *time.Time              `json:"last_activity_at"`
 	IsCurrentUser  bool                    `json:"is_current_user"`
 }
 
 type CurrentUserLeaderboardResponse struct {
-	Rank           *int64                  `json:"rank"`
+	Rank           *int                    `json:"rank"`
 	User           LeaderboardUserResponse `json:"user"`
-	Score          int64                   `json:"score"`
+	Score          int                     `json:"score"`
 	LastActivityAt *time.Time              `json:"last_activity_at"`
 	Eligible       bool                    `json:"eligible"`
 	InTop          bool                    `json:"in_top"`
