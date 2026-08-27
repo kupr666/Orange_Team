@@ -35,7 +35,7 @@ func NewManager(config Config) (*Manager, error) {
 		ttl:      config.TTL,
 		now:      time.Now,
 	}, nil
-  }
+}
 
 // creates new signed JWT for verified user
 func (m *Manager) IssueAccessToken(
