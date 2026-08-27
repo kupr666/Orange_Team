@@ -6,6 +6,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/kupr666/Orange_Team/internal/core/domain"
+	core_http_middleware "github.com/kupr666/Orange_Team/internal/core/transport/http/middleware"
 	core_http_server "github.com/kupr666/Orange_Team/internal/core/transport/http/server"
 )
 
@@ -31,12 +32,15 @@ func NewLeaderboardHTTPHandler(service LeaderboardService) *LeaderboardHTTPHandl
 	return &LeaderboardHTTPHandler{leaderboardService: service}
 }
 
-func (h *LeaderboardHTTPHandler) Routes() []core_http_server.Route {
+func (h *LeaderboardHTTPHandler) Routes(
+	authentication core_http_middleware.Middleware,
+) []core_http_server.Route {
 	return []core_http_server.Route{
 		{
-			Method:  http.MethodGet,
-			Path:    "/leaderboard",
-			Handler: h.GetLeaderboard,
+			Method:     http.MethodGet,
+			Path:       "/leaderboard",
+			Handler:    h.GetLeaderboard,
+			Middleware: []core_http_middleware.Middleware{authentication},
 		},
 	}
 }

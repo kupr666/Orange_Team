@@ -100,11 +100,6 @@ func main() {
 	log.Debug("starting leaderboard snapshot scheduler", "interval", 1*time.Hour)
 	go leaderboardService.RunScheduler(ctx, 1*time.Hour)
 
-	// log.Debug("initializing feature", "feature", "authentication")
-	// authenticationRepository := authentication_postgres_repository.NewAuthenticationRepository(pool)
-	// authenticationService := authentication_service.NewAuthenticationService(authenticationRepository)
-	// authenticationTransportHTTP := authentication_transport_http.NewAuthenticationHTTPHandler(authenticationService)
-
 	/*
 
 		SOME FEATURE
@@ -127,9 +122,8 @@ func main() {
 	apiVersionRouterV1.RegisterRoutes(exercisesTransportHTTP.Routes(authenticationMiddleware)...)
 	apiVersionRouterV1.RegisterRoutes(workoutsTransportHTTP.Routes(authenticationMiddleware)...)
 
-	apiVersionRouterV1.RegisterRoutes(leaderboardTransportHTTP.Routes()...)
-	apiVersionRouterV1.RegisterRoutes(usersTransportHTTP.Routes()...)
-	// apiVersionRouterV1.RegisterRoutes(authenticationTransportHTTP.Routes()...)
+	apiVersionRouterV1.RegisterRoutes(leaderboardTransportHTTP.Routes(authenticationMiddleware)...)
+	apiVersionRouterV1.RegisterRoutes(usersTransportHTTP.Routes(authenticationMiddleware)...)
 
 	httpServer.RegisterRouters(
 		apiVersionRouterV1,
