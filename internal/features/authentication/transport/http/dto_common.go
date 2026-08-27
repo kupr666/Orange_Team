@@ -42,3 +42,4 @@ func userDTOsFromDomains(users []domain.User) []UserDTOResponse {
 	}
 	return userDTO
 }
+

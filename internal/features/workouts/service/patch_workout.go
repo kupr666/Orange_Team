@@ -10,10 +10,11 @@ import (
 
 func (s *WorkoutsService) PatchWorkout(
 	ctx context.Context,
+	userID uuid.UUID,
 	workoutID uuid.UUID,
 	patch domain.WorkoutPatch,
 ) (domain.Workout, error) {
-	workout, err := s.workoutsRepository.GetWorkout(ctx, workoutID)
+	workout, err := s.workoutsRepository.GetWorkout(ctx, userID, workoutID)
 	if err != nil {
 		return domain.Workout{}, fmt.Errorf(
 			"get workout from repository: %w",
@@ -49,7 +50,7 @@ func (s *WorkoutsService) PatchWorkout(
 	// 	}
 	// }
 
-	updatedWorkout, err := s.workoutsRepository.PatchWorkout(ctx, workout)
+	updatedWorkout, err := s.workoutsRepository.PatchWorkout(ctx, userID, workout)
 	if err != nil {
 		return domain.Workout{}, fmt.Errorf(
 			"update workout in repository: %w",

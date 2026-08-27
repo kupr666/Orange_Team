@@ -5,7 +5,9 @@ import (
 	"net/http"
 	"time"
 
+	core_auth "github.com/kupr666/Orange_Team/internal/core/auth"
 	"github.com/kupr666/Orange_Team/internal/core/domain"
+	core_errors "github.com/kupr666/Orange_Team/internal/core/errors"
 	core_logger "github.com/kupr666/Orange_Team/internal/core/logger"
 	core_http_request "github.com/kupr666/Orange_Team/internal/core/transport/http/request"
 	core_http_response "github.com/kupr666/Orange_Team/internal/core/transport/http/response"
@@ -63,6 +65,18 @@ func (h *WorkoutsHTTPHandler) PatchWorkout(w http.ResponseWriter, r *http.Reques
 	log := core_logger.FromContext(ctx)
 	responseHandler := core_http_response.NewHTTPResponseHandler(log, w)
 
+	principal, ok := core_auth.PrincipalFromContext(ctx)
+	if !ok {
+		responseHandler.ErrorResponse(
+			fmt.Errorf(
+				"authenticated principal is missing: %w",
+				core_errors.ErrUnauthorized,
+			),
+			"valid JWT token is required",
+		)
+		return
+	}
+
 	workoutID, err := core_http_request.GetUUIDPathValue(r, "workoutId")
 	if err != nil {
 		responseHandler.ErrorResponse(
@@ -90,7 +104,12 @@ func (h *WorkoutsHTTPHandler) PatchWorkout(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	updatedWorkout, err := h.workoutsService.PatchWorkout(ctx, workoutID, workoutPatch)
+	updatedWorkout, err := h.workoutsService.PatchWorkout(
+		ctx,
+		principal.UserID,
+		workoutID,
+		workoutPatch,
+	)
 	if err != nil {
 		responseHandler.ErrorResponse(
 			err,
