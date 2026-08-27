@@ -17,25 +17,22 @@ CREATE TABLE IF NOT EXISTS app.leaderboard_snapshots (
 );
 
 CREATE TABLE IF NOT EXISTS app.leaderboard_snapshot_entries (
-    snapshot_id         UUID         NOT NULL
+    snapshot_id      UUID         NOT NULL
         REFERENCES app.leaderboard_snapshots (id) ON DELETE CASCADE,
-    user_id             UUID         NOT NULL
+    user_id          UUID         NOT NULL
         REFERENCES app.users (id) ON DELETE CASCADE,
-    rank                BIGINT       NOT NULL,
-    score               BIGINT       NOT NULL,
-    completed_workouts  BIGINT       NOT NULL,
-    last_activity_at    TIMESTAMPTZ,
+    rank             BIGINT       NOT NULL,
+    score            BIGINT       NOT NULL,
+    last_activity_at TIMESTAMPTZ,
 
     PRIMARY KEY (snapshot_id, user_id),
     CONSTRAINT leaderboard_snapshot_entries_rank_check CHECK (rank > 0),
-    CONSTRAINT leaderboard_snapshot_entries_score_check CHECK (score >= 0),
-    CONSTRAINT leaderboard_snapshot_entries_workouts_check
-        CHECK (completed_workouts >= 0)
+    CONSTRAINT leaderboard_snapshot_entries_score_check CHECK (score >= 0)
 );
 
 CREATE INDEX leaderboard_snapshot_entries_rank_idx
     ON app.leaderboard_snapshot_entries (snapshot_id, rank, user_id)
-    INCLUDE (score, completed_workouts, last_activity_at);
+    INCLUDE (score, last_activity_at);
 
 CREATE INDEX workouts_completed_period_user_idx
     ON app.workouts (completed_at, user_id)

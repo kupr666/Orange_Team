@@ -12,14 +12,13 @@ type scanner interface {
 }
 
 type LeaderboardEntryModel struct {
-	Rank              *int64
-	UserID            uuid.UUID
-	FullName          string
-	Score             int64
-	CompletedWorkouts int64
-	LastActivityAt    *time.Time
-	IsCurrentUser     bool
-	IsInTop           bool
+	Rank           *int
+	UserID         uuid.UUID
+	FullName       string
+	Score          int
+	LastActivityAt *time.Time
+	IsCurrentUser  bool
+	IsInTop        bool
 }
 
 func (m *LeaderboardEntryModel) Scan(row scanner) error {
@@ -28,7 +27,6 @@ func (m *LeaderboardEntryModel) Scan(row scanner) error {
 		&m.UserID,
 		&m.FullName,
 		&m.Score,
-		&m.CompletedWorkouts,
 		&m.LastActivityAt,
 		&m.IsCurrentUser,
 		&m.IsInTop,
@@ -37,13 +35,12 @@ func (m *LeaderboardEntryModel) Scan(row scanner) error {
 
 func domainFromEntryModel(model LeaderboardEntryModel) domain.LeaderboardEntry {
 	return domain.LeaderboardEntry{
-		Rank:              model.Rank,
-		UserID:            model.UserID,
-		FullName:          model.FullName,
-		Score:             model.Score,
-		CompletedWorkouts: model.CompletedWorkouts,
-		LastActivityAt:    model.LastActivityAt,
-		IsCurrentUser:     model.IsCurrentUser,
-		IsInTop:           model.IsInTop,
+		Rank:           model.Rank,
+		UserID:         model.UserID,
+		FullName:       model.FullName,
+		Score:          model.Score,
+		LastActivityAt: model.LastActivityAt,
+		IsCurrentUser:  model.IsCurrentUser,
+		IsInTop:        model.IsInTop,
 	}
 }

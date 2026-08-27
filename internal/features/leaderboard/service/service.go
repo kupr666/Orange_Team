@@ -14,44 +14,39 @@ const (
 )
 
 type LeaderboardRepository interface {
-	GetLiveLeaderboard(
+	GetLive(
 		ctx context.Context,
 		userID uuid.UUID,
-		periodStart time.Time,
+		periodStart,
 		periodEnd time.Time,
 		limit int,
 	) (domain.LeaderboardRanking, error)
-
-	CreateSnapshot(
-		ctx context.Context,
-		periodType string,
-		periodStart time.Time,
-		periodEnd time.Time,
-		timezone string,
-	) error
-
-	GetSnapshotLeaderboard(
+	GetSnapshot(
 		ctx context.Context,
 		userID uuid.UUID,
 		periodType string,
 		periodStart time.Time,
 		limit int,
 	) (domain.LeaderboardSnapshot, error)
+	CreateSnapshot(
+		ctx context.Context,
+		periodType string,
+		periodStart,
+		periodEnd time.Time,
+		timezone string,
+	) error
 }
 
 type LeaderboardService struct {
-	leaderboardRepository LeaderboardRepository
-	location              *time.Location
-	now                   func() time.Time
+	repo     LeaderboardRepository
+	location *time.Location
+	now      func() time.Time
 }
 
-func NewLeaderboardService(
-	repository LeaderboardRepository,
-	location *time.Location,
-) *LeaderboardService {
+func NewLeaderboardService(repo LeaderboardRepository, location *time.Location) *LeaderboardService {
 	return &LeaderboardService{
-		leaderboardRepository: repository,
-		location:              location,
-		now:                   time.Now,
+		repo:     repo,
+		location: location,
+		now:      time.Now,
 	}
 }

@@ -10,37 +10,17 @@ const (
 	LeaderboardPeriodDaily   = "daily"
 	LeaderboardPeriodWeekly  = "weekly"
 	LeaderboardPeriodMonthly = "monthly"
-
-	LeaderboardStatusLive      = "live"
-	LeaderboardStatusPublished = "published"
-
-	LeaderboardCategoryWorkouts = "workouts"
-	LeaderboardScoringRule      = "completed_workouts_v1"
 )
 
-type LeaderboardEntry struct {
-	Rank              *int64
-	UserID            uuid.UUID
-	FullName          string
-	Score             int64
-	CompletedWorkouts int64
-	LastActivityAt    *time.Time
-	IsCurrentUser     bool
-	IsInTop           bool
-}
+const (
+	LeaderboardStatusLive      = "live"
+	LeaderboardStatusPublished = "published"
+)
 
-type LeaderboardRanking struct {
-	Entries     []LeaderboardEntry
-	CurrentUser LeaderboardEntry
-}
-
-type LeaderboardSnapshot struct {
-	PeriodStart time.Time
-	PeriodEnd   time.Time
-	Timezone    string
-	PublishedAt time.Time
-	Ranking     LeaderboardRanking
-}
+const (
+	LeaderboardCategoryWorkouts = "workouts"
+	LeaderboardScoringRule      = "workouts_count"
+)
 
 type Leaderboard struct {
 	Period        string
@@ -52,4 +32,27 @@ type Leaderboard struct {
 	GeneratedAt   time.Time
 	NextRefreshAt time.Time
 	Ranking       LeaderboardRanking
+}
+
+type LeaderboardRanking struct {
+	Entries     []LeaderboardEntry
+	CurrentUser LeaderboardEntry
+}
+
+type LeaderboardEntry struct {
+	Rank           *int
+	UserID         uuid.UUID
+	FullName       string
+	Score          int
+	LastActivityAt *time.Time
+	IsCurrentUser  bool
+	IsInTop        bool
+}
+
+type LeaderboardSnapshot struct {
+	PeriodStart time.Time
+	PeriodEnd   time.Time
+	Timezone    string
+	PublishedAt time.Time
+	Ranking     LeaderboardRanking
 }
