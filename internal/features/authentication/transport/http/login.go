@@ -8,46 +8,48 @@ import (
 	core_http_response "github.com/kupr666/Orange_Team/internal/core/transport/http/response"
 )
 
-type RegisterUserRequestDTO struct {
-	Email    string `json:"email" validate:"required,email,max=30"`
-	Password string `json:"password" validate:"required,min=8"`
-	FullName string `json:"full_name" validate:"required,min=2,max=50"`
+type loginRequestDTO struct {
+	Email    string `json:"email" validate:"required"`
+	Password string `json:"password" validate:"required"`
 }
 
-type RegisterUserResponseDTO UserDTOResponse
+type loginResponseDTO struct {
+	AccessToken string `json:"access_token"`
+	TokenType   string `json:"token_type"`
+}
 
-func (h *AuthenticationHTTPHandler) RegisterUser(
-	w http.ResponseWriter,
-	r *http.Request,
-) {
+func (h *AuthenticationHTTPHandler) Login(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	log := core_logger.FromContext(ctx)
 	responseHandler := core_http_response.NewHTTPResponseHandler(log, w)
 
-	var request RegisterUserRequestDTO
+	var request loginRequestDTO
 	if err := core_http_request.DecodeAndValidateRequest(r, &request); err != nil {
 		responseHandler.ErrorResponse(
 			err,
-			"failed to decode and validate request",
+			"failed to decode and validate HTTP request",
 		)
+
 		return
 	}
 
-	createdUser, err := h.authenticationService.RegisterUser(
+	loginResult, err := h.authenticationService.Login(
 		ctx,
 		request.Email,
 		request.Password,
-		request.FullName,
 	)
 	if err != nil {
 		responseHandler.ErrorResponse(
 			err,
-			"failed to create user",
+			"failed to login",
 		)
+
 		return
 	}
 
-	response := RegisterUserResponseDTO(userDTOFromDomain(createdUser))
-
-	responseHandler.JSONResponse(response, http.StatusCreated)
+	response := loginResponseDTO{
+		AccessToken: loginResult.AccessToken,
+		TokenType:   loginResult.TokenType,
+	}
+	responseHandler.JSONResponse(response, http.StatusOK)
 }

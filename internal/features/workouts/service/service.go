@@ -28,16 +28,19 @@ type WorkoutsRepository interface {
 
 	GetWorkout(
 		ctx context.Context,
+		userID uuid.UUID,
 		workoutID uuid.UUID,
 	) (domain.Workout, error)
 
 	DeleteWorkout(
 		ctx context.Context,
+		userID uuid.UUID,
 		workoutID uuid.UUID,
 	) error
 
 	PatchWorkout(
 		ctx context.Context,
+		userID uuid.UUID,
 		workout domain.Workout,
 	) (domain.Workout, error)
 }

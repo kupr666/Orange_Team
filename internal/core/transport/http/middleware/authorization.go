@@ -18,6 +18,7 @@ func RequireRole(allowedRoles ...string) Middleware {
 	for _, role := range allowedRoles {
 		allowed[role] = struct{}{}
 	}
+	
 
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -29,6 +30,7 @@ func RequireRole(allowedRoles ...string) Middleware {
 				respondAuthenticationFailure(
 					responseHandler,
 					errors.New("authenticated principal is missing"),
+						
 				)
 				return
 			}

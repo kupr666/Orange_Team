@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/google/uuid"
 	"github.com/kupr666/Orange_Team/internal/core/domain"
 	core_errors "github.com/kupr666/Orange_Team/internal/core/errors"
 	core_postgres_pool "github.com/kupr666/Orange_Team/internal/core/repository/postgres/pool"
@@ -12,6 +13,7 @@ import (
 
 func (r *WorkoutsRepository) PatchWorkout(
 	ctx context.Context,
+	userID uuid.UUID,
 	workout domain.Workout,
 ) (domain.Workout, error) {
 	ctx, cancel := context.WithTimeout(ctx, r.pool.OpTimeout())
@@ -28,7 +30,7 @@ func (r *WorkoutsRepository) PatchWorkout(
 		workout_score = $5,
 		intensity = $6,
 		personal_score_coefficient = $7
-	WHERE id = $1 AND version = $8
+	WHERE id = $1 AND user_id = $8 AND version = $9 
 	RETURNING
 		id,
 		version,
@@ -53,6 +55,7 @@ func (r *WorkoutsRepository) PatchWorkout(
 		workout.WorkoutScore,
 		workout.Intensity,
 		workout.PersonalScoreCoefficient,
+		workout.UserID,
 		workout.Version,
 	)
 

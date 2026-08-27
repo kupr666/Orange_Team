@@ -1,0 +1,301 @@
+{
+  "info": {
+    "_postman_id": "8a5b7deb-105b-44bf-b94a-9a1a71e2d855",
+    "name": "sport_app",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "51407717",
+    "_collection_link": "https://go.postman.co/collection/51407717-8a5b7deb-105b-44bf-b94a-9a1a71e2d855?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "authentication",
+      "item": [
+        {
+          "name": "regiser_user",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"password\": \"lyosha2281337\",\n    \"email\": \"kupr8503@gmail.com\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url_sport}}/register",
+              "host": [
+                "{{base_url_sport}}"
+              ],
+              "path": [
+                "register"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "login_user",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"email\": \"kupr8503@gmail.com\",\n    \"password\": \"lyosha2281337\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url_sport}}/login",
+              "host": [
+                "{{base_url_sport}}"
+              ],
+              "path": [
+                "login"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "workouts",
+      "item": [
+        {
+          "name": "get_workout_by_id",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "}\n",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url_sport}}/wokrout/1",
+              "host": [
+                "{{base_url_sport}}"
+              ],
+              "path": [
+                "wokrout",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "create_workout",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoidXNlciIsImlzcyI6InNvbG8tbGV2ZWxpbmctYXBpIiwic3ViIjoiMjIyNmVlMjUtOWY0Ny00NTNmLWFkZTctNjJhZjAyZjA0NTIwIiwiYXVkIjpbInNvbG8tbGV2ZWxpbmctY2xpZW50Il0sImV4cCI6MTc4NzgzODI0NiwibmJmIjoxNzg3ODM3MzQ2LCJpYXQiOjE3ODc4MzczNDYsImp0aSI6IjJkMGU3MDVmLTkyMTktNDkwMS04YjdjLTQ1ZjJlZjYwMjBhZCJ9.pKjVYQmFhYDuvvCQRAKqtCAvGlH7NV1e88ukSpF5Omo",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url_sport}}/workouts",
+              "host": [
+                "{{base_url_sport}}"
+              ],
+              "path": [
+                "workouts"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "delete_workout",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url_sport}}/workouts/278013ad-f84a-46f4-bd91-b17a3e79aa90",
+              "host": [
+                "{{base_url_sport}}"
+              ],
+              "path": [
+                "workouts",
+                "278013ad-f84a-46f4-bd91-b17a3e79aa90"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "patch_workout",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYWRtaW4iLCJpc3MiOiJzb2xvLWxldmVsaW5nLWFwaSIsInN1YiI6IjIyMjZlZTI1LTlmNDctNDUzZi1hZGU3LTYyYWYwMmYwNDUyMCIsImF1ZCI6WyJzb2xvLWxldmVsaW5nLWNsaWVudCJdLCJleHAiOjE3ODc4NDE3NDIsIm5iZiI6MTc4Nzg0MDg0MiwiaWF0IjoxNzg3ODQwODQyLCJqdGkiOiI3YmI4MjAwMC00OWM5LTQ0ZDEtOWQxNC02MWE4YjcxNTM4MDAifQ.ZN_8I2yYPxFM2jD7la37tCjKy65OLgyuQ9AjF7tndmc",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"status\": \"in_progress\",\n    \"started_at\": \"2026-08-27T13:30:00+03:00\"\n    // intensity is only for completed workouts\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url_sport}}/workouts/278013ad-f84a-46f4-bd91-b17a3e79aa90",
+              "host": [
+                "{{base_url_sport}}"
+              ],
+              "path": [
+                "workouts",
+                "278013ad-f84a-46f4-bd91-b17a3e79aa90"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "get_all_workouts",
+          "request": {
+            "method": "GET",
+            "header": []
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "exercises",
+      "item": [
+        {
+          "name": "create_exercise",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYWRtaW4iLCJpc3MiOiJzb2xvLWxldmVsaW5nLWFwaSIsInN1YiI6IjIyMjZlZTI1LTlmNDctNDUzZi1hZGU3LTYyYWYwMmYwNDUyMCIsImF1ZCI6WyJzb2xvLWxldmVsaW5nLWNsaWVudCJdLCJleHAiOjE3ODc4NDE1MDMsIm5iZiI6MTc4Nzg0MDYwMywiaWF0IjoxNzg3ODQwNjAzLCJqdGkiOiI1Nzk1Nzk5Ni0yNmY3LTQ0MmQtYmY4ZS05YjNjMDUwYzZkZTkifQ.xs3GQP1s6j_uvx-Ha4JMs9JPPTpWf1gKJ0Ko7Pu4Q9Y",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"Pull Ups\",\n    \"difficulty\": 4,\n    \"description\": \"deep pull ups\",\n    \"type\": \"weight\" // this field can be weight or duration\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url_sport}}/exercises",
+              "host": [
+                "{{base_url_sport}}"
+              ],
+              "path": [
+                "exercises"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "get_all_exercises",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYWRtaW4iLCJpc3MiOiJzb2xvLWxldmVsaW5nLWFwaSIsInN1YiI6IjIyMjZlZTI1LTlmNDctNDUzZi1hZGU3LTYyYWYwMmYwNDUyMCIsImF1ZCI6WyJzb2xvLWxldmVsaW5nLWNsaWVudCJdLCJleHAiOjE3ODc4NDE1MDMsIm5iZiI6MTc4Nzg0MDYwMywiaWF0IjoxNzg3ODQwNjAzLCJqdGkiOiI1Nzk1Nzk5Ni0yNmY3LTQ0MmQtYmY4ZS05YjNjMDUwYzZkZTkifQ.xs3GQP1s6j_uvx-Ha4JMs9JPPTpWf1gKJ0Ko7Pu4Q9Y",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url_sport}}/exercises",
+              "host": [
+                "{{base_url_sport}}"
+              ],
+              "path": [
+                "exercises"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url_sport",
+      "value": ""
+    }
+  ]
+}

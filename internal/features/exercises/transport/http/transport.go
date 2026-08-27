@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/kupr666/Orange_Team/internal/core/domain"
+	core_http_middleware "github.com/kupr666/Orange_Team/internal/core/transport/http/middleware"
 	core_http_server "github.com/kupr666/Orange_Team/internal/core/transport/http/server"
 )
 
@@ -31,17 +32,25 @@ func NewExercisesHTTPHandler(exercisesService ExercisesService) *ExercisesHTTPHa
 	}
 }
 
-func (h *ExercisesHTTPHandler) Routes() []core_http_server.Route {
+func (h *ExercisesHTTPHandler) Routes(
+	authenticate core_http_middleware.Middleware,
+) []core_http_server.Route {
 	return []core_http_server.Route{
 		{
 			Method:  http.MethodGet,
 			Path:    "/exercises",
 			Handler: h.GetExercises,
 		},
+
 		{
 			Method:  http.MethodPost,
 			Path:    "/exercises",
 			Handler: h.CreateExercise,
+			Middleware: []core_http_middleware.Middleware{
+				authenticate,
+				core_http_middleware.RequireRole("admin"),
+			},
 		},
+
 	}
 }
