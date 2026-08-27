@@ -8,8 +8,8 @@ import (
 	"syscall"
 	"time"
 
-	core_auth_jwt "github.com/kupr666/Orange_Team/internal/core/auth/jwt"
 	api_docs "github.com/kupr666/Orange_Team/docs"
+	core_auth_jwt "github.com/kupr666/Orange_Team/internal/core/auth/jwt"
 	core_logger "github.com/kupr666/Orange_Team/internal/core/logger"
 	core_pgx_pool "github.com/kupr666/Orange_Team/internal/core/repository/postgres/pool/pgx"
 	core_http_middleware "github.com/kupr666/Orange_Team/internal/core/transport/http/middleware"
@@ -84,6 +84,7 @@ func main() {
 		os.Exit(1)
 	}
 	authenticationTransportHTTP := authentication_transport_http.NewAuthenticationHTTPHandler(authenticationService)
+
 	log.Debug("initializing feature", "feature", "users")
 	usersRepository := users_postgres_repository.NewUsersRepository(pool)
 	usersService := users_service.NewUsersService(usersRepository)
@@ -123,7 +124,7 @@ func main() {
 
 	apiVersionRouterV1 := core_http_server.NewApiVersionRouter(core_http_server.ApiVersion1)
 	apiVersionRouterV1.RegisterRoutes(authenticationTransportHTTP.Routes()...)
-	apiVersionRouterV1.RegisterRoutes(exercisesTransportHTTP.Routes(authenticationMiddleware, )...)
+	apiVersionRouterV1.RegisterRoutes(exercisesTransportHTTP.Routes(authenticationMiddleware)...)
 	apiVersionRouterV1.RegisterRoutes(workoutsTransportHTTP.Routes(authenticationMiddleware)...)
 
 	apiVersionRouterV1.RegisterRoutes(leaderboardTransportHTTP.Routes()...)
