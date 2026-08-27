@@ -13,6 +13,9 @@ const (
 	StatusInProgress = "in_progress"
 	StatusCompleted  = "completed"
 	StatusCancelled  = "cancelled"
+
+	IntensityMin = 1
+	IntensityMax = 10
 )
 
 var AllowedStatuses = map[string]bool{
@@ -108,9 +111,11 @@ func (w *Workout) Validate() error {
 				core_errors.ErrInvalidArgument,
 			)
 		}
-		if *w.Intensity < 1 || *w.Intensity > 10 {
+		if *w.Intensity < IntensityMin || *w.Intensity > IntensityMax {
 			return fmt.Errorf(
-				"intensity must be between 1 and 10: %w",
+				"intensity must be between %d and %d: %w",
+				IntensityMin,
+				IntensityMax,
 				core_errors.ErrInvalidArgument,
 			)
 		}
