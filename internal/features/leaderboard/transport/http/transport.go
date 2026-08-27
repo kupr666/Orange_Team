@@ -10,8 +10,17 @@ import (
 )
 
 type LeaderboardService interface {
-	GetDaily(ctx context.Context, userID uuid.UUID, limit int) (domain.Leaderboard, error)
-	GetSnapshot(ctx context.Context, userID uuid.UUID, period string, limit int) (domain.Leaderboard, error)
+	GetDaily(
+		ctx context.Context,
+		userID uuid.UUID,
+		limit int,
+	) (domain.Leaderboard, error)
+	GetSnapshot(
+		ctx context.Context,
+		userID uuid.UUID,
+		period string,
+		limit int,
+	) (domain.Leaderboard, error)
 }
 
 type LeaderboardHTTPHandler struct {
