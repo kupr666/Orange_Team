@@ -6,6 +6,7 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 
 	api_docs "github.com/kupr666/Orange_Team/docs"
 	core_logger "github.com/kupr666/Orange_Team/internal/core/logger"
@@ -18,7 +19,6 @@ import (
 	leaderboard_postgres_repository "github.com/kupr666/Orange_Team/internal/features/leaderboard/repository/postgres"
 	leaderboard_service "github.com/kupr666/Orange_Team/internal/features/leaderboard/service"
 	leaderboard_transport_http "github.com/kupr666/Orange_Team/internal/features/leaderboard/transport/http"
-	leaderboard_worker "github.com/kupr666/Orange_Team/internal/features/leaderboard/worker"
 	users_postgres_repository "github.com/kupr666/Orange_Team/internal/features/users/repository/postgres"
 	users_service "github.com/kupr666/Orange_Team/internal/features/users/service"
 	users_transport_http "github.com/kupr666/Orange_Team/internal/features/users/transport/http"
@@ -57,31 +57,25 @@ func main() {
 	exercisesService := exercises_service.NewExercisesService(exercisesRepository)
 	exercisesTransportHTTP := exercises_transport_http.NewExercisesHTTPHandler(exercisesService)
 
-	log.Debug("initializing feature", "feature", "exercises")
+	log.Debug("initializing feature", "feature", "workouts")
 	workoutsRepository := workouts_postgres_repository.NewWorkoutsRepository(pool)
 	workoutsService := workouts_service.NewWorkoutsService(workoutsRepository)
 	workoutsTransportHTTP := workouts_transport_http.NewWorkoutsHTTPHandler(workoutsService)
 
-	log.Debug("initializing feature", "feature", "leaderboard")
-	leaderboardConfig := leaderboard_service.NewConfigMust()
-	leaderboardRepository := leaderboard_postgres_repository.NewLeaderboardRepository(pool)
-	leaderboardService := leaderboard_service.NewLeaderboardService(
-		leaderboardRepository,
-		leaderboardConfig.LocationMust(),
-	)
-	leaderboardTransportHTTP := leaderboard_transport_http.NewLeaderboardHTTPHandler(
-		leaderboardService,
-	)
-	leaderboardSnapshotWorker := leaderboard_worker.NewSnapshotWorker(
-		leaderboardService,
-		log,
-		leaderboardConfig.SnapshotInterval,
-	)
-	go leaderboardSnapshotWorker.Run(ctx)
 	log.Debug("initializing feature", "feature", "users")
 	usersRepository := users_postgres_repository.NewUsersRepository(pool)
 	usersService := users_service.NewUsersService(usersRepository)
 	usersTransportHTTP := users_transport_http.NewUsersHTTPHandler(usersService)
+
+	log.Debug("initializing feature", "feature", "leaderboard")
+	leaderboardConfig := leaderboard_service.NewConfigMust()
+	leaderboardLocation := leaderboardConfig.LocationMust()
+	leaderboardRepo := leaderboard_postgres_repository.NewLeaderboardRepository(pool)
+	leaderboardService := leaderboard_service.NewLeaderboardService(leaderboardRepo, leaderboardLocation)
+	leaderboardTransportHTTP := leaderboard_transport_http.NewLeaderboardHTTPHandler(leaderboardService)
+
+	log.Debug("starting leaderboard snapshot scheduler", "interval", 1*time.Hour)
+	go leaderboardService.RunScheduler(ctx, 1*time.Hour)
 
 	// log.Debug("initializing feature", "feature", "authentication")
 	// authenticationRepository := authentication_postgres_repository.NewAuthenticationRepository(pool)

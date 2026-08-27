@@ -4,39 +4,41 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/google/uuid"
+	"github.com/kupr666/Orange_Team/internal/core/domain"
 	core_errors "github.com/kupr666/Orange_Team/internal/core/errors"
 	core_http_request "github.com/kupr666/Orange_Team/internal/core/transport/http/request"
 	leaderboard_service "github.com/kupr666/Orange_Team/internal/features/leaderboard/service"
 )
 
-func leaderboardRequestParams(r *http.Request) (uuid.UUID, int, error) {
-	userID, err := core_http_request.GetUUIDQueryParam(r, "user_id")
-	if err != nil {
-		return uuid.Nil, 0, fmt.Errorf("get user_id query parameter: %w", err)
+func leaderboardRequestParams(r *http.Request) (string, int, error) {
+	period := r.URL.Query().Get("period")
+	if period == "" {
+		period = domain.LeaderboardPeriodDaily
 	}
-	if userID == nil || *userID == uuid.Nil {
-		return uuid.Nil, 0, fmt.Errorf(
-			"user_id query parameter is required: %w",
+
+	allowed := map[string]bool{
+		domain.LeaderboardPeriodDaily:   true,
+		domain.LeaderboardPeriodWeekly:  true,
+		domain.LeaderboardPeriodMonthly: true,
+	}
+	if !allowed[period] {
+		return "", 0, fmt.Errorf(
+			"period must be one of: daily, weekly, monthly: %w",
 			core_errors.ErrInvalidArgument,
 		)
 	}
 
 	limit := leaderboard_service.DefaultLimit
-	limitParam, err := core_http_request.GetIntQueryParam(r, "limit")
-	if err != nil {
-		return uuid.Nil, 0, fmt.Errorf("get limit query parameter: %w", err)
-	}
-	if limitParam != nil {
+	if limitParam, err := core_http_request.GetIntQueryParam(r, "limit"); err == nil && limitParam != nil {
 		limit = *limitParam
 	}
 	if limit < 1 || limit > leaderboard_service.MaximumLimit {
-		return uuid.Nil, 0, fmt.Errorf(
+		return "", 0, fmt.Errorf(
 			"limit must be between 1 and %d: %w",
 			leaderboard_service.MaximumLimit,
 			core_errors.ErrInvalidArgument,
 		)
 	}
 
-	return *userID, limit, nil
+	return period, limit, nil
 }

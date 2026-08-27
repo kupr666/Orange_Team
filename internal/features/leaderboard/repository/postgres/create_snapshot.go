@@ -46,7 +46,6 @@ func (r *LeaderboardRepository) CreateSnapshot(
 		SELECT
 			workouts.user_id,
 			COUNT(*)::BIGINT AS score,
-			COUNT(*)::BIGINT AS completed_workouts,
 			MAX(workouts.completed_at) AS last_activity_at
 		FROM app.workouts AS workouts
 		WHERE workouts.status = 'completed'
@@ -65,7 +64,6 @@ func (r *LeaderboardRepository) CreateSnapshot(
 		user_id,
 		rank,
 		score,
-		completed_workouts,
 		last_activity_at
 	)
 	SELECT
@@ -73,7 +71,6 @@ func (r *LeaderboardRepository) CreateSnapshot(
 		ranked.user_id,
 		ranked.rank,
 		ranked.score,
-		ranked.completed_workouts,
 		ranked.last_activity_at
 	FROM new_snapshot
 	CROSS JOIN ranked;
@@ -90,8 +87,11 @@ func (r *LeaderboardRepository) CreateSnapshot(
 		timezone,
 		domain.LeaderboardScoringRule,
 	); err != nil {
-		return fmt.Errorf("create %s leaderboard snapshot: %w", periodType, err)
+		return fmt.Errorf(
+			"create %s leaderboard snapshot: %w",
+			periodType,
+			err,
+		)
 	}
-
 	return nil
 }

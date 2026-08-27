@@ -10,51 +10,24 @@ import (
 )
 
 type LeaderboardService interface {
-	GetDailyLeaderboard(
-		ctx context.Context,
-		userID uuid.UUID,
-		limit int,
-	) (domain.Leaderboard, error)
-
-	GetWeeklyLeaderboard(
-		ctx context.Context,
-		userID uuid.UUID,
-		limit int,
-	) (domain.Leaderboard, error)
-
-	GetMonthlyLeaderboard(
-		ctx context.Context,
-		userID uuid.UUID,
-		limit int,
-	) (domain.Leaderboard, error)
+	GetDaily(ctx context.Context, userID uuid.UUID, limit int) (domain.Leaderboard, error)
+	GetSnapshot(ctx context.Context, userID uuid.UUID, period string, limit int) (domain.Leaderboard, error)
 }
 
 type LeaderboardHTTPHandler struct {
 	leaderboardService LeaderboardService
 }
 
-func NewLeaderboardHTTPHandler(
-	leaderboardService LeaderboardService,
-) *LeaderboardHTTPHandler {
-	return &LeaderboardHTTPHandler{leaderboardService: leaderboardService}
+func NewLeaderboardHTTPHandler(service LeaderboardService) *LeaderboardHTTPHandler {
+	return &LeaderboardHTTPHandler{leaderboardService: service}
 }
 
 func (h *LeaderboardHTTPHandler) Routes() []core_http_server.Route {
 	return []core_http_server.Route{
 		{
 			Method:  http.MethodGet,
-			Path:    "/leaderboard/daily",
-			Handler: h.GetDailyLeaderboard,
-		},
-		{
-			Method:  http.MethodGet,
-			Path:    "/leaderboard/weekly",
-			Handler: h.GetWeeklyLeaderboard,
-		},
-		{
-			Method:  http.MethodGet,
-			Path:    "/leaderboard/monthly",
-			Handler: h.GetMonthlyLeaderboard,
+			Path:    "/leaderboard",
+			Handler: h.GetLeaderboard,
 		},
 	}
 }

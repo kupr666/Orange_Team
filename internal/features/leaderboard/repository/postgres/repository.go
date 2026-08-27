@@ -6,8 +6,6 @@ type LeaderboardRepository struct {
 	pool core_postgres_pool.Pool
 }
 
-func NewLeaderboardRepository(
-	pool core_postgres_pool.Pool,
-) *LeaderboardRepository {
+func NewLeaderboardRepository(pool core_postgres_pool.Pool) *LeaderboardRepository {
 	return &LeaderboardRepository{pool: pool}
 }
