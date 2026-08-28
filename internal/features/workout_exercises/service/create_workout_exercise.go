@@ -27,7 +27,7 @@ func (s *WorkoutExercisesService) CreateWorkoutExercise(
 		)
 	}
 
-	workout, err := s.workoutRepository.GetWorkout(ctx, workoutID)
+	workout, err := s.workoutRepository.GetWorkout(ctx, userID, workoutID)
 	if err != nil {
 		return domain.WorkoutExercise{}, fmt.Errorf(
 			"get workout: %w",

@@ -46,6 +46,7 @@ type ExerciseRepository interface {
 type WorkoutRepository interface {
 	GetWorkout(
 		ctx context.Context,
+		userID uuid.UUID,
 		workoutID uuid.UUID,
 	) (domain.Workout, error)
 }

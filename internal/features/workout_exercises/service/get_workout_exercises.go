@@ -21,7 +21,7 @@ func (s *WorkoutExercisesService) GetWorkoutExercises(
 		)
 	}
 
-	workout, err := s.workoutRepository.GetWorkout(ctx, workoutID)
+	workout, err := s.workoutRepository.GetWorkout(ctx, userID, workoutID)
 	if err != nil {
 		return nil, fmt.Errorf(
 			"get workout: %w",
