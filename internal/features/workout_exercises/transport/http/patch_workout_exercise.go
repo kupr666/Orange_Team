@@ -40,7 +40,10 @@ func (h *WorkoutExercisesHandler) PatchWorkoutExercise(w http.ResponseWriter, r 
 
 	principal, ok := core_auth.PrincipalFromContext(ctx)
 	if !ok {
-		responseHandler.ErrorResponse(core_errors.ErrUnauthorized, "authenticated user is missing")
+		responseHandler.ErrorResponse(
+			core_errors.ErrUnauthorized,
+			"authenticated user is missing",
+		)
 		return
 	}
 
@@ -51,15 +54,21 @@ func (h *WorkoutExercisesHandler) PatchWorkoutExercise(w http.ResponseWriter, r 
 	}
 	_ = workoutID // не используется напрямую, но может быть полезно для логирования
 
-	workoutExerciseID, err := core_http_request.GetUUIDPathValue(r, "exerciseId")
+	workoutExerciseID, err := core_http_request.GetUUIDPathValue(r, "workoutExerciseId")
 	if err != nil {
-		responseHandler.ErrorResponse(err, "invalid exercise ID")
+		responseHandler.ErrorResponse(
+			err,
+			"invalid exercise ID",
+		)
 		return
 	}
 
 	var request PatchWorkoutExerciseRequest
 	if err := core_http_request.DecodeAndValidateRequest(r, &request); err != nil {
-		responseHandler.ErrorResponse(err, "failed to decode and validate HTTP request")
+		responseHandler.ErrorResponse(
+			err,
+			"failed to decode and validate HTTP request",
+		)
 		return
 	}
 
