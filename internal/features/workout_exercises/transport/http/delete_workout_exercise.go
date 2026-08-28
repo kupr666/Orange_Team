@@ -25,7 +25,7 @@ func (h *WorkoutExercisesHandler) DeleteWorkoutExercise(w http.ResponseWriter, r
 		return
 	}
 
-	workoutID, err := core_http_request.GetUUIDPathValue(r, "workoutExerciseId")
+	workoutID, err := core_http_request.GetUUIDPathValue(r, "workoutId")
 	if err != nil {
 		responseHandler.ErrorResponse(
 			err,
@@ -38,7 +38,7 @@ func (h *WorkoutExercisesHandler) DeleteWorkoutExercise(w http.ResponseWriter, r
 	if err != nil {
 		responseHandler.ErrorResponse(
 			err,
-			"invalid exercise ID",
+			"invalid workout exercise ID",
 		)
 		return
 	}

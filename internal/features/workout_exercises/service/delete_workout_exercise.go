@@ -22,7 +22,7 @@ func (s *WorkoutExercisesService) DeleteWorkoutExercise(
 		)
 	}
 
-	workout, err := s.workoutRepository.GetWorkout(ctx, workoutID)
+	workout, err := s.repository.GetWorkout(ctx, userID, workoutID)
 	if err != nil {
 		return fmt.Errorf(
 			"get workout: %w",
@@ -37,7 +37,7 @@ func (s *WorkoutExercisesService) DeleteWorkoutExercise(
 		)
 	}
 
-	if err := s.workoutExercisesRepository.DeleteWorkoutExercise(ctx, workoutExerciseID); err != nil {
+	if err := s.repository.DeleteWorkoutExercise(ctx, workoutID, workoutExerciseID); err != nil {
 		return fmt.Errorf(
 			"delete workout exercise: %w",
 			err,

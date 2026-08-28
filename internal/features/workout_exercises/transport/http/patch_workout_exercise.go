@@ -49,11 +49,9 @@ func (h *WorkoutExercisesHandler) PatchWorkoutExercise(w http.ResponseWriter, r 
 		responseHandler.ErrorResponse(err, "invalid workout ID")
 		return
 	}
-	_ = workoutID // не используется напрямую, но может быть полезно для логирования
-
-	workoutExerciseID, err := core_http_request.GetUUIDPathValue(r, "exerciseId")
+	workoutExerciseID, err := core_http_request.GetUUIDPathValue(r, "workoutExerciseId")
 	if err != nil {
-		responseHandler.ErrorResponse(err, "invalid exercise ID")
+		responseHandler.ErrorResponse(err, "invalid workout exercise ID")
 		return
 	}
 
@@ -74,6 +72,7 @@ func (h *WorkoutExercisesHandler) PatchWorkoutExercise(w http.ResponseWriter, r 
 	workoutExerciseDomain, err := h.workoutExercisesService.PatchWorkoutExercise(
 		ctx,
 		principal.UserID,
+		workoutID,
 		workoutExerciseID,
 		patch,
 	)

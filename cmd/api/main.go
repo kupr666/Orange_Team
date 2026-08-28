@@ -26,6 +26,9 @@ import (
 	users_postgres_repository "github.com/kupr666/Orange_Team/internal/features/users/repository/postgres"
 	users_service "github.com/kupr666/Orange_Team/internal/features/users/service"
 	users_transport_http "github.com/kupr666/Orange_Team/internal/features/users/transport/http"
+	workout_exercises_postgres_repository "github.com/kupr666/Orange_Team/internal/features/workout_exercises/repository/postgres"
+	workout_exercises_service "github.com/kupr666/Orange_Team/internal/features/workout_exercises/service"
+	workout_exercises_transport_http "github.com/kupr666/Orange_Team/internal/features/workout_exercises/transport/http"
 	workouts_postgres_repository "github.com/kupr666/Orange_Team/internal/features/workouts/repository/postgres"
 	workouts_service "github.com/kupr666/Orange_Team/internal/features/workouts/service"
 	workouts_transport_http "github.com/kupr666/Orange_Team/internal/features/workouts/transport/http"
@@ -61,10 +64,20 @@ func main() {
 	exercisesService := exercises_service.NewExercisesService(exercisesRepository)
 	exercisesTransportHTTP := exercises_transport_http.NewExercisesHTTPHandler(exercisesService)
 
-	log.Debug("initializing feature", "feature", "exercises")
+	log.Debug("initializing feature", "feature", "workouts")
 	workoutsRepository := workouts_postgres_repository.NewWorkoutsRepository(pool)
 	workoutsService := workouts_service.NewWorkoutsService(workoutsRepository)
 	workoutsTransportHTTP := workouts_transport_http.NewWorkoutsHTTPHandler(workoutsService)
+
+	log.Debug("initializing feature", "feature", "users")
+	usersRepository := users_postgres_repository.NewUsersRepository(pool)
+	usersService := users_service.NewUsersService(usersRepository)
+	usersTransportHTTP := users_transport_http.NewUsersHTTPHandler(usersService)
+
+	log.Debug("initializing feature", "feature", "workout_exercises")
+	workoutExercisesRepository := workout_exercises_postgres_repository.NewWorkoutExercisesRepository(pool)
+	workoutExercisesService := workout_exercises_service.NewWorkoutExercisesService(workoutExercisesRepository)
+	workoutExercisesTransportHTTP := workout_exercises_transport_http.NewWorkoutExercisesHandler(workoutExercisesService)
 
 	log.Debug("initializing feature", "feature", "authentication")
 	authenticationRepository := authentication_postgres_repository.NewAuthenticationRepository(pool)
@@ -84,7 +97,7 @@ func main() {
 		os.Exit(1)
 	}
 	authenticationTransportHTTP := authentication_transport_http.NewAuthenticationHTTPHandler(authenticationService)
-	
+
 	log.Debug("initializing feature", "feature", "leaderboard")
 	leaderboardConfig := leaderboard_service.NewConfigMust()
 	leaderboardRepository := leaderboard_postgres_repository.NewLeaderboardRepository(pool)
@@ -101,10 +114,6 @@ func main() {
 		leaderboardConfig.SnapshotInterval,
 	)
 	go leaderboardSnapshotWorker.Run(ctx)
-	log.Debug("initializing feature", "feature", "users")
-	usersRepository := users_postgres_repository.NewUsersRepository(pool)
-	usersService := users_service.NewUsersService(usersRepository)
-	usersTransportHTTP := users_transport_http.NewUsersHTTPHandler(usersService)
 
 	// log.Debug("initializing feature", "feature", "authentication")
 	// authenticationRepository := authentication_postgres_repository.NewAuthenticationRepository(pool)
@@ -112,8 +121,8 @@ func main() {
 	// authenticationTransportHTTP := authentication_transport_http.NewAuthenticationHTTPHandler(authenticationService)
 
 	/*
-
-		SOME FEATURE
+		o
+				SOME FEATURE
 
 	*/
 
@@ -135,7 +144,8 @@ func main() {
 	// add authenticate middleware later
 	apiVersionRouterV1.RegisterRoutes(leaderboardTransportHTTP.Routes()...)
 	apiVersionRouterV1.RegisterRoutes(usersTransportHTTP.Routes(authenticationMiddleware)...)
-	
+	apiVersionRouterV1.RegisterRoutes(workoutExercisesTransportHTTP.Routes(authenticationMiddleware)...)
+
 	httpServer.RegisterRouters(
 		apiVersionRouterV1,
 	)

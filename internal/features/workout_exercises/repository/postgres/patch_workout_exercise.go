@@ -18,25 +18,26 @@ func (r *WorkoutExercisesRepository) PatchWorkoutExercise(
 	defer cancel()
 
 	query := `
-	UPDATE app.workout_exercises
-	SET
-		weight = $3,
-		sets = $4,
-		reps = $5,
-		duration = $6,
-		completed = $7,
-		exercise_load = $8,
-		version = version + 1,
-		updated_at = NOW()
-	WHERE id = $1 AND version = $2
-	RETURNING id, workout_id, exercise_id, weight, sets, reps, duration,
-		completed, exercise_load, created_at, updated_at, version
-	`
+		UPDATE app.workout_exercises
+		SET
+			weight = $4,
+			sets = $5,
+			reps = $6,
+			duration = $7,
+			completed = $8,
+			exercise_load = $9,
+			version = version + 1,
+			updated_at = NOW()
+		WHERE id = $1 AND workout_id = $2 AND version = $3
+		RETURNING id, version, workout_id, exercise_id, weight, sets, reps, duration,
+			completed, exercise_load, created_at, updated_at
+		`
 
 	row := r.pool.QueryRow(
 		ctx,
 		query,
 		workoutExercise.ID,
+		workoutExercise.WorkoutID,
 		workoutExercise.Version,
 		workoutExercise.Weight,
 		workoutExercise.Sets,

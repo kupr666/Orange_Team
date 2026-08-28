@@ -19,6 +19,12 @@ type WorkoutExercisesRepository interface {
 		workoutID uuid.UUID,
 	) ([]domain.WorkoutExercise, error)
 
+	GetWorkoutExercise(
+		ctx context.Context,
+		workoutID uuid.UUID,
+		workoutExerciseID uuid.UUID,
+	) (domain.WorkoutExercise, error)
+
 	PatchWorkoutExercise(
 		ctx context.Context,
 		workoutExercise domain.WorkoutExercise,
@@ -26,25 +32,21 @@ type WorkoutExercisesRepository interface {
 
 	DeleteWorkoutExercise(
 		ctx context.Context,
+		workoutID uuid.UUID,
 		workoutExerciseID uuid.UUID,
 	) error
-}
 
-type ExerciseRepository interface {
 	GetExercise(
 		ctx context.Context,
 		exerciseID uuid.UUID,
 	) (domain.Exercise, error)
-}
 
-type WorkoutRepository interface {
 	GetWorkout(
 		ctx context.Context,
+		userID uuid.UUID,
 		workoutID uuid.UUID,
 	) (domain.Workout, error)
-}
 
-type WorkoutScoreUpdater interface {
 	UpdateWorkoutScore(
 		ctx context.Context,
 		workoutID uuid.UUID,
@@ -58,24 +60,15 @@ type WorkoutScoreUpdater interface {
 }
 
 type WorkoutExercisesService struct {
-	workoutExercisesRepository WorkoutExercisesRepository
-	exerciseRepository         ExerciseRepository
-	workoutRepository          WorkoutRepository
-	workoutUpdater             WorkoutScoreUpdater
-	now                        func() time.Time
+	repository WorkoutExercisesRepository
+	now        func() time.Time
 }
 
 func NewWorkoutExercisesService(
-	workoutExercisesRepository WorkoutExercisesRepository,
-	exercisesRepository ExerciseRepository,
-	workoutRepository WorkoutRepository,
-	workoutUpdater WorkoutScoreUpdater,
+	repository WorkoutExercisesRepository,
 ) *WorkoutExercisesService {
 	return &WorkoutExercisesService{
-		workoutExercisesRepository: workoutExercisesRepository,
-		exerciseRepository:         exercisesRepository,
-		workoutRepository:          workoutRepository,
-		workoutUpdater:             workoutUpdater,
-		now:                        time.Now,
+		repository: repository,
+		now:        time.Now,
 	}
 }

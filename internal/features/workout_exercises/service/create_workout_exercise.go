@@ -27,7 +27,7 @@ func (s *WorkoutExercisesService) CreateWorkoutExercise(
 		)
 	}
 
-	workout, err := s.workoutRepository.GetWorkout(ctx, workoutID)
+	workout, err := s.repository.GetWorkout(ctx, userID, workoutID)
 	if err != nil {
 		return domain.WorkoutExercise{}, fmt.Errorf(
 			"get workout: %w",
@@ -42,7 +42,7 @@ func (s *WorkoutExercisesService) CreateWorkoutExercise(
 		)
 	}
 
-	exercise, err := s.exerciseRepository.GetExercise(ctx, exerciseID)
+	exercise, err := s.repository.GetExercise(ctx, exerciseID)
 	if err != nil {
 		return domain.WorkoutExercise{}, fmt.Errorf(
 			"get exercise: %w",
@@ -75,14 +75,14 @@ func (s *WorkoutExercisesService) CreateWorkoutExercise(
 		exercise.Type,
 	)
 
-	if err := workoutExercise.Validate(); err != nil {
+	if err := workoutExercise.ValidateForExerciseType(exercise.Type); err != nil {
 		return domain.WorkoutExercise{}, fmt.Errorf(
 			"validate workout exercise: %w",
 			err,
 		)
 	}
 
-	createdWorkoutExercise, err := s.workoutExercisesRepository.CreateWorkoutExercise(ctx, workoutExercise)
+	createdWorkoutExercise, err := s.repository.CreateWorkoutExercise(ctx, workoutExercise)
 	if err != nil {
 		return domain.WorkoutExercise{}, fmt.Errorf(
 			"create workout exercise: %w",

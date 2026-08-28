@@ -96,15 +96,23 @@ func CreateWorkoutExercise(
 }
 
 func (workoutExercise *WorkoutExercise) Validate() error {
-	hasWeight := workoutExercise.Weight != nil && workoutExercise.Sets != nil && workoutExercise.Reps != nil
+	hasAnyWeightField := workoutExercise.Weight != nil || workoutExercise.Sets != nil || workoutExercise.Reps != nil
+	hasAllWeightFields := workoutExercise.Weight != nil && workoutExercise.Sets != nil && workoutExercise.Reps != nil
 	hasDuration := workoutExercise.Duration != nil
-	if !hasWeight && !hasDuration {
+
+	if hasAnyWeightField && !hasAllWeightFields {
+		return fmt.Errorf(
+			"weight, sets and reps must be provided together: %w",
+			core_errors.ErrInvalidArgument,
+		)
+	}
+	if !hasAllWeightFields && !hasDuration {
 		return fmt.Errorf(
 			"either (weight, sets, reps) or duration must be provided: %w",
 			core_errors.ErrInvalidArgument,
 		)
 	}
-	if hasWeight && hasDuration {
+	if hasAllWeightFields && hasDuration {
 		return fmt.Errorf(
 			"cannot provide both (weight, sets, reps) and duration: %w",
 			core_errors.ErrInvalidArgument,
@@ -172,6 +180,13 @@ func NewWorkoutExercisePatch(
 }
 
 func (p *WorkoutExercisePatch) Validate() error {
+	if !p.Weight.Set && !p.Sets.Set && !p.Reps.Set && !p.Duration.Set && !p.Completed.Set {
+		return fmt.Errorf(
+			"at least one field must be patched: %w",
+			core_errors.ErrInvalidArgument,
+		)
+	}
+
 	if p.Completed.Set && p.Completed.Value == nil {
 		return fmt.Errorf(
 			"completed cannot be patched to NULL: %w",
@@ -209,7 +224,7 @@ func (workoutExercise *WorkoutExercise) ApplyPatch(patch WorkoutExercisePatch, e
 
 	tmp.ExerciseLoad = tmp.CalculateLoad(exerciseType)
 
-	if err := tmp.Validate(); err != nil {
+	if err := tmp.ValidateForExerciseType(exerciseType); err != nil {
 		return fmt.Errorf(
 			"validate patched workout exercise: %w",
 			err,
@@ -217,5 +232,42 @@ func (workoutExercise *WorkoutExercise) ApplyPatch(patch WorkoutExercisePatch, e
 	}
 
 	*workoutExercise = tmp
+	return nil
+}
+
+func (workoutExercise *WorkoutExercise) ValidateForExerciseType(exerciseType string) error {
+	if err := workoutExercise.Validate(); err != nil {
+		return err
+	}
+
+	switch exerciseType {
+	case ExerciseTypeWeight:
+		if workoutExercise.Weight == nil ||
+			workoutExercise.Sets == nil ||
+			workoutExercise.Reps == nil ||
+			workoutExercise.Duration != nil {
+			return fmt.Errorf(
+				"weight exercise requires weight, sets and reps only: %w",
+				core_errors.ErrInvalidArgument,
+			)
+		}
+	case ExerciseTypeDuration:
+		if workoutExercise.Duration == nil ||
+			workoutExercise.Weight != nil ||
+			workoutExercise.Sets != nil ||
+			workoutExercise.Reps != nil {
+			return fmt.Errorf(
+				"duration exercise requires duration only: %w",
+				core_errors.ErrInvalidArgument,
+			)
+		}
+	default:
+		return fmt.Errorf(
+			"unsupported exercise type %q: %w",
+			exerciseType,
+			core_errors.ErrInvalidArgument,
+		)
+	}
+
 	return nil
 }

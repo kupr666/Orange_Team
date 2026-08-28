@@ -55,6 +55,11 @@ func (r *WorkoutExercisesRepository) CreateWorkoutExercise(
 				core_errors.ErrNotFound,
 			)
 		}
+
+		return domain.WorkoutExercise{}, fmt.Errorf(
+			"scan created workout exercise: %w",
+			err,
+		)
 	}
 
 	workoutExerciseDomain := domainFromModel(workoutExerciseModel)
