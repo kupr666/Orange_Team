@@ -16,7 +16,7 @@ CREATE TABLE IF NOT EXISTS app.users (
 
 ALTER TABLE app.users ADD CONSTRAINT users_role_check CHECK (role IN ('user', 'admin'));
 ALTER TABLE app.users ADD CONSTRAINT users_mail_length_check CHECK (char_length(mail) BETWEEN 5 AND 30);
-ALTER TABLE app.users ADD CONSTRAINT users_mail_format_check CHECK (mail ~* '^[a-z0-9]([a-z0-9]|[.](?![.]))*[a-z0-9]@[a-z0-9.-]+\.[a-z]{2,}$');
+ALTER TABLE app.users ADD CONSTRAINT users_mail_format_check CHECK (mail ~* '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$');
 
 ALTER TABLE app.users ADD CONSTRAINT users_full_name_length_check CHECK (char_length(trim(full_name)) BETWEEN 2 AND 50);
 ALTER TABLE app.users ADD CONSTRAINT users_full_name_no_leading_trailing_spaces CHECK (full_name = trim(full_name));

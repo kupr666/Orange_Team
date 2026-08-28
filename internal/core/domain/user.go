@@ -31,7 +31,7 @@ const (
 	MinBirthDateYear = 1900
 )
 
-var EmailPattern = regexp.MustCompile(`(?i)^[a-z0-9]([a-z0-9]|[.](?![.]))*[a-z0-9]@[a-z0-9.-]+\.[a-z]{2,}$`)
+var EmailPattern = regexp.MustCompile(`[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}`)
 
 var AllowedSexes = map[string]bool{
 	SexMale:   true,

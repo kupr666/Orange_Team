@@ -1,0 +1,83 @@
+package workout_exercises_service
+
+import (
+	"context"
+	"fmt"
+
+	"github.com/google/uuid"
+	"github.com/kupr666/Orange_Team/internal/core/domain"
+	core_errors "github.com/kupr666/Orange_Team/internal/core/errors"
+)
+
+func (s *WorkoutExercisesService) PatchWorkoutExercise(
+	ctx context.Context,
+	userID uuid.UUID,
+	workoutID uuid.UUID,
+	workoutExerciseID uuid.UUID,
+	patch domain.WorkoutExercisePatch,
+) (domain.WorkoutExercise, error) {
+	if userID == uuid.Nil {
+		return domain.WorkoutExercise{}, fmt.Errorf(
+			"user ID is empty: %w",
+			core_errors.ErrInvalidArgument,
+		)
+	}
+
+	workout, err := s.workoutRepository.GetWorkout(ctx, userID, workoutID)
+	if err != nil {
+		return domain.WorkoutExercise{}, fmt.Errorf(
+			"get workout: %w",
+			err,
+		)
+	}
+
+	if workout.UserID != userID {
+		return domain.WorkoutExercise{}, fmt.Errorf(
+			"user is not the owner of the workout: %w",
+			core_errors.ErrForbidden,
+		)
+	}
+
+	existing, err := s.workoutExercisesRepository.GetWorkoutExercise(ctx, workoutID, workoutExerciseID)
+	if err != nil {
+		return domain.WorkoutExercise{}, fmt.Errorf(
+			"get workout exercise: %w",
+			err,
+		)
+	}
+
+	exercise, err := s.exerciseRepository.GetExercise(ctx, existing.ExerciseID)
+	if err != nil {
+		return domain.WorkoutExercise{}, fmt.Errorf(
+			"get exercise type: %w",
+			err,
+		)
+	}
+
+	if err := existing.ApplyPatch(patch, exercise.Type); err != nil {
+		return domain.WorkoutExercise{}, fmt.Errorf(
+			"apply patch: %w",
+			err,
+		)
+	}
+
+	if err := existing.ValidateForWorkoutExerciseType(exercise.Type); err != nil {
+		return domain.WorkoutExercise{}, fmt.Errorf(
+			"validate patched exercise: %w",
+			err,
+		)
+	}
+
+	workoutExercise, err := s.workoutExercisesRepository.PatchWorkoutExercise(ctx, existing)
+	if err != nil {
+		return domain.WorkoutExercise{}, fmt.Errorf(
+			"update workout exercise: %w",
+			err,
+		)
+	}
+
+	// Пересчитать score (пока заглушка)
+	_ = s.recalculateScore(ctx, workoutID)
+
+	return workoutExercise, nil
+}
