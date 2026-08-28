@@ -122,6 +122,7 @@ func main() {
 		httpConfig,
 		log,
 		core_http_middleware.RequestID(),
+		core_http_middleware.CORS(httpConfig.AllowedOrigins),
 		core_http_middleware.Logger(log),
 		core_http_middleware.Trace(),
 		core_http_middleware.Panic(),

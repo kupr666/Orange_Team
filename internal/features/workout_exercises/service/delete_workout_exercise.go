@@ -51,8 +51,12 @@ func (s *WorkoutExercisesService) DeleteWorkoutExercise(
 		)
 	}
 
-	// Пересчёт workout_score (пока заглушка)
-	_ = s.recalculateScore(ctx, workoutID)
+	if err := s.recalculateScore(ctx, workoutID); err != nil {
+		return fmt.Errorf(
+			"recalculate workout score: %w",
+			err,
+		)
+	}
 
 	return nil
 }

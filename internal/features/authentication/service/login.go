@@ -42,7 +42,7 @@ func (s *AuthenticationService) Login(
 	userFound := true
 
 	if err != nil {
-		if errors.Is(err, core_errors.ErrNotFound) {
+		if !errors.Is(err, core_errors.ErrNotFound) {
 			return LoginResult{}, fmt.Errorf(
 				"get stored credentials: %w",
 				err,

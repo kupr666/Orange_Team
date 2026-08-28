@@ -3,23 +3,156 @@ info:
   title: Orange Team API
   version: 1.0.0
   description: |
-    HTTP API for exercises and workouts.
+    HTTP API for authentication, users, exercises, workouts, workout exercises,
+    and workout leaderboards.
 
-    Workout operations declare their intended Bearer JWT authentication.
-    JWT middleware wiring is still under development, so authorization from
-    Swagger UI will work after that integration is completed.
+    Protected operations require an access token returned by `POST /login`.
 servers:
   - url: /api/v1
-    description: Current server
+    description: Version 1 API
+
 tags:
+  - name: Authentication
+    description: User registration and login
+  - name: Users
+    description: Authenticated user profile
   - name: Exercises
     description: Exercise catalog
   - name: Workouts
-    description: User workouts
+    description: Authenticated user workouts
+  - name: Workout exercises
+    description: Exercises attached to an authenticated user's workout
   - name: Leaderboard
     description: Live daily and published weekly/monthly workout leaderboards
 
 paths:
+  /register:
+    post:
+      tags: [Authentication]
+      summary: Register a user
+      operationId: registerUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RegisterUserRequest"
+            example:
+              email: user@example.com
+              password: strong-password
+              full_name: Alex Smith
+      responses:
+        "201":
+          description: User registered
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  /login:
+    post:
+      tags: [Authentication]
+      summary: Log in
+      operationId: login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginRequest"
+            example:
+              email: user@example.com
+              password: strong-password
+      responses:
+        "200":
+          description: Login succeeded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LoginResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  /users/me:
+    get:
+      tags: [Users]
+      summary: Get the authenticated user's profile
+      operationId: getCurrentUser
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Authenticated user profile
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+    patch:
+      tags: [Users]
+      summary: Patch the authenticated user's profile
+      operationId: patchCurrentUser
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PatchUserRequest"
+            example:
+              sex: male
+              weight_grams: 80000
+              birth_date: "1995-04-12T00:00:00Z"
+              height_cm: 180
+      responses:
+        "200":
+          description: Updated user profile
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+    delete:
+      tags: [Users]
+      summary: Delete the authenticated user
+      operationId: deleteCurrentUser
+      security:
+        - bearerAuth: []
+      responses:
+        "204":
+          description: User deleted
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
   /exercises:
     get:
       tags: [Exercises]
@@ -39,7 +172,10 @@ paths:
     post:
       tags: [Exercises]
       summary: Create an exercise
+      description: Requires an authenticated user with the `admin` role.
       operationId: createExercise
+      security:
+        - bearerAuth: []
       requestBody:
         required: true
         content:
@@ -60,6 +196,10 @@ paths:
                 $ref: "#/components/schemas/Exercise"
         "400":
           $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
         "409":
           $ref: "#/components/responses/Conflict"
         "500":
@@ -68,7 +208,7 @@ paths:
   /workouts:
     get:
       tags: [Workouts]
-      summary: List workouts of the authenticated user
+      summary: List the authenticated user's workouts
       operationId: getWorkouts
       security:
         - bearerAuth: []
@@ -88,8 +228,8 @@ paths:
     post:
       tags: [Workouts]
       summary: Create a planned workout
-      operationId: createWorkout
       description: Creates a workout for the authenticated user. No request body is required.
+      operationId: createWorkout
       security:
         - bearerAuth: []
       responses:
@@ -132,7 +272,6 @@ paths:
           $ref: "#/components/responses/NotFound"
         "500":
           $ref: "#/components/responses/InternalServerError"
-
     patch:
       tags: [Workouts]
       summary: Patch a workout
@@ -172,7 +311,6 @@ paths:
           $ref: "#/components/responses/Conflict"
         "500":
           $ref: "#/components/responses/InternalServerError"
-
     delete:
       tags: [Workouts]
       summary: Delete a workout
@@ -191,6 +329,145 @@ paths:
         "500":
           $ref: "#/components/responses/InternalServerError"
 
+  /workouts/{workoutId}/exercises:
+    parameters:
+      - $ref: "#/components/parameters/WorkoutID"
+    get:
+      tags: [Workout exercises]
+      summary: List exercises attached to a workout
+      operationId: getWorkoutExercises
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Workout exercise list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/WorkoutExercise"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+    post:
+      tags: [Workout exercises]
+      summary: Attach an exercise to a workout
+      description: |
+        Weight exercises require `weight`, `sets`, and `reps`. Duration exercises
+        require `duration`. The two input forms cannot be combined.
+      operationId: createWorkoutExercise
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateWorkoutExerciseRequest"
+            examples:
+              weightExercise:
+                value:
+                  exercise_id: 11111111-1111-1111-1111-111111111111
+                  weight: 80
+                  sets: 4
+                  reps: 8
+                  completed: true
+              durationExercise:
+                value:
+                  exercise_id: 22222222-2222-2222-2222-222222222222
+                  duration: 900
+                  completed: false
+      responses:
+        "201":
+          description: Workout exercise created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WorkoutExercise"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  /workouts/{workoutId}/exercises/{workoutExerciseId}:
+    parameters:
+      - $ref: "#/components/parameters/WorkoutID"
+      - $ref: "#/components/parameters/WorkoutExerciseID"
+    patch:
+      tags: [Workout exercises]
+      summary: Patch an exercise attached to a workout
+      description: |
+        At least one field is required. `weight`, `sets`, `reps`, and `duration`
+        may be set to null; `completed` may not be null. The resulting fields must
+        still match the catalog exercise type.
+      operationId: patchWorkoutExercise
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PatchWorkoutExerciseRequest"
+            example:
+              completed: true
+      responses:
+        "200":
+          description: Updated workout exercise
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WorkoutExercise"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+    delete:
+      tags: [Workout exercises]
+      summary: Delete an exercise from a workout
+      operationId: deleteWorkoutExercise
+      security:
+        - bearerAuth: []
+      responses:
+        "204":
+          description: Workout exercise deleted
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
   /leaderboard/daily:
     get:
       tags: [Leaderboard]
@@ -202,6 +479,12 @@ paths:
       responses:
         "200":
           description: Live daily leaderboard
+          headers:
+            Cache-Control:
+              description: The response is private and must not be stored.
+              schema:
+                type: string
+                example: private, no-store
           content:
             application/json:
               schema:
@@ -224,6 +507,12 @@ paths:
       responses:
         "200":
           description: Latest completed-week snapshot
+          headers:
+            Cache-Control:
+              description: The response is private and must not be stored.
+              schema:
+                type: string
+                example: private, no-store
           content:
             application/json:
               schema:
@@ -246,6 +535,12 @@ paths:
       responses:
         "200":
           description: Latest completed-month snapshot
+          headers:
+            Cache-Control:
+              description: The response is private and must not be stored.
+              schema:
+                type: string
+                example: private, no-store
           content:
             application/json:
               schema:
@@ -274,11 +569,20 @@ components:
         type: string
         format: uuid
 
+    WorkoutExerciseID:
+      name: workoutExerciseId
+      in: path
+      required: true
+      description: Workout exercise UUID
+      schema:
+        type: string
+        format: uuid
+
     LeaderboardUserID:
       name: user_id
       in: query
       required: true
-      description: Temporary current-user UUID; it will later come from authentication context
+      description: User UUID used to identify the current leaderboard entry
       schema:
         type: string
         format: uuid
@@ -295,47 +599,146 @@ components:
         default: 50
 
   schemas:
+    RegisterUserRequest:
+      type: object
+      required: [email, password, full_name]
+      properties:
+        email:
+          type: string
+          format: email
+          minLength: 5
+          maxLength: 30
+          description: Normalized to lowercase with surrounding whitespace removed.
+        password:
+          type: string
+          format: password
+          minLength: 8
+          maxLength: 72
+          description: Must contain between 8 and 72 bytes.
+        full_name:
+          type: string
+          minLength: 2
+          maxLength: 50
+          description: Leading and trailing whitespace is not allowed.
+
+    LoginRequest:
+      type: object
+      required: [email, password]
+      properties:
+        email:
+          type: string
+          format: email
+          minLength: 5
+          maxLength: 30
+          description: Normalized to lowercase with surrounding whitespace removed.
+        password:
+          type: string
+          format: password
+          minLength: 8
+          maxLength: 72
+          description: Must contain between 8 and 72 bytes.
+
+    LoginResponse:
+      type: object
+      required: [access_token, token_type]
+      properties:
+        access_token:
+          type: string
+          description: JWT access token.
+        token_type:
+          type: string
+          enum: [Bearer]
+
+    User:
+      type: object
+      required: [id, email, full_name, created_at, user_workout_score]
+      properties:
+        id:
+          type: string
+          format: uuid
+        email:
+          type: string
+          format: email
+        full_name:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        user_workout_score:
+          type: integer
+          minimum: 0
+        sex:
+          type: string
+          enum: [male, female]
+        weight_grams:
+          type: integer
+          minimum: 20000
+          maximum: 300000
+        birth_date:
+          type: string
+          format: date-time
+          description: Between 1900-01-01 and the current time.
+        height_cm:
+          type: integer
+          minimum: 100
+          maximum: 250
+
+    PatchUserRequest:
+      type: object
+      minProperties: 1
+      properties:
+        sex:
+          type: string
+          enum: [male, female]
+          nullable: true
+        weight_grams:
+          type: integer
+          minimum: 20000
+          maximum: 300000
+          nullable: true
+        birth_date:
+          type: string
+          format: date-time
+          nullable: true
+          description: Between 1900-01-01 and the current time, or null.
+        height_cm:
+          type: integer
+          minimum: 100
+          maximum: 250
+          nullable: true
+
     CreateExerciseRequest:
       type: object
-      additionalProperties: false
-      required:
-        - name
-        - description
-        - difficulty
-        - type
+      required: [name, description, difficulty, type]
       properties:
         name:
           type: string
           minLength: 3
           maxLength: 100
           pattern: "^[A-Za-zА-Яа-яёЁ ]+$"
+          description: Leading and trailing spaces are not allowed.
           example: Bench Press
         description:
           type: string
           minLength: 1
           maxLength: 1000
           pattern: "^[A-Za-zА-Яа-яёЁ ]+$"
+          description: Leading and trailing spaces are not allowed.
           example: Chest exercise
         difficulty:
           type: integer
           minimum: 1
           maximum: 10
-          example: 5
         type:
           type: string
           enum: [weight, duration]
-          example: weight
 
     Exercise:
       type: object
-      required:
-        - id
-        - version
-        - name
-        - description
-        - difficulty
-        - created_at
-        - type
+      required: [id, version, name, description, difficulty, created_at, updated_at, type]
       properties:
         id:
           type: string
@@ -365,7 +768,6 @@ components:
 
     PatchWorkoutRequest:
       type: object
-      additionalProperties: false
       minProperties: 1
       properties:
         status:
@@ -387,15 +789,7 @@ components:
 
     Workout:
       type: object
-      required:
-        - id
-        - version
-        - user_id
-        - status
-        - created_at
-        - updated_at
-        - workout_score
-        - personal_score_coefficient
+      required: [id, version, user_id, status, started_at, completed_at, created_at, updated_at, workout_score, intensity, personal_score_coefficient]
       properties:
         id:
           type: string
@@ -438,6 +832,99 @@ components:
           minimum: 1
           maximum: 10
 
+    CreateWorkoutExerciseRequest:
+      type: object
+      required: [exercise_id]
+      oneOf:
+        - required: [weight, sets, reps]
+        - required: [duration]
+      properties:
+        exercise_id:
+          type: string
+          format: uuid
+        weight:
+          type: integer
+          minimum: 1
+        sets:
+          type: integer
+          minimum: 1
+        reps:
+          type: integer
+          minimum: 1
+        duration:
+          type: integer
+          minimum: 1
+          description: Duration in seconds.
+        completed:
+          type: boolean
+          default: false
+
+    PatchWorkoutExerciseRequest:
+      type: object
+      minProperties: 1
+      properties:
+        weight:
+          type: integer
+          minimum: 1
+          nullable: true
+        sets:
+          type: integer
+          minimum: 1
+          nullable: true
+        reps:
+          type: integer
+          minimum: 1
+          nullable: true
+        duration:
+          type: integer
+          minimum: 1
+          nullable: true
+          description: Duration in seconds.
+        completed:
+          type: boolean
+
+    WorkoutExercise:
+      type: object
+      required: [id, version, workout_id, exercise_id, completed, exercise_load, created_at]
+      properties:
+        id:
+          type: string
+          format: uuid
+        version:
+          type: integer
+          format: int64
+          minimum: 1
+        workout_id:
+          type: string
+          format: uuid
+        exercise_id:
+          type: string
+          format: uuid
+        weight:
+          type: integer
+          minimum: 1
+        sets:
+          type: integer
+          minimum: 1
+        reps:
+          type: integer
+          minimum: 1
+        duration:
+          type: integer
+          minimum: 1
+          description: Duration in seconds.
+        completed:
+          type: boolean
+        exercise_load:
+          type: integer
+          minimum: 0
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
     LeaderboardUser:
       type: object
       required: [id, full_name]
@@ -450,11 +937,7 @@ components:
 
     LeaderboardEntry:
       type: object
-      required:
-        - user
-        - score
-        - completed_workouts
-        - is_current_user
+      required: [rank, user, score, completed_workouts, last_activity_at, is_current_user]
       properties:
         rank:
           type: integer
@@ -478,29 +961,35 @@ components:
           type: boolean
 
     CurrentUserLeaderboardEntry:
-      allOf:
-        - $ref: "#/components/schemas/LeaderboardEntry"
-        - type: object
-          required: [eligible, in_top]
-          properties:
-            eligible:
-              type: boolean
-            in_top:
-              type: boolean
+      type: object
+      required: [rank, user, score, completed_workouts, last_activity_at, eligible, in_top]
+      properties:
+        rank:
+          type: integer
+          format: int64
+          nullable: true
+        user:
+          $ref: "#/components/schemas/LeaderboardUser"
+        score:
+          type: integer
+          format: int64
+          minimum: 0
+        completed_workouts:
+          type: integer
+          format: int64
+          minimum: 0
+        last_activity_at:
+          type: string
+          format: date-time
+          nullable: true
+        eligible:
+          type: boolean
+        in_top:
+          type: boolean
 
     Leaderboard:
       type: object
-      required:
-        - period
-        - status
-        - period_start
-        - period_end
-        - timezone
-        - metric
-        - generated_at
-        - next_refresh_at
-        - items
-        - current_user
+      required: [period, status, period_start, period_end, timezone, metric, generated_at, next_refresh_at, items, current_user]
       properties:
         period:
           type: string
@@ -535,13 +1024,11 @@ components:
 
     Error:
       type: object
-      required:
-        - error
-        - message
+      required: [error, message]
       properties:
         error:
           type: string
-          example: invalid argument
+          enum: [invalid argument, not found, conflict, unauthorized, forbidden, internal server error]
         message:
           type: string
           example: failed to process request
@@ -554,12 +1041,18 @@ components:
           schema:
             $ref: "#/components/schemas/Error"
     Unauthorized:
-      description: Valid Bearer JWT is required
+      description: Valid Bearer JWT is required or login credentials are invalid
       headers:
         WWW-Authenticate:
           schema:
             type: string
           example: Bearer
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    Forbidden:
+      description: The authenticated user does not have permission to perform the operation
       content:
         application/json:
           schema:
@@ -571,7 +1064,7 @@ components:
           schema:
             $ref: "#/components/schemas/Error"
     Conflict:
-      description: Resource conflict
+      description: Resource conflict or optimistic-locking conflict
       content:
         application/json:
           schema:
