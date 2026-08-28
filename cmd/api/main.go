@@ -64,10 +64,22 @@ func main() {
 	exercisesService := exercises_service.NewExercisesService(exercisesRepository)
 	exercisesTransportHTTP := exercises_transport_http.NewExercisesHTTPHandler(exercisesService)
 
+	workoutExercisesRepo := workout_exercises_postgres_repository.NewWorkoutExercisesRepository(pool)
+
 	log.Debug("initializing feature", "feature", "workouts")
 	workoutsRepository := workouts_postgres_repository.NewWorkoutsRepository(pool)
-	workoutsService := workouts_service.NewWorkoutsService(workoutsRepository)
+	workoutsService := workouts_service.NewWorkoutsService(workoutsRepository, workoutExercisesRepo)
 	workoutsTransportHTTP := workouts_transport_http.NewWorkoutsHTTPHandler(workoutsService)
+	
+	log.Debug("initializing feature", "feature", "workout_exercises")
+	// workoutExercisesRepo := workout_exercises_postgres_repository.NewWorkoutExercisesRepository(pool)
+	workoutExercisesService := workout_exercises_service.NewWorkoutExercisesService(
+		workoutExercisesRepo,
+		exercisesRepository,
+		workoutsRepository,
+		workoutExercisesRepo,
+	)
+	workoutExercisesTransportHTTP := workout_exercises_transport_http.NewWorkoutExercisesHandler(workoutExercisesService)
 
 	log.Debug("initializing feature", "feature", "authentication")
 	authenticationRepository := authentication_postgres_repository.NewAuthenticationRepository(pool)
@@ -108,16 +120,6 @@ func main() {
 	usersRepository := users_postgres_repository.NewUsersRepository(pool)
 	usersService := users_service.NewUsersService(usersRepository)
 	usersTransportHTTP := users_transport_http.NewUsersHTTPHandler(usersService)
-
-	log.Debug("initializing feature", "feature", "workout_exercises")
-	workoutExercisesRepo := workout_exercises_postgres_repository.NewWorkoutExercisesRepository(pool)
-	workoutExercisesService := workout_exercises_service.NewWorkoutExercisesService(
-		workoutExercisesRepo,
-		exercisesRepository,
-		workoutsRepository,
-		workoutExercisesRepo,
-	)
-	workoutExercisesTransportHTTP := workout_exercises_transport_http.NewWorkoutExercisesHandler(workoutExercisesService)
 
 	httpConfig := core_http_server.NewConfigMust()
 	httpServer := core_http_server.NewHTTPServer(

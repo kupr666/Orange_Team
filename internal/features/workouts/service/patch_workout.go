@@ -6,6 +6,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/kupr666/Orange_Team/internal/core/domain"
+	core_errors "github.com/kupr666/Orange_Team/internal/core/errors"
 )
 
 func (s *WorkoutsService) PatchWorkout(
@@ -29,26 +30,28 @@ func (s *WorkoutsService) PatchWorkout(
 		)
 	}
 
-	// Если статус стал "completed" — проверяем, что все упражнения выполнены.
-	// Для этого нужен репозиторий workoutExercisesRepository, который можно добавить в сервис.
-	// Пока оставляем заглушку, чтобы код собирался.
-
-	// if workout.Status == "completed" {
-	// 	workoutExercises, err := s.workoutExercisesRepository.GetWorkout(ctx, workoutID)
-	// 	if err != nil {
-	// 		return domain.Workout{}, fmt.Errorf(
-	// 			"get exercises for workout: %w",
-	// 			err,
-	// 		)
-	// 	}
-	// 	for _, workoutExercise := range workoutExercises {
-	// 		if !workoutExercise.Completed {
-	// 			return domain.Workout{}, fmt.Errorf(
-	// 				"cannot complete workout: exercise %s not completed",
-	// 				workoutExercise.ID)
-	// 		}
-	// 	}
-	// }
+	if workout.Status == domain.StatusCompleted {
+		workoutExercises, err := s.workoutExerciseReader.GetWorkoutExercises(ctx, workoutID)
+		if err != nil {
+			return domain.Workout{}, fmt.Errorf(
+				"get exercises for workout: %w",
+				err,
+			)
+		}
+		
+		completedExercises := 0
+		for _, workoutExercise := range workoutExercises {
+			if workoutExercise.Completed {
+				completedExercises++ 
+			}
+		}
+		if completedExercises < 1 {
+			return domain.Workout{}, fmt.Errorf(
+				"cannot complete workout: at least one exercise must be completed: %w",
+				core_errors.ErrInvalidArgument,
+			)
+		}
+	}
 
 	updatedWorkout, err := s.workoutsRepository.PatchWorkout(ctx, userID, workout)
 	if err != nil {

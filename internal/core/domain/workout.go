@@ -301,3 +301,7 @@ func (w *Workout) ApplyPatch(patch WorkoutPatch) error {
 	*w = tmp
 	return nil
 }
+
+func (w Workout) CanModifyWorkoutExercise() bool {
+	return w.Status == StatusPlanned || w.Status == StatusInProgress
+}

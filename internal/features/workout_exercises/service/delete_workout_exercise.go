@@ -36,6 +36,14 @@ func (s *WorkoutExercisesService) DeleteWorkoutExercise(
 		)
 	}
 
+	if !workout.CanModifyWorkoutExercise() {
+		return fmt.Errorf(
+			"can't delete exercise when workout status is %s: %w",
+			workout.Status,
+			core_errors.ErrConflict,
+		)
+	}
+
 	if err := s.workoutExercisesRepository.DeleteWorkoutExercise(ctx, workoutID, workoutExerciseID); err != nil {
 		return fmt.Errorf(
 			"delete workout exercise: %w",

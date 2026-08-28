@@ -42,6 +42,14 @@ func (s *WorkoutExercisesService) CreateWorkoutExercise(
 		)
 	}
 
+	if !workout.CanModifyWorkoutExercise() {
+		return domain.WorkoutExercise{}, fmt.Errorf(
+			"can't create exercise when workout status is %s: %w",
+			workout.Status,
+			core_errors.ErrConflict,
+		)
+	}
+	
 	exercise, err := s.exerciseRepository.GetExercise(ctx, exerciseID)
 	if err != nil {
 		return domain.WorkoutExercise{}, fmt.Errorf(

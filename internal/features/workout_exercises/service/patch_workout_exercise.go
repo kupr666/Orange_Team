@@ -38,6 +38,14 @@ func (s *WorkoutExercisesService) PatchWorkoutExercise(
 		)
 	}
 
+	if !workout.CanModifyWorkoutExercise() {
+		return domain.WorkoutExercise{}, fmt.Errorf(
+			"can't patch exercise when workout status is %s: %w",
+			workout.Status,
+			core_errors.ErrConflict,
+		)
+	}
+
 	currentWorkoutExercise, err := s.workoutExercisesRepository.GetWorkoutExercise(ctx, workoutID, workoutExerciseID)
 	if err != nil {
 		return domain.WorkoutExercise{}, fmt.Errorf(

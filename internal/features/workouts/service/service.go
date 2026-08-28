@@ -7,12 +7,16 @@ import (
 	"github.com/kupr666/Orange_Team/internal/core/domain"
 )
 
+type WorkoutExerciseReader interface {
+	GetWorkoutExercises(
+		ctx context.Context,
+		workoutID uuid.UUID,
+	) ([]domain.WorkoutExercise, error)
+}
+
 type WorkoutsService struct {
 	workoutsRepository WorkoutsRepository
-
-	// Подключение репозитория workoutExercisesRepository
-
-	// workoutExercisesRepository WorkoutExercisesRepository
+	workoutExerciseReader WorkoutExerciseReader
 }
 
 type WorkoutsRepository interface {
@@ -45,8 +49,12 @@ type WorkoutsRepository interface {
 	) (domain.Workout, error)
 }
 
-func NewWorkoutsService(repo WorkoutsRepository) *WorkoutsService {
+func NewWorkoutsService(
+	workoutsRepository WorkoutsRepository,
+	workoutExerciseReader WorkoutExerciseReader,
+) *WorkoutsService {
 	return &WorkoutsService{
-		workoutsRepository: repo,
+		workoutsRepository: workoutsRepository,
+		workoutExerciseReader: workoutExerciseReader,
 	}
 }
