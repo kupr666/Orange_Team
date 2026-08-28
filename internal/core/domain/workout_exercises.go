@@ -98,36 +98,42 @@ func CreateWorkoutExercise(
 func (workoutExercise *WorkoutExercise) Validate() error {
 	hasWeight := workoutExercise.Weight != nil && workoutExercise.Sets != nil && workoutExercise.Reps != nil
 	hasDuration := workoutExercise.Duration != nil
+
 	if !hasWeight && !hasDuration {
 		return fmt.Errorf(
 			"either (weight, sets, reps) or duration must be provided: %w",
 			core_errors.ErrInvalidArgument,
 		)
 	}
+
 	if hasWeight && hasDuration {
 		return fmt.Errorf(
 			"cannot provide both (weight, sets, reps) and duration: %w",
 			core_errors.ErrInvalidArgument,
 		)
 	}
+
 	if workoutExercise.Weight != nil && *workoutExercise.Weight < 0 {
 		return fmt.Errorf(
 			"weight must be >= 0: %w",
 			core_errors.ErrInvalidArgument,
 		)
 	}
+
 	if workoutExercise.Sets != nil && *workoutExercise.Sets < 0 {
 		return fmt.Errorf(
 			"sets must be >= 0: %w",
 			core_errors.ErrInvalidArgument,
 		)
 	}
+
 	if workoutExercise.Reps != nil && *workoutExercise.Reps < 0 {
 		return fmt.Errorf(
 			"reps must be >= 0: %w",
 			core_errors.ErrInvalidArgument,
 		)
 	}
+
 	if workoutExercise.Duration != nil && *workoutExercise.Duration < 0 {
 		return fmt.Errorf(
 			"duration must be >= 0: %w",
@@ -141,6 +147,7 @@ func (workoutExercise *WorkoutExercise) CalculateLoad(exerciseType string) int {
 	if exerciseType == ExerciseTypeWeight && workoutExercise.Weight != nil && workoutExercise.Sets != nil && workoutExercise.Reps != nil {
 		return *workoutExercise.Weight * *workoutExercise.Sets * *workoutExercise.Reps
 	}
+
 	if exerciseType == ExerciseTypeDuration && workoutExercise.Duration != nil {
 		return *workoutExercise.Duration
 	}
@@ -194,15 +201,19 @@ func (workoutExercise *WorkoutExercise) ApplyPatch(patch WorkoutExercisePatch, e
 	if patch.Weight.Set {
 		tmp.Weight = patch.Weight.Value
 	}
+
 	if patch.Sets.Set {
 		tmp.Sets = patch.Sets.Value
 	}
+
 	if patch.Reps.Set {
 		tmp.Reps = patch.Reps.Value
 	}
+
 	if patch.Duration.Set {
 		tmp.Duration = patch.Duration.Value
 	}
+
 	if patch.Completed.Set {
 		tmp.Completed = *patch.Completed.Value
 	}
@@ -217,5 +228,35 @@ func (workoutExercise *WorkoutExercise) ApplyPatch(patch WorkoutExercisePatch, e
 	}
 
 	*workoutExercise = tmp
+	return nil
+}
+
+func (workoutExercise *WorkoutExercise) ValidateForWorkoutExerciseType(exerciseType string) error {
+	if err := workoutExercise.Validate(); err != nil {
+		return err
+	}
+
+	switch exerciseType {
+	case ExerciseTypeWeight:
+		if workoutExercise.Weight == nil || workoutExercise.Sets == nil || workoutExercise.Reps == nil {
+			return fmt.Errorf(
+				"weight exercise requires weight, sets, reps: %w",
+				core_errors.ErrInvalidArgument,
+			)
+		}
+	case ExerciseTypeDuration:
+		if workoutExercise.Duration == nil {
+			return fmt.Errorf(
+				"duration exercise requires duration: %w",
+				core_errors.ErrInvalidArgument,
+			)
+		}
+	default:
+		return fmt.Errorf(
+			"unknown exercise type: %s: %w",
+			exerciseType,
+			core_errors.ErrInvalidArgument,
+		)
+	}
 	return nil
 }

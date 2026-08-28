@@ -10,6 +10,7 @@ import (
 
 func (r *WorkoutExercisesRepository) DeleteWorkoutExercise(
 	ctx context.Context,
+	workoutID uuid.UUID,
 	workoutExerciseID uuid.UUID,
 ) error {
 	ctx, cancel := context.WithTimeout(ctx, r.pool.OpTimeout())
@@ -17,20 +18,22 @@ func (r *WorkoutExercisesRepository) DeleteWorkoutExercise(
 
 	query := `
 	DELETE FROM app.workout_exercises
-	WHERE id = $1
+	WHERE id = $1 AND workout_id = $2
 	`
 
-	cmdTag, err := r.pool.Exec(ctx, query, workoutExerciseID)
+	cmdTag, err := r.pool.Exec(ctx, query, workoutExerciseID, workoutID)
 	if err != nil {
 		return fmt.Errorf(
 			"delete workout exercise: %w",
 			err,
 		)
 	}
+
 	if cmdTag.RowsAffected() == 0 {
 		return fmt.Errorf(
-			"workout exercise with id='%s': %w",
+			"workout exercise with id='%s' in workout='%s': %w",
 			workoutExerciseID,
+			workoutID,
 			core_errors.ErrNotFound,
 		)
 	}

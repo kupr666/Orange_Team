@@ -61,7 +61,7 @@ func main() {
 	exercisesService := exercises_service.NewExercisesService(exercisesRepository)
 	exercisesTransportHTTP := exercises_transport_http.NewExercisesHTTPHandler(exercisesService)
 
-	log.Debug("initializing feature", "feature", "exercises")
+	log.Debug("initializing feature", "feature", "workouts")
 	workoutsRepository := workouts_postgres_repository.NewWorkoutsRepository(pool)
 	workoutsService := workouts_service.NewWorkoutsService(workoutsRepository)
 	workoutsTransportHTTP := workouts_transport_http.NewWorkoutsHTTPHandler(workoutsService)
@@ -84,7 +84,7 @@ func main() {
 		os.Exit(1)
 	}
 	authenticationTransportHTTP := authentication_transport_http.NewAuthenticationHTTPHandler(authenticationService)
-	
+
 	log.Debug("initializing feature", "feature", "leaderboard")
 	leaderboardConfig := leaderboard_service.NewConfigMust()
 	leaderboardRepository := leaderboard_postgres_repository.NewLeaderboardRepository(pool)
@@ -106,10 +106,15 @@ func main() {
 	usersService := users_service.NewUsersService(usersRepository)
 	usersTransportHTTP := users_transport_http.NewUsersHTTPHandler(usersService)
 
-	// log.Debug("initializing feature", "feature", "authentication")
-	// authenticationRepository := authentication_postgres_repository.NewAuthenticationRepository(pool)
-	// authenticationService := authentication_service.NewAuthenticationService(authenticationRepository)
-	// authenticationTransportHTTP := authentication_transport_http.NewAuthenticationHTTPHandler(authenticationService)
+	// log.Debug("initializing feature", "feature", "workout_exercises")
+	// workoutExercisesRepo := workout_exercises_postgres_repository.NewWorkoutExercisesRepository(pool)
+	// workoutExercisesService := workout_exercises_service.NewWorkoutExercisesService(
+	// 	workoutExercisesRepo,
+	// 	exercisesRepository,
+	// 	workoutsRepository,
+	// 	workoutExercisesRepo,
+	// )
+	// workoutExercisesTransportHTTP := workout_exercises_transport_http.NewWorkoutExercisesHandler(workoutExercisesService)
 
 	/*
 
@@ -132,10 +137,10 @@ func main() {
 	apiVersionRouterV1.RegisterRoutes(authenticationTransportHTTP.Routes()...)
 	apiVersionRouterV1.RegisterRoutes(exercisesTransportHTTP.Routes(authenticationMiddleware)...)
 	apiVersionRouterV1.RegisterRoutes(workoutsTransportHTTP.Routes(authenticationMiddleware)...)
-	// add authenticate middleware later
 	apiVersionRouterV1.RegisterRoutes(leaderboardTransportHTTP.Routes()...)
 	apiVersionRouterV1.RegisterRoutes(usersTransportHTTP.Routes(authenticationMiddleware)...)
-	
+	// apiVersionRouterV1.RegisterRoutes(workoutExercisesTransportHTTP.Routes(authenticationMiddleware)...)
+
 	httpServer.RegisterRouters(
 		apiVersionRouterV1,
 	)

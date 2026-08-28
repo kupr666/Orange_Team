@@ -19,6 +19,12 @@ type WorkoutExercisesRepository interface {
 		workoutID uuid.UUID,
 	) ([]domain.WorkoutExercise, error)
 
+	GetWorkoutExercise(
+		ctx context.Context,
+		workoutID uuid.UUID,
+		workoutExerciseID uuid.UUID,
+	) (domain.WorkoutExercise, error)
+
 	PatchWorkoutExercise(
 		ctx context.Context,
 		workoutExercise domain.WorkoutExercise,
@@ -26,6 +32,7 @@ type WorkoutExercisesRepository interface {
 
 	DeleteWorkoutExercise(
 		ctx context.Context,
+		workoutID uuid.UUID,
 		workoutExerciseID uuid.UUID,
 	) error
 }

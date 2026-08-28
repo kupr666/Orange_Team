@@ -75,14 +75,14 @@ func (s *WorkoutExercisesService) CreateWorkoutExercise(
 		exercise.Type,
 	)
 
-	if err := workoutExercise.Validate(); err != nil {
+	if err := workoutExercise.ValidateForWorkoutExerciseType(exercise.Type); err != nil {
 		return domain.WorkoutExercise{}, fmt.Errorf(
 			"validate workout exercise: %w",
 			err,
 		)
 	}
 
-	createdWorkoutExercise, err := s.workoutExercisesRepository.CreateWorkoutExercise(ctx, workoutExercise)
+	workoutExercise, err = s.workoutExercisesRepository.CreateWorkoutExercise(ctx, workoutExercise)
 	if err != nil {
 		return domain.WorkoutExercise{}, fmt.Errorf(
 			"create workout exercise: %w",
@@ -93,5 +93,5 @@ func (s *WorkoutExercisesService) CreateWorkoutExercise(
 	// Пересчитать workout_score (пока заглушка)
 	_ = s.recalculateScore(ctx, workoutID)
 
-	return createdWorkoutExercise, nil
+	return workoutExercise, nil
 }

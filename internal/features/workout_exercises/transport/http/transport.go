@@ -32,6 +32,7 @@ type WorkoutExercisesService interface {
 	PatchWorkoutExercise(
 		ctx context.Context,
 		userID uuid.UUID,
+		workoutID uuid.UUID,
 		workoutExerciseID uuid.UUID,
 		patch domain.WorkoutExercisePatch,
 	) (domain.WorkoutExercise, error)

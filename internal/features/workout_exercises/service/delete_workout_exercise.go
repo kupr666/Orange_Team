@@ -12,8 +12,8 @@ import (
 func (s *WorkoutExercisesService) DeleteWorkoutExercise(
 	ctx context.Context,
 	userID uuid.UUID,
-	workoutExerciseID uuid.UUID,
 	workoutID uuid.UUID,
+	workoutExerciseID uuid.UUID,
 ) error {
 	if userID == uuid.Nil {
 		return fmt.Errorf(
@@ -37,7 +37,7 @@ func (s *WorkoutExercisesService) DeleteWorkoutExercise(
 		)
 	}
 
-	if err := s.workoutExercisesRepository.DeleteWorkoutExercise(ctx, workoutExerciseID); err != nil {
+	if err := s.workoutExercisesRepository.DeleteWorkoutExercise(ctx, workoutID, workoutExerciseID); err != nil {
 		return fmt.Errorf(
 			"delete workout exercise: %w",
 			err,

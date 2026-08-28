@@ -83,6 +83,7 @@ func (h *WorkoutExercisesHandler) PatchWorkoutExercise(w http.ResponseWriter, r 
 	workoutExerciseDomain, err := h.workoutExercisesService.PatchWorkoutExercise(
 		ctx,
 		principal.UserID,
+		workoutID,
 		workoutExerciseID,
 		patch,
 	)
