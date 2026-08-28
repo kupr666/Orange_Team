@@ -64,21 +64,25 @@ func main() {
 	exercisesService := exercises_service.NewExercisesService(exercisesRepository)
 	exercisesTransportHTTP := exercises_transport_http.NewExercisesHTTPHandler(exercisesService)
 
-	workoutExercisesRepo := workout_exercises_postgres_repository.NewWorkoutExercisesRepository(pool)
-
 	log.Debug("initializing feature", "feature", "workouts")
 	workoutsRepository := workouts_postgres_repository.NewWorkoutsRepository(pool)
-	workoutsService := workouts_service.NewWorkoutsService(workoutsRepository, workoutExercisesRepo)
-	workoutsTransportHTTP := workouts_transport_http.NewWorkoutsHTTPHandler(workoutsService)
-	
+
 	log.Debug("initializing feature", "feature", "workout_exercises")
-	// workoutExercisesRepo := workout_exercises_postgres_repository.NewWorkoutExercisesRepository(pool)
+	workoutExercisesRepo := workout_exercises_postgres_repository.NewWorkoutExercisesRepository(pool)
+
 	workoutExercisesService := workout_exercises_service.NewWorkoutExercisesService(
 		workoutExercisesRepo,
 		exercisesRepository,
 		workoutsRepository,
 		workoutExercisesRepo,
 	)
+
+	workoutsService := workouts_service.NewWorkoutsService(
+		workoutsRepository,
+		workoutExercisesRepo,
+	)
+
+	workoutsTransportHTTP := workouts_transport_http.NewWorkoutsHTTPHandler(workoutsService)
 	workoutExercisesTransportHTTP := workout_exercises_transport_http.NewWorkoutExercisesHandler(workoutExercisesService)
 
 	log.Debug("initializing feature", "feature", "authentication")
@@ -86,11 +90,7 @@ func main() {
 	jwtConfig := core_auth_jwt.NewConfigMust()
 	jwtManager, err := core_auth_jwt.NewManager(jwtConfig)
 	if err != nil {
-		log.Error(
-			"failed to initialize jwt manager",
-			"error",
-			err,
-		)
+		log.Error("failed to initialize jwt manager", "error", err)
 		os.Exit(1)
 	}
 	authenticationService, err := authentication_service.NewAuthenticationService(authenticationRepository, jwtManager)
@@ -100,6 +100,11 @@ func main() {
 	}
 	authenticationTransportHTTP := authentication_transport_http.NewAuthenticationHTTPHandler(authenticationService)
 
+	log.Debug("initializing feature", "feature", "users")
+	usersRepository := users_postgres_repository.NewUsersRepository(pool)
+	usersService := users_service.NewUsersService(usersRepository)
+	usersTransportHTTP := users_transport_http.NewUsersHTTPHandler(usersService)
+
 	log.Debug("initializing feature", "feature", "leaderboard")
 	leaderboardConfig := leaderboard_service.NewConfigMust()
 	leaderboardRepository := leaderboard_postgres_repository.NewLeaderboardRepository(pool)
@@ -107,19 +112,13 @@ func main() {
 		leaderboardRepository,
 		leaderboardConfig.LocationMust(),
 	)
-	leaderboardTransportHTTP := leaderboard_transport_http.NewLeaderboardHTTPHandler(
-		leaderboardService,
-	)
+	leaderboardTransportHTTP := leaderboard_transport_http.NewLeaderboardHTTPHandler(leaderboardService)
 	leaderboardSnapshotWorker := leaderboard_worker.NewSnapshotWorker(
 		leaderboardService,
 		log,
 		leaderboardConfig.SnapshotInterval,
 	)
 	go leaderboardSnapshotWorker.Run(ctx)
-	log.Debug("initializing feature", "feature", "users")
-	usersRepository := users_postgres_repository.NewUsersRepository(pool)
-	usersService := users_service.NewUsersService(usersRepository)
-	usersTransportHTTP := users_transport_http.NewUsersHTTPHandler(usersService)
 
 	httpConfig := core_http_server.NewConfigMust()
 	httpServer := core_http_server.NewHTTPServer(
