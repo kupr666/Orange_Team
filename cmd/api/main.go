@@ -26,6 +26,9 @@ import (
 	users_postgres_repository "github.com/kupr666/Orange_Team/internal/features/users/repository/postgres"
 	users_service "github.com/kupr666/Orange_Team/internal/features/users/service"
 	users_transport_http "github.com/kupr666/Orange_Team/internal/features/users/transport/http"
+	workout_exercises_postgres_repository "github.com/kupr666/Orange_Team/internal/features/workout_exercises/repository/postgres"
+	workout_exercises_service "github.com/kupr666/Orange_Team/internal/features/workout_exercises/service"
+	workout_exercises_transport_http "github.com/kupr666/Orange_Team/internal/features/workout_exercises/transport/http"
 	workouts_postgres_repository "github.com/kupr666/Orange_Team/internal/features/workouts/repository/postgres"
 	workouts_service "github.com/kupr666/Orange_Team/internal/features/workouts/service"
 	workouts_transport_http "github.com/kupr666/Orange_Team/internal/features/workouts/transport/http"
@@ -106,21 +109,15 @@ func main() {
 	usersService := users_service.NewUsersService(usersRepository)
 	usersTransportHTTP := users_transport_http.NewUsersHTTPHandler(usersService)
 
-	// log.Debug("initializing feature", "feature", "workout_exercises")
-	// workoutExercisesRepo := workout_exercises_postgres_repository.NewWorkoutExercisesRepository(pool)
-	// workoutExercisesService := workout_exercises_service.NewWorkoutExercisesService(
-	// 	workoutExercisesRepo,
-	// 	exercisesRepository,
-	// 	workoutsRepository,
-	// 	workoutExercisesRepo,
-	// )
-	// workoutExercisesTransportHTTP := workout_exercises_transport_http.NewWorkoutExercisesHandler(workoutExercisesService)
-
-	/*
-
-		SOME FEATURE
-
-	*/
+	log.Debug("initializing feature", "feature", "workout_exercises")
+	workoutExercisesRepo := workout_exercises_postgres_repository.NewWorkoutExercisesRepository(pool)
+	workoutExercisesService := workout_exercises_service.NewWorkoutExercisesService(
+		workoutExercisesRepo,
+		exercisesRepository,
+		workoutsRepository,
+		workoutExercisesRepo,
+	)
+	workoutExercisesTransportHTTP := workout_exercises_transport_http.NewWorkoutExercisesHandler(workoutExercisesService)
 
 	httpConfig := core_http_server.NewConfigMust()
 	httpServer := core_http_server.NewHTTPServer(
@@ -139,7 +136,7 @@ func main() {
 	apiVersionRouterV1.RegisterRoutes(workoutsTransportHTTP.Routes(authenticationMiddleware)...)
 	apiVersionRouterV1.RegisterRoutes(leaderboardTransportHTTP.Routes()...)
 	apiVersionRouterV1.RegisterRoutes(usersTransportHTTP.Routes(authenticationMiddleware)...)
-	// apiVersionRouterV1.RegisterRoutes(workoutExercisesTransportHTTP.Routes(authenticationMiddleware)...)
+	apiVersionRouterV1.RegisterRoutes(workoutExercisesTransportHTTP.Routes(authenticationMiddleware)...)
 
 	httpServer.RegisterRouters(
 		apiVersionRouterV1,
