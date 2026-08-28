@@ -59,60 +59,57 @@ func main() {
 	}
 	defer pool.Close()
 
-	log.Debug("initializing feature", "feature", "exercises")
+	log.Debug("initializing repositories")
 	exercisesRepository := exercises_postgres_repository.NewExercisesRepository(pool)
-	exercisesService := exercises_service.NewExercisesService(exercisesRepository)
-	exercisesTransportHTTP := exercises_transport_http.NewExercisesHTTPHandler(exercisesService)
-
-	log.Debug("initializing feature", "feature", "workouts")
 	workoutsRepository := workouts_postgres_repository.NewWorkoutsRepository(pool)
-
-	log.Debug("initializing feature", "feature", "workout_exercises")
 	workoutExercisesRepo := workout_exercises_postgres_repository.NewWorkoutExercisesRepository(pool)
-
-	workoutExercisesService := workout_exercises_service.NewWorkoutExercisesService(
-		workoutExercisesRepo,
-		exercisesRepository,
-		workoutsRepository,
-		workoutExercisesRepo,
-	)
-
-	workoutsService := workouts_service.NewWorkoutsService(
-		workoutsRepository,
-		workoutExercisesRepo,
-	)
-
-	workoutsTransportHTTP := workouts_transport_http.NewWorkoutsHTTPHandler(workoutsService)
-	workoutExercisesTransportHTTP := workout_exercises_transport_http.NewWorkoutExercisesHandler(workoutExercisesService)
-
-	log.Debug("initializing feature", "feature", "authentication")
 	authenticationRepository := authentication_postgres_repository.NewAuthenticationRepository(pool)
+	usersRepository := users_postgres_repository.NewUsersRepository(pool)
+	leaderboardRepository := leaderboard_postgres_repository.NewLeaderboardRepository(pool)
+
+	// jwt manager (verifier)
 	jwtConfig := core_auth_jwt.NewConfigMust()
 	jwtManager, err := core_auth_jwt.NewManager(jwtConfig)
 	if err != nil {
 		log.Error("failed to initialize jwt manager", "error", err)
 		os.Exit(1)
 	}
+
+	// leaderboard
+	leaderboardConfig := leaderboard_service.NewConfigMust()
+
+	log.Debug("initializing services")
+	exercisesService := exercises_service.NewExercisesService(exercisesRepository)
+	workoutsService := workouts_service.NewWorkoutsService(
+		workoutsRepository,
+		workoutExercisesRepo,
+	)
+	workoutExercisesService := workout_exercises_service.NewWorkoutExercisesService(
+		workoutExercisesRepo,
+		exercisesRepository,
+		workoutsRepository,
+		workoutExercisesRepo,
+	)
 	authenticationService, err := authentication_service.NewAuthenticationService(authenticationRepository, jwtManager)
 	if err != nil {
 		log.Error("failed to initialize authentication service", "error", err)
 		os.Exit(1)
 	}
-	authenticationTransportHTTP := authentication_transport_http.NewAuthenticationHTTPHandler(authenticationService)
-
-	log.Debug("initializing feature", "feature", "users")
-	usersRepository := users_postgres_repository.NewUsersRepository(pool)
 	usersService := users_service.NewUsersService(usersRepository)
-	usersTransportHTTP := users_transport_http.NewUsersHTTPHandler(usersService)
-
-	log.Debug("initializing feature", "feature", "leaderboard")
-	leaderboardConfig := leaderboard_service.NewConfigMust()
-	leaderboardRepository := leaderboard_postgres_repository.NewLeaderboardRepository(pool)
 	leaderboardService := leaderboard_service.NewLeaderboardService(
 		leaderboardRepository,
 		leaderboardConfig.LocationMust(),
 	)
+
+	log.Debug("initializing HTTP handlers")
+	exercisesTransportHTTP := exercises_transport_http.NewExercisesHTTPHandler(exercisesService)
+	workoutsTransportHTTP := workouts_transport_http.NewWorkoutsHTTPHandler(workoutsService)
+	workoutExercisesTransportHTTP := workout_exercises_transport_http.NewWorkoutExercisesHandler(workoutExercisesService)
+	authenticationTransportHTTP := authentication_transport_http.NewAuthenticationHTTPHandler(authenticationService)
+	usersTransportHTTP := users_transport_http.NewUsersHTTPHandler(usersService)
 	leaderboardTransportHTTP := leaderboard_transport_http.NewLeaderboardHTTPHandler(leaderboardService)
+
+	// leaderboard
 	leaderboardSnapshotWorker := leaderboard_worker.NewSnapshotWorker(
 		leaderboardService,
 		log,
