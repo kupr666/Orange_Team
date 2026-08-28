@@ -2,7 +2,7 @@ package domain
 
 import (
 	"fmt"
-	"regexp"
+	"net/mail"
 	"strings"
 	"time"
 
@@ -30,8 +30,6 @@ const (
 
 	MinBirthDateYear = 1900
 )
-
-var EmailPattern = regexp.MustCompile(`[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}`)
 
 var AllowedSexes = map[string]bool{
 	SexMale:   true,
@@ -120,7 +118,7 @@ func (u *User) Validate() error {
 		)
 	}
 
-	if !EmailPattern.MatchString(u.Email) {
+	if _, err := mail.ParseAddress(u.Email); err != nil {
 		return fmt.Errorf(
 			"invalid email format: %w",
 			core_errors.ErrInvalidArgument,
