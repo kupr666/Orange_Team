@@ -124,28 +124,28 @@ func (workoutExercise *WorkoutExercise) Validate() error {
 
 	if workoutExercise.Weight != nil && *workoutExercise.Weight <= 0 {
 		return fmt.Errorf(
-			"weight must be >= 0: %w",
+			"weight must be > 0: %w",
 			core_errors.ErrInvalidArgument,
 		)
 	}
 
 	if workoutExercise.Sets != nil && *workoutExercise.Sets <= 0 {
 		return fmt.Errorf(
-			"sets must be >= 0: %w",
+			"sets must be > 0: %w",
 			core_errors.ErrInvalidArgument,
 		)
 	}
 
 	if workoutExercise.Reps != nil && *workoutExercise.Reps <= 0 {
 		return fmt.Errorf(
-			"reps must be >= 0: %w",
+			"reps must be > 0: %w",
 			core_errors.ErrInvalidArgument,
 		)
 	}
 
 	if workoutExercise.Duration != nil && *workoutExercise.Duration <= 0 {
 		return fmt.Errorf(
-			"duration must be >= 0: %w",
+			"duration must be > 0: %w",
 			core_errors.ErrInvalidArgument,
 		)
 	}
