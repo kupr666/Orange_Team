@@ -27,7 +27,8 @@ func (r *ExercisesRepository) GetExercise(
 		difficulty,
 		created_at,
 		updated_at,
-		type,
+		type
+	FROM app.exercises
 	WHERE id = $1
 	`
 
