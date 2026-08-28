@@ -1,4 +1,3 @@
-// delete_workout_exercise.go (транспорт)
 package workout_exercises_transport_http
 
 import (
