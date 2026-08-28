@@ -16,11 +16,16 @@ type UserDTOResponse struct {
 	UserWorkoutScore int        `json:"user_workout_score"`
 	Sex              *string    `json:"sex,omitempty"`
 	WeightGrams      *int       `json:"weight_grams,omitempty"`
-	BirthDate        *time.Time `json:"birth_date,omitempty"`
+	BirthDate        *string    `json:"birth_date,omitempty"`
 	HeightCM         *int       `json:"height_cm,omitempty"`
 }
 
 func userDTOFromDomain(user domain.User) UserDTOResponse {
+	var birthDate *string
+	if user.BirthDate != nil {
+		s := user.BirthDate.Format("2006-01-02")
+		birthDate = &s
+	}
 	return UserDTOResponse{
 		ID:               user.ID,
 		Email:            user.Email,
@@ -30,16 +35,7 @@ func userDTOFromDomain(user domain.User) UserDTOResponse {
 		UserWorkoutScore: user.UserWorkoutScore,
 		Sex:              user.Sex,
 		WeightGrams:      user.WeightGrams,
-		BirthDate:        user.BirthDate,
+		BirthDate:        birthDate,
 		HeightCM:         user.HeightCM,
 	}
 }
-
-// Возможно стоит удалить
-// func userDTOsFromDomains(users []domain.User) []UserDTOResponse {
-// 	userDTO := make([]UserDTOResponse, len(users))
-// 	for i, user := range users {
-// 		userDTO[i] = userDTOFromDomain(user)
-// 	}
-// 	return userDTO
-// }

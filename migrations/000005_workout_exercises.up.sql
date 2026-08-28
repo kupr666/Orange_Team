@@ -28,3 +28,7 @@ ALTER TABLE app.workout_exercises ADD CONSTRAINT workout_exercises_reps_positive
 ALTER TABLE app.workout_exercises ADD CONSTRAINT workout_exercises_duration_positive  CHECK (duration IS NULL OR duration > 0);
 
 ALTER TABLE app.workout_exercises ADD CONSTRAINT workout_exercises_exercise_load_check CHECK (exercise_load >= 0);
+
+
+CREATE INDEX workout_exercises_workout_id_idx ON app.workout_exercises (workout_id);
+CREATE INDEX workout_exercises_workout_created_at_idx ON app.workout_exercises (workout_id, created_at, id);

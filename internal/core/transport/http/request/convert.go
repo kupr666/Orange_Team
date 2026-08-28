@@ -17,7 +17,25 @@ func ToDomainNullableTime(nullable core_http_types.Nullable[string]) (domain.Nul
 	}
 	t, err := time.Parse(time.RFC3339, *nullable.Value)
 	if err != nil {
-		return domain.Nullable[time.Time]{}, fmt.Errorf("invalid RFC3339 time: %w", err)
+		return domain.Nullable[time.Time]{}, fmt.Errorf(
+			"invalid RFC3339 time: %w",
+			err)
+	}
+	return domain.Nullable[time.Time]{Value: &t, Set: true}, nil
+}
+
+func ToDomainNullableDate(nullable core_http_types.Nullable[string]) (domain.Nullable[time.Time], error) {
+	if !nullable.Set {
+		return domain.Nullable[time.Time]{Set: false}, nil
+	}
+	if nullable.Value == nil {
+		return domain.Nullable[time.Time]{Value: nil, Set: true}, nil
+	}
+	t, err := time.Parse("2006-01-02", *nullable.Value)
+	if err != nil {
+		return domain.Nullable[time.Time]{}, fmt.Errorf(
+			"invalid date format (expected YYYY-MM-DD): %w",
+			err)
 	}
 	return domain.Nullable[time.Time]{Value: &t, Set: true}, nil
 }

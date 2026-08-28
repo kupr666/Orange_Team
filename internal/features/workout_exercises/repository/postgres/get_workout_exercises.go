@@ -31,7 +31,7 @@ func (r *WorkoutExercisesRepository) GetWorkoutExercises(
 		updated_at
 	FROM app.workout_exercises
 	WHERE workout_id = $1
-	ORDER BY created_at ASC
+	ORDER BY created_at ASC, id ASC;
 	`
 
 	rows, err := r.pool.Query(ctx, query, workoutID)

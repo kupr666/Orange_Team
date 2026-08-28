@@ -11,7 +11,7 @@ import (
 	core_errors "github.com/kupr666/Orange_Team/internal/core/errors"
 )
 
-var exerciseTextPattern = regexp.MustCompile(`^[A-Za-zА-Яа-яёЁ ]+$`)
+var exerciseTextPattern = regexp.MustCompile(`^[a-zA-Zа-яА-ЯёЁ0-9 .,\-()/+="'\s]+$`)
 
 type Exercise struct {
 	ID          uuid.UUID
@@ -94,7 +94,7 @@ func validateExerciseText(field, value string, minLength, maxLength int) error {
 
 	if !exerciseTextPattern.MatchString(value) {
 		return fmt.Errorf(
-			"exercise %s must contain only Latin or Cyrillic letters and spaces: %w",
+			"exercise %s can only contain letters, digits, spaces, and common punctuation marks (., - () / + = \" '): %w",
 			field,
 			core_errors.ErrInvalidArgument,
 		)

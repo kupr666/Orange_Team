@@ -55,7 +55,7 @@ func (r *WorkoutsRepository) PatchWorkout(
 		workout.WorkoutScore,
 		workout.Intensity,
 		workout.PersonalScoreCoefficient,
-		workout.UserID,
+		userID,
 		workout.Version,
 	)
 

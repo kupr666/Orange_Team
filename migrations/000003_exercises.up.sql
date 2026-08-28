@@ -1,6 +1,6 @@
 CREATE TABLE IF NOT EXISTS app.exercises (
     id           UUID          PRIMARY KEY,
-    version      BIGINT        NOT NULL DEFAULT 1, --Опционально. Если таблица справочная и никогда не изменяется можно удалить 
+    version      BIGINT        NOT NULL DEFAULT 1,
     name         VARCHAR(100)  NOT NULL,
     description  VARCHAR(1000) NOT NULL,
     difficulty   SMALLINT      NOT NULL,
@@ -11,11 +11,11 @@ CREATE TABLE IF NOT EXISTS app.exercises (
 
 ALTER TABLE app.exercises ADD CONSTRAINT exercises_name_unique UNIQUE (name);
 ALTER TABLE app.exercises ADD CONSTRAINT exercises_name_no_leading_trailing_spaces CHECK (name = trim(name));
-ALTER TABLE app.exercises ADD CONSTRAINT exercises_name_characters CHECK (name ~* '^[A-Za-zА-Яа-яёЁ ]+$');
+ALTER TABLE app.exercises ADD CONSTRAINT exercises_name_characters CHECK (name ~* '^[a-zA-Zа-яА-ЯёЁ0-9 .,\-()/+="'']+$');
 ALTER TABLE app.exercises ADD CONSTRAINT exercises_name_length CHECK (char_length(name) BETWEEN 3 AND 100);
 
 ALTER TABLE app.exercises ADD CONSTRAINT exercises_description_no_leading_trailing_spaces CHECK (description = trim(description));
-ALTER TABLE app.exercises ADD CONSTRAINT exercises_description_characters CHECK (description ~* '^[A-Za-zА-Яа-яёЁ ]+$');
+ALTER TABLE app.exercises ADD CONSTRAINT exercises_description_characters CHECK (description ~* '^[a-zA-Zа-яА-ЯёЁ0-9 .,\-()/+="'']+$');
 ALTER TABLE app.exercises ADD CONSTRAINT exercises_description_length CHECK (char_length(description) BETWEEN 1 AND 1000);
 
 ALTER TABLE app.exercises ADD CONSTRAINT exercises_difficulty_check CHECK (difficulty BETWEEN 1 AND 10);

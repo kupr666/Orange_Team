@@ -45,8 +45,8 @@ func (r *PatchUserRequest) Validate() error {
 	}
 
 	if r.BirthDate.Set && r.BirthDate.Value != nil {
-		if _, err := time.Parse(time.RFC3339, *r.BirthDate.Value); err != nil {
-			return fmt.Errorf("birth_date must be a string in RFC3339 format")
+		if _, err := time.Parse("2006-01-02", *r.BirthDate.Value); err != nil {
+			return fmt.Errorf("birth_date must be in YYYY-MM-DD format")
 		}
 	}
 
@@ -111,7 +111,7 @@ func (h *UsersHTTPHandler) PatchUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func userPatchFromRequest(request PatchUserRequest) (domain.UserPatch, error) {
-	birthDate, err := core_http_request.ToDomainNullableTime(request.BirthDate)
+	birthDate, err := core_http_request.ToDomainNullableDate(request.BirthDate)
 	if err != nil {
 		return domain.UserPatch{}, fmt.Errorf(
 			"parse birth_date: %w",
