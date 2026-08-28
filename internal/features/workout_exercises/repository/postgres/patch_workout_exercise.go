@@ -37,6 +37,7 @@ func (r *WorkoutExercisesRepository) PatchWorkoutExercise(
 		ctx,
 		query,
 		workoutExercise.ID,
+		workoutExercise.WorkoutID,
 		workoutExercise.Version,
 		workoutExercise.Weight,
 		workoutExercise.Sets,

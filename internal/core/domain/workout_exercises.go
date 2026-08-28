@@ -96,45 +96,54 @@ func CreateWorkoutExercise(
 }
 
 func (workoutExercise *WorkoutExercise) Validate() error {
-	hasWeight := workoutExercise.Weight != nil && workoutExercise.Sets != nil && workoutExercise.Reps != nil
-	hasDuration := workoutExercise.Duration != nil
+	hasAnyWeightField := workoutExercise.Weight != nil || workoutExercise.Sets != nil || workoutExercise.Reps != nil
+    hasDuration := workoutExercise.Duration != nil
 
-	if !hasWeight && !hasDuration {
-		return fmt.Errorf(
-			"either (weight, sets, reps) or duration must be provided: %w",
-			core_errors.ErrInvalidArgument,
-		)
-	}
+    if hasAnyWeightField && hasDuration {
+        return fmt.Errorf(
+            "cannot provide both weight/sets/reps and duration: %w",
+            core_errors.ErrInvalidArgument,
+        )
+    }
 
-	if hasWeight && hasDuration {
-		return fmt.Errorf(
-			"cannot provide both (weight, sets, reps) and duration: %w",
-			core_errors.ErrInvalidArgument,
-		)
-	}
+    if !hasAnyWeightField && !hasDuration {
+        return fmt.Errorf(
+            "either (weight, sets, reps) or duration must be provided: %w",
+            core_errors.ErrInvalidArgument,
+        )
+    }
 
-	if workoutExercise.Weight != nil && *workoutExercise.Weight < 0 {
+    if hasAnyWeightField {
+        if workoutExercise.Weight == nil || workoutExercise.Sets == nil || workoutExercise.Reps == nil {
+            return fmt.Errorf(
+                "weight exercise requires weight, sets, reps: %w",
+                core_errors.ErrInvalidArgument,
+            )
+        }
+    }
+
+	if workoutExercise.Weight != nil && *workoutExercise.Weight <= 0 {
 		return fmt.Errorf(
 			"weight must be >= 0: %w",
 			core_errors.ErrInvalidArgument,
 		)
 	}
 
-	if workoutExercise.Sets != nil && *workoutExercise.Sets < 0 {
+	if workoutExercise.Sets != nil && *workoutExercise.Sets <= 0 {
 		return fmt.Errorf(
 			"sets must be >= 0: %w",
 			core_errors.ErrInvalidArgument,
 		)
 	}
 
-	if workoutExercise.Reps != nil && *workoutExercise.Reps < 0 {
+	if workoutExercise.Reps != nil && *workoutExercise.Reps <= 0 {
 		return fmt.Errorf(
 			"reps must be >= 0: %w",
 			core_errors.ErrInvalidArgument,
 		)
 	}
 
-	if workoutExercise.Duration != nil && *workoutExercise.Duration < 0 {
+	if workoutExercise.Duration != nil && *workoutExercise.Duration <= 0 {
 		return fmt.Errorf(
 			"duration must be >= 0: %w",
 			core_errors.ErrInvalidArgument,

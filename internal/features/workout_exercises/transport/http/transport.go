@@ -40,8 +40,8 @@ type WorkoutExercisesService interface {
 	DeleteWorkoutExercise(
 		ctx context.Context,
 		userID uuid.UUID,
-		workoutExerciseID uuid.UUID,
 		workoutID uuid.UUID,
+		workoutExerciseID uuid.UUID,
 	) error
 }
 

@@ -51,7 +51,8 @@ func (r *WorkoutExercisesRepository) GetWorkoutExercise(
 		}
 		return domain.WorkoutExercise{}, fmt.Errorf(
 			"scan workout exercise: %w",
-			err)
+			err,
+		)
 	}
 
 	workoutExerciseDomain := domainFromModel(workoutExerciseModel)

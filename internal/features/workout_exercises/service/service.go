@@ -2,7 +2,6 @@ package workout_exercises_service
 
 import (
 	"context"
-	"time"
 
 	"github.com/google/uuid"
 	"github.com/kupr666/Orange_Team/internal/core/domain"
@@ -69,7 +68,6 @@ type WorkoutExercisesService struct {
 	exerciseRepository         ExerciseRepository
 	workoutRepository          WorkoutRepository
 	workoutUpdater             WorkoutScoreUpdater
-	now                        func() time.Time
 }
 
 func NewWorkoutExercisesService(
@@ -83,6 +81,5 @@ func NewWorkoutExercisesService(
 		exerciseRepository:         exercisesRepository,
 		workoutRepository:          workoutRepository,
 		workoutUpdater:             workoutUpdater,
-		now:                        time.Now,
 	}
 }

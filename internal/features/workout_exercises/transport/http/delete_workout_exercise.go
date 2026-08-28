@@ -46,8 +46,8 @@ func (h *WorkoutExercisesHandler) DeleteWorkoutExercise(w http.ResponseWriter, r
 	if err := h.workoutExercisesService.DeleteWorkoutExercise(
 		ctx,
 		principal.UserID,
-		workoutID,
 		workoutExerciseID,
+		workoutID,
 	); err != nil {
 		responseHandler.ErrorResponse(
 			err,
