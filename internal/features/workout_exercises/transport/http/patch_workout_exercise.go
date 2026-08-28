@@ -40,7 +40,10 @@ func (h *WorkoutExercisesHandler) PatchWorkoutExercise(w http.ResponseWriter, r 
 
 	principal, ok := core_auth.PrincipalFromContext(ctx)
 	if !ok {
-		responseHandler.ErrorResponse(core_errors.ErrUnauthorized, "authenticated user is missing")
+		responseHandler.ErrorResponse(
+			core_errors.ErrUnauthorized,
+			"authenticated user is missing",
+		)
 		return
 	}
 
@@ -57,7 +60,10 @@ func (h *WorkoutExercisesHandler) PatchWorkoutExercise(w http.ResponseWriter, r 
 
 	var request PatchWorkoutExerciseRequest
 	if err := core_http_request.DecodeAndValidateRequest(r, &request); err != nil {
-		responseHandler.ErrorResponse(err, "failed to decode and validate HTTP request")
+		responseHandler.ErrorResponse(
+			err,
+			"failed to decode and validate HTTP request",
+		)
 		return
 	}
 
