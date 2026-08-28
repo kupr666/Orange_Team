@@ -3,6 +3,7 @@ package exercises_service
 import (
 	"context"
 
+	"github.com/google/uuid"
 	"github.com/kupr666/Orange_Team/internal/core/domain"
 )
 
@@ -11,6 +12,11 @@ type ExercisesService struct {
 }
 
 type ExercisesRepository interface {
+	GetExercise(
+		ctx context.Context,
+		exerciseID uuid.UUID,
+	) (domain.Exercise, error)
+
 	GetExercises(
 		ctx context.Context,
 	) ([]domain.Exercise, error)

@@ -5,6 +5,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/kupr666/Orange_Team/internal/core/domain"
+	core_postgres_pool "github.com/kupr666/Orange_Team/internal/core/repository/postgres/pool"
 )
 
 type ExerciseModel struct {
@@ -39,4 +40,17 @@ func domainsFromModels(models []ExerciseModel) []domain.Exercise {
 	}
 
 	return domains
+}
+
+func (m *ExerciseModel) Scan(row core_postgres_pool.Row) error {
+	return row.Scan(
+		&m.ID,
+		&m.Version,
+		&m.Name,
+		&m.Description,
+		&m.Difficulty,
+		&m.CreatedAt,
+		&m.UpdatedAt,
+		&m.Type,
+	)
 }

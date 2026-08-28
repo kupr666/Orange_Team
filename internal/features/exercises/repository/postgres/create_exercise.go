@@ -54,18 +54,8 @@ func (r *ExercisesRepository) CreateExercise(
 		exercise.Type,
 	)
 
-	var model ExerciseModel
-	err := row.Scan(
-		&model.ID,
-		&model.Version,
-		&model.Name,
-		&model.Description,
-		&model.Difficulty,
-		&model.CreatedAt,
-		&model.UpdatedAt,
-		&model.Type,
-	)
-	if err != nil {
+	var exerciseModel ExerciseModel
+	if err := exerciseModel.Scan(row); err != nil {
 		if errors.Is(err, core_postgres_pool.ErrViolatesUnique) {
 			return domain.Exercise{}, fmt.Errorf(
 				"exercise with name=%q already exists: %w",
@@ -80,5 +70,7 @@ func (r *ExercisesRepository) CreateExercise(
 		)
 	}
 
-	return domainFromModel(model), nil
+	exerciseDomain := domainFromModel(exerciseModel)
+
+	return exerciseDomain, nil
 }
