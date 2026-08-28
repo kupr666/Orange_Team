@@ -16,7 +16,7 @@ func (r *UsersRepository) DeleteUser(
 	defer cancel()
 
 	query := `
-	DELITE FROM app.users
+	DELETE FROM app.users
     WHERE id=$1;
     `
 
@@ -30,7 +30,7 @@ func (r *UsersRepository) DeleteUser(
 
 	if cmdTag.RowsAffected() == 0 {
 		return fmt.Errorf(
-			"user with id='%d': %w",
+			"user with id='%s': %w",
 			userID,
 			core_errors.ErrNotFound,
 		)

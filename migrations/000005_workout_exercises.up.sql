@@ -27,4 +27,4 @@ ALTER TABLE app.workout_exercises ADD CONSTRAINT workout_exercises_reps_positive
 
 ALTER TABLE app.workout_exercises ADD CONSTRAINT workout_exercises_duration_positive  CHECK (duration IS NULL OR duration > 0);
 
-ALTER TABLE app.workout_exercises ADD CONSTRAINT workout_exercises_exercise_load_check CHECK (exercise_load > 0);
+ALTER TABLE app.workout_exercises ADD CONSTRAINT workout_exercises_exercise_load_check CHECK (exercise_load >= 0);
