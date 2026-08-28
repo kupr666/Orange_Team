@@ -27,8 +27,8 @@ type ExercisesRepository interface {
 	) (domain.Exercise, error)
 }
 
-func NewExercisesService(repo ExercisesRepository) *ExercisesService {
+func NewExercisesService(exercisesRepository ExercisesRepository) *ExercisesService {
 	return &ExercisesService{
-		exercisesRepository: repo,
+		exercisesRepository: exercisesRepository,
 	}
 }

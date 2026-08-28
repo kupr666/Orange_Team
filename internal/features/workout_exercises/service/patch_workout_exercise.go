@@ -38,7 +38,7 @@ func (s *WorkoutExercisesService) PatchWorkoutExercise(
 		)
 	}
 
-	existing, err := s.workoutExercisesRepository.GetWorkoutExercise(ctx, workoutID, workoutExerciseID)
+	currentWorkoutExercise, err := s.workoutExercisesRepository.GetWorkoutExercise(ctx, workoutID, workoutExerciseID)
 	if err != nil {
 		return domain.WorkoutExercise{}, fmt.Errorf(
 			"get workout exercise: %w",
@@ -46,7 +46,7 @@ func (s *WorkoutExercisesService) PatchWorkoutExercise(
 		)
 	}
 
-	exercise, err := s.exerciseRepository.GetExercise(ctx, existing.ExerciseID)
+	exercise, err := s.exerciseRepository.GetExercise(ctx, currentWorkoutExercise.ExerciseID)
 	if err != nil {
 		return domain.WorkoutExercise{}, fmt.Errorf(
 			"get exercise type: %w",
@@ -54,21 +54,21 @@ func (s *WorkoutExercisesService) PatchWorkoutExercise(
 		)
 	}
 
-	if err := existing.ApplyPatch(patch, exercise.Type); err != nil {
+	if err := currentWorkoutExercise.ApplyPatch(patch, exercise.Type); err != nil {
 		return domain.WorkoutExercise{}, fmt.Errorf(
 			"apply patch: %w",
 			err,
 		)
 	}
 
-	if err := existing.ValidateForWorkoutExerciseType(exercise.Type); err != nil {
+	if err := currentWorkoutExercise.ValidateForWorkoutExerciseType(exercise.Type); err != nil {
 		return domain.WorkoutExercise{}, fmt.Errorf(
 			"validate patched exercise: %w",
 			err,
 		)
 	}
 
-	workoutExercise, err := s.workoutExercisesRepository.PatchWorkoutExercise(ctx, existing)
+	patchedWorkoutExercise, err := s.workoutExercisesRepository.PatchWorkoutExercise(ctx, currentWorkoutExercise)
 	if err != nil {
 		return domain.WorkoutExercise{}, fmt.Errorf(
 			"update workout exercise: %w",
@@ -79,5 +79,5 @@ func (s *WorkoutExercisesService) PatchWorkoutExercise(
 	// Пересчитать score (пока заглушка)
 	_ = s.recalculateScore(ctx, workoutID)
 
-	return workoutExercise, nil
+	return patchedWorkoutExercise, nil
 }

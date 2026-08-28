@@ -1,4 +1,3 @@
-// delete_workout_exercise.go (сервис)
 package workout_exercises_service
 
 import (
