@@ -46,6 +46,15 @@ func (s *WorkoutExercisesService) PatchWorkoutExercise(
 		)
 	}
 
+	if patch.Completed.Set && patch.Completed.Value != nil && *patch.Completed.Value {
+		if workout.Status != domain.StatusInProgress {
+			return domain.WorkoutExercise{}, fmt.Errorf(
+				"can only mark exercise as completed when workout is in_progress: %w",
+				core_errors.ErrConflict,
+			)
+		}
+	}
+
 	currentWorkoutExercise, err := s.workoutExercisesRepository.GetWorkoutExercise(ctx, workoutID, workoutExerciseID)
 	if err != nil {
 		return domain.WorkoutExercise{}, fmt.Errorf(
