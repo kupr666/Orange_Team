@@ -105,7 +105,7 @@ func (s *WorkoutExercisesService) CreateWorkoutExercise(
 		)
 	}
 
-	if err := s.recalculateScore(ctx, workoutID); err != nil {
+	if err := s.recalculateScore(ctx, workoutID, userID); err != nil {
 		return domain.WorkoutExercise{}, fmt.Errorf(
 			"recalculate workout score: %w",
 			err,
