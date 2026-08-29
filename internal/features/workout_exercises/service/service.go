@@ -24,6 +24,11 @@ type WorkoutExercisesRepository interface {
 		workoutExerciseID uuid.UUID,
 	) (domain.WorkoutExercise, error)
 
+	GetWorkoutExercisesWithDifficulty(
+		ctx context.Context,
+		workoutID uuid.UUID,
+	) ([]domain.WorkoutExerciseWithDifficulty, error)
+
 	PatchWorkoutExercise(
 		ctx context.Context,
 		workoutExercise domain.WorkoutExercise,

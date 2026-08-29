@@ -49,7 +49,14 @@ func (s *WorkoutExercisesService) CreateWorkoutExercise(
 			core_errors.ErrConflict,
 		)
 	}
-	
+
+	if completed && workout.Status != domain.StatusInProgress {
+		return domain.WorkoutExercise{}, fmt.Errorf(
+			"can only create exercise as completed when workout is in_progress: %w",
+			core_errors.ErrConflict,
+		)
+	}
+
 	exercise, err := s.exerciseRepository.GetExercise(ctx, exerciseID)
 	if err != nil {
 		return domain.WorkoutExercise{}, fmt.Errorf(

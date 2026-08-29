@@ -8,22 +8,25 @@ import (
 )
 
 const (
-	maximumWorkoutScore       int64 = 10_000
-	scoreSaturationScale      int64 = 100
-	maximumScaledLoad         int64 = 2_000_000
-	minimumScoreCoefficient         = 1
-	maximumScoreCoefficient         = 10
-	minimumExerciseDifficulty       = 1
-	maximumExerciseDifficulty       = 10
+	maximumWorkoutScore       = 10_000
+	scoreSaturationScale      = 10_000
+	maximumScaledLoad         = 10_000_000
+	minimumScoreCoefficient   = 1
+	maximumScoreCoefficient   = 10
+	minimumExerciseDifficulty = 1
+	maximumExerciseDifficulty = 10
 )
 
 func (s *WorkoutExercisesService) recalculateScore(
 	ctx context.Context,
 	workoutID uuid.UUID,
 ) error {
-	workoutExercises, err := s.workoutExercisesRepository.GetWorkoutExercises(ctx, workoutID)
+	exercisesWithDiff, err := s.workoutExercisesRepository.GetWorkoutExercisesWithDifficulty(ctx, workoutID)
 	if err != nil {
-		return fmt.Errorf("get workout exercises for score recalculation: %w", err)
+		return fmt.Errorf(
+			"get workout exercises with difficulty: %w",
+			err,
+		)
 	}
 
 	coefficient, err := s.workoutUpdater.GetPersonalScoreCoefficient(ctx, workoutID)
@@ -43,50 +46,33 @@ func (s *WorkoutExercisesService) recalculateScore(
 	// score = maxScore * (K * load) / (1 + K * load).
 	// This is equivalent to the integer formula used below and makes a larger
 	// personal coefficient reach saturation faster.
-	maximumEffectiveLoad := divideRoundUp(maximumScaledLoad, int64(coefficient))
-	effectiveLoad := int64(0)
-	difficultyByExerciseID := make(map[uuid.UUID]int)
+	maximumEffectiveLoad := divideRoundUp(maximumScaledLoad, coefficient)
+	effectiveLoad := 0
 
-	for _, workoutExercise := range workoutExercises {
-		if !workoutExercise.Completed {
+	for _, ex := range exercisesWithDiff {
+		if !ex.Completed {
 			continue
 		}
-		if workoutExercise.ExerciseLoad <= 0 {
+		if ex.ExerciseLoad <= 0 {
 			return fmt.Errorf(
 				"completed workout exercise '%s' has non-positive load: %d",
-				workoutExercise.ID,
-				workoutExercise.ExerciseLoad,
+				ex.ID,
+				ex.ExerciseLoad,
 			)
 		}
-
-		difficulty, ok := difficultyByExerciseID[workoutExercise.ExerciseID]
-		if !ok {
-			exercise, err := s.exerciseRepository.GetExercise(ctx, workoutExercise.ExerciseID)
-			if err != nil {
-				return fmt.Errorf(
-					"get exercise '%s' for score recalculation: %w",
-					workoutExercise.ExerciseID,
-					err,
-				)
-			}
-
-			difficulty = exercise.Difficulty
-			if difficulty < minimumExerciseDifficulty || difficulty > maximumExerciseDifficulty {
-				return fmt.Errorf(
-					"exercise '%s' difficulty must be between %d and %d, got %d",
-					exercise.ID,
-					minimumExerciseDifficulty,
-					maximumExerciseDifficulty,
-					difficulty,
-				)
-			}
-			difficultyByExerciseID[workoutExercise.ExerciseID] = difficulty
+		if ex.Difficulty < minimumExerciseDifficulty || ex.Difficulty > maximumExerciseDifficulty {
+			return fmt.Errorf(
+				"exercise '%s' difficulty must be between %d and %d, got %d",
+				ex.ExerciseID,
+				minimumExerciseDifficulty,
+				maximumExerciseDifficulty,
+				ex.Difficulty,
+			)
 		}
-
 		effectiveLoad = addLoadWithLimit(
 			effectiveLoad,
-			int64(workoutExercise.ExerciseLoad),
-			int64(difficulty),
+			ex.ExerciseLoad,
+			ex.Difficulty,
 			maximumEffectiveLoad,
 		)
 		if effectiveLoad == maximumEffectiveLoad {
@@ -94,7 +80,7 @@ func (s *WorkoutExercisesService) recalculateScore(
 		}
 	}
 
-	score := saturatedScore(effectiveLoad, int64(coefficient))
+	score := saturatedScore(effectiveLoad, coefficient)
 	if err := s.workoutUpdater.UpdateWorkoutScore(ctx, workoutID, score); err != nil {
 		return fmt.Errorf("update workout score: %w", err)
 	}
@@ -102,7 +88,7 @@ func (s *WorkoutExercisesService) recalculateScore(
 	return nil
 }
 
-func addLoadWithLimit(current, load, difficulty, limit int64) int64 {
+func addLoadWithLimit(current, load, difficulty, limit int) int {
 	// if effectiveLoad >= maximumEffectiveLoad ||
 	// workoutExercise.ExerciseLoad > (maximumEffectiveLoad - effectiveLoad) / difficulty
 	if current >= limit || load > (limit-current)/difficulty {
@@ -113,7 +99,7 @@ func addLoadWithLimit(current, load, difficulty, limit int64) int64 {
 	return current + load*difficulty
 }
 
-func saturatedScore(effectiveLoad, coefficient int64) int {
+func saturatedScore(effectiveLoad, coefficient int) int {
 	scaledLoad := effectiveLoad * coefficient
 	denominator := scoreSaturationScale + scaledLoad
 
@@ -124,6 +110,6 @@ func saturatedScore(effectiveLoad, coefficient int64) int {
 	return int(score)
 }
 
-func divideRoundUp(value, divisor int64) int64 {
+func divideRoundUp(value, divisor int) int {
 	return (value + divisor - 1) / divisor
 }
