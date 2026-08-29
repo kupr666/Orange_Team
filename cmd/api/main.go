@@ -90,6 +90,7 @@ func main() {
 		exercisesRepository,
 		workoutsRepository,
 		workoutExercisesRepo,
+		usersRepository,
 	)
 	authenticationService, err := authentication_service.NewAuthenticationService(authenticationRepository, jwtManager)
 	if err != nil {

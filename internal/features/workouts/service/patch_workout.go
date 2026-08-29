@@ -38,11 +38,11 @@ func (s *WorkoutsService) PatchWorkout(
 				err,
 			)
 		}
-		
+
 		completedExercises := 0
 		for _, workoutExercise := range workoutExercises {
 			if workoutExercise.Completed {
-				completedExercises++ 
+				completedExercises++
 			}
 		}
 		if completedExercises < 1 {
@@ -59,6 +59,15 @@ func (s *WorkoutsService) PatchWorkout(
 			"update workout in repository: %w",
 			err,
 		)
+	}
+
+	if updatedWorkout.Status == domain.StatusCompleted {
+		if err := s.userRepository.UpdateUserWorkoutScore(ctx, userID); err != nil {
+			return domain.Workout{}, fmt.Errorf(
+				"update user workout score: %w",
+				err,
+			)
+		}
 	}
 
 	return updatedWorkout, nil

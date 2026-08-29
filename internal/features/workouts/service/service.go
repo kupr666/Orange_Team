@@ -19,6 +19,11 @@ type UserRepository interface {
 		ctx context.Context,
 		userID uuid.UUID,
 	) (domain.User, error)
+
+	UpdateUserWorkoutScore(
+		ctx context.Context,
+		userID uuid.UUID,
+	) error
 }
 
 type WorkoutsService struct {

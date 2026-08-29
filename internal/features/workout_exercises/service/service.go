@@ -41,6 +41,13 @@ type WorkoutExercisesRepository interface {
 	) error
 }
 
+type UserRepository interface {
+	UpdateUserWorkoutScore(
+		ctx context.Context,
+		userID uuid.UUID,
+	) error
+}
+
 type ExerciseRepository interface {
 	GetExercise(
 		ctx context.Context,
@@ -74,6 +81,7 @@ type WorkoutExercisesService struct {
 	exerciseRepository         ExerciseRepository
 	workoutRepository          WorkoutRepository
 	workoutUpdater             WorkoutScoreUpdater
+	userRepository             UserRepository
 }
 
 func NewWorkoutExercisesService(
@@ -81,11 +89,13 @@ func NewWorkoutExercisesService(
 	exercisesRepository ExerciseRepository,
 	workoutRepository WorkoutRepository,
 	workoutUpdater WorkoutScoreUpdater,
+	userRepository UserRepository,
 ) *WorkoutExercisesService {
 	return &WorkoutExercisesService{
 		workoutExercisesRepository: workoutExercisesRepository,
 		exerciseRepository:         exercisesRepository,
 		workoutRepository:          workoutRepository,
 		workoutUpdater:             workoutUpdater,
+		userRepository:             userRepository,
 	}
 }
