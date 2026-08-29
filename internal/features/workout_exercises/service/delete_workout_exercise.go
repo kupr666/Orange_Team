@@ -51,7 +51,7 @@ func (s *WorkoutExercisesService) DeleteWorkoutExercise(
 		)
 	}
 
-	if err := s.recalculateScore(ctx, workoutID); err != nil {
+	if err := s.recalculateScore(ctx, workoutID, userID); err != nil {
 		return fmt.Errorf(
 			"recalculate workout score: %w",
 			err,

@@ -20,6 +20,7 @@ const (
 func (s *WorkoutExercisesService) recalculateScore(
 	ctx context.Context,
 	workoutID uuid.UUID,
+	userID uuid.UUID,
 ) error {
 	exercisesWithDiff, err := s.workoutExercisesRepository.GetWorkoutExercisesWithDifficulty(ctx, workoutID)
 	if err != nil {
@@ -82,7 +83,17 @@ func (s *WorkoutExercisesService) recalculateScore(
 
 	score := saturatedScore(effectiveLoad, coefficient)
 	if err := s.workoutUpdater.UpdateWorkoutScore(ctx, workoutID, score); err != nil {
-		return fmt.Errorf("update workout score: %w", err)
+		return fmt.Errorf(
+			"update workout score: %w",
+			err,
+		)
+	}
+
+	if err := s.userRepository.UpdateUserWorkoutScore(ctx, userID); err != nil {
+		return fmt.Errorf(
+			"update user workout score: %w",
+			err,
+		)
 	}
 
 	return nil
