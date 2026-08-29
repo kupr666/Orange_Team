@@ -7,6 +7,7 @@ import type {
   User,
 } from "./api/types";
 import { getDemoLeaderboard } from "./demo";
+import { HabitsPage } from "./features/habits/HabitsPage";
 import { ProfilePage } from "./features/profile/ProfilePage";
 import { WorkoutsPage } from "./features/workouts/WorkoutsPage";
 
@@ -203,7 +204,9 @@ export function App() {
         )}
 
         <main className="content">
-          {page === "leaderboard" ? (
+          {page === "habits" ? (
+            <HabitsPage user={user} token={token} onLogin={() => openAuth("login")} />
+          ) : page === "leaderboard" ? (
             <LeaderboardPage user={user} token={token} onLogin={() => openAuth("login")} />
           ) : page === "workouts" ? (
             <WorkoutsPage user={user} token={token} onLogin={() => openAuth("login")} />
@@ -537,13 +540,8 @@ function StatePanel({
   );
 }
 
-function PlaceholderPage({ page }: { page: Exclude<Page, "leaderboard" | "workouts" | "profile"> }) {
+function PlaceholderPage({ page }: { page: Exclude<Page, "habits" | "leaderboard" | "workouts" | "profile"> }) {
   const content = {
-    habits: {
-      eyebrow: "Ритм дня",
-      title: "Привычки",
-      text: "Раздел привычек появится в следующем обновлении. Здесь можно будет собирать ежедневные серии и следить за устойчивостью ритуалов.",
-    },
     faq: {
       eyebrow: "Северные записи",
       title: "Частые вопросы",

@@ -1,7 +1,9 @@
 import type {
   ApiErrorBody,
+  CreateHabitRequest,
   CreateWorkoutExerciseRequest,
   Exercise,
+  Habit,
   LeaderboardPeriod,
   LeaderboardResponse,
   LoginRequest,
@@ -91,6 +93,32 @@ export const apiClient = {
       method: "PATCH",
       token,
       body: JSON.stringify(payload),
+    });
+  },
+
+  getHabits(token: string): Promise<Habit[]> {
+    return request<Habit[]>("/habits", { token });
+  },
+
+  createHabit(payload: CreateHabitRequest, token: string): Promise<Habit> {
+    return request<Habit>("/habits", {
+      method: "POST",
+      token,
+      body: JSON.stringify(payload),
+    });
+  },
+
+  completeHabit(habitId: string, token: string): Promise<Habit> {
+    return request<Habit>(`/habits/${encodeURIComponent(habitId)}/completions`, {
+      method: "POST",
+      token,
+    });
+  },
+
+  deleteHabit(habitId: string, token: string): Promise<void> {
+    return request<void>(`/habits/${encodeURIComponent(habitId)}`, {
+      method: "DELETE",
+      token,
     });
   },
 

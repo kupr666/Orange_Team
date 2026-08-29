@@ -34,6 +34,24 @@ export interface PatchUserRequest {
   height_cm?: number | null;
 }
 
+export interface Habit {
+  id: string;
+  version: number;
+  user_id: string;
+  name: string;
+  description: string;
+  current_streak: number;
+  last_completed_date: string | null;
+  completed_today: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface CreateHabitRequest {
+  name: string;
+  description: string;
+}
+
 export interface LeaderboardUser {
   id: string;
   full_name: string;
