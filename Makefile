@@ -62,3 +62,13 @@ alloy-logs:
 
 alloy-stop:
 	@docker compose stop alloy loki
+
+.PHONY: dev-frontend
+dev-frontend:
+	@echo "Переходим в frontend..."
+	cd frontend && \
+	( [ -f .env ] || cp .env.example .env ) && \
+	echo "Устанавливаем зависимости..." && \
+	npm ci && \
+	echo "Запускаем dev-сервер..." && \
+	npm run dev
