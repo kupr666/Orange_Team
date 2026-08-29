@@ -15,15 +15,13 @@ import (
 func (r *WorkoutsRepository) CreateWorkout(
 	ctx context.Context,
 	userID uuid.UUID,
+	personalScoreCoefficient int,
 ) (domain.Workout, error) {
 	ctx, cancel := context.WithTimeout(ctx, r.pool.OpTimeout())
 	defer cancel()
 
 	workoutID := uuid.New()
 	now := time.Now().UTC()
-
-	// TODO: calculate the personal score coefficient when its business logic is defined.
-	const personalScoreCoefficient = 1
 
 	query := `
 		INSERT INTO app.workouts (
@@ -66,8 +64,8 @@ func (r *WorkoutsRepository) CreateWorkout(
 		personalScoreCoefficient,
 	)
 
-	var model WorkoutModel
-	if err := model.Scan(row); err != nil {
+	var workoutModel WorkoutModel
+	if err := workoutModel.Scan(row); err != nil {
 		if errors.Is(err, core_postgres_pool.ErrNoRows) {
 			return domain.Workout{}, fmt.Errorf(
 				"user with id='%s': %w",
@@ -82,5 +80,7 @@ func (r *WorkoutsRepository) CreateWorkout(
 		)
 	}
 
-	return domainFromModel(model), nil
+	workoutDomain := domainFromModel(workoutModel)
+
+	return workoutDomain, nil
 }
