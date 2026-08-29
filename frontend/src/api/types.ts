@@ -27,6 +27,13 @@ export interface RegisterUserRequest extends LoginRequest {
   full_name: string;
 }
 
+export interface PatchUserRequest {
+  sex?: "male" | "female" | null;
+  weight_grams?: number | null;
+  birth_date?: string | null;
+  height_cm?: number | null;
+}
+
 export interface LeaderboardUser {
   id: string;
   full_name: string;
@@ -57,7 +64,7 @@ export interface LeaderboardResponse {
   period_start: string;
   period_end: string;
   timezone: string;
-  metric: "completed_workouts_v1";
+  metric: "workout_score_v1";
   generated_at: string;
   next_refresh_at: string;
   items: LeaderboardEntry[];

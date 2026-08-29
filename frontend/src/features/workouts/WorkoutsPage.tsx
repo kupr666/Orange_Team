@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState, type FormEvent } from "react";
-import { apiClient } from "../../api/client";
+import { ApiError, apiClient } from "../../api/client";
 import type {
   CreateWorkoutExerciseRequest,
   Exercise,
@@ -512,6 +512,7 @@ export function WorkoutsPage({
                         item={item}
                         exercise={catalog.find((exercise) => exercise.id === item.exercise_id)}
                         workoutId={selectedWorkout.id}
+                        workoutStatus={selectedWorkout.status}
                         token={token}
                         editable={Boolean(canModifyExercises)}
                         onChanged={(updated) => {
@@ -709,6 +710,7 @@ function WorkoutExerciseRow({
   item,
   exercise,
   workoutId,
+  workoutStatus,
   token,
   editable,
   onChanged,
@@ -717,6 +719,7 @@ function WorkoutExerciseRow({
   item: WorkoutExercise;
   exercise?: Exercise;
   workoutId: string;
+  workoutStatus: WorkoutStatus;
   token: string;
   editable: boolean;
   onChanged: (exercise: WorkoutExercise) => void;
@@ -746,6 +749,16 @@ function WorkoutExerciseRow({
       const updated = await apiClient.patchWorkoutExercise(workoutId, item.id, payload, token);
       onChanged(updated);
     } catch (requestError: unknown) {
+      if (
+        payload.completed === true &&
+        workoutStatus !== "in_progress" &&
+        requestError instanceof ApiError &&
+        requestError.status === 409
+      ) {
+        setError("Сначала начните тренировку, чтобы завершить упражнение.");
+        return;
+      }
+
       setError(
         requestError instanceof Error
           ? requestError.message

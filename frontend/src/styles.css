@@ -36,9 +36,9 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-button, input { font: inherit; }
+button, input, select { font: inherit; }
 button { color: inherit; }
-button:focus-visible, input:focus-visible {
+button:focus-visible, input:focus-visible, select:focus-visible {
   outline: 2px solid var(--ice-bright);
   outline-offset: 3px;
 }
@@ -114,7 +114,7 @@ button:disabled { cursor: wait; opacity: 0.62; }
 
 .navigation {
   display: grid;
-  grid-template-columns: repeat(4, minmax(112px, 1fr));
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   width: 100%;
   max-width: 940px;
   margin-inline: auto;

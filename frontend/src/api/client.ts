@@ -6,6 +6,7 @@ import type {
   LeaderboardResponse,
   LoginRequest,
   LoginResponse,
+  PatchUserRequest,
   PatchWorkoutExerciseRequest,
   PatchWorkoutRequest,
   RegisterUserRequest,
@@ -83,6 +84,14 @@ export const apiClient = {
 
   getCurrentUser(token: string): Promise<User> {
     return request<User>("/users/me", { token });
+  },
+
+  patchCurrentUser(payload: PatchUserRequest, token: string): Promise<User> {
+    return request<User>("/users/me", {
+      method: "PATCH",
+      token,
+      body: JSON.stringify(payload),
+    });
   },
 
   getLeaderboard(

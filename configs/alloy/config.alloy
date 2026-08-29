@@ -1,0 +1,27 @@
+logging {
+  level  = "info"
+  format = "logfmt"
+}
+
+loki.source.file "solo_leveling" {
+  targets = [
+    {
+      __path__    = "/var/log/solo-leveling/*.log",
+      job         = "solo-leveling",
+      environment = "local",
+    },
+  ]
+
+  forward_to = [loki.write.local.receiver]
+
+  file_match {
+    enabled     = true
+    sync_period = "5s"
+  }
+}
+
+loki.write "local" {
+  endpoint {
+    url = "http://loki:3100/loki/api/v1/push"
+  }
+}

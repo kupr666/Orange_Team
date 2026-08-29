@@ -44,7 +44,7 @@ export function getDemoLeaderboard(period: LeaderboardPeriod): LeaderboardRespon
     period_start: "2026-08-01T00:00:00+03:00",
     period_end: "2026-08-31T23:59:59+03:00",
     timezone: "Europe/Moscow",
-    metric: "completed_workouts_v1",
+    metric: "workout_score_v1",
     generated_at: now,
     next_refresh_at: "2026-08-29T10:05:00+03:00",
     items,

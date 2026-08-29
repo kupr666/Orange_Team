@@ -7,15 +7,17 @@ import type {
   User,
 } from "./api/types";
 import { getDemoLeaderboard } from "./demo";
+import { ProfilePage } from "./features/profile/ProfilePage";
 import { WorkoutsPage } from "./features/workouts/WorkoutsPage";
 
-type Page = "habits" | "workouts" | "leaderboard" | "faq";
+type Page = "habits" | "workouts" | "leaderboard" | "profile" | "faq";
 type AuthMode = "login" | "register";
 
 const navigation: Array<{ id: Page; label: string }> = [
   { id: "habits", label: "Привычки" },
   { id: "workouts", label: "Тренировки" },
   { id: "leaderboard", label: "Лидерборд" },
+  { id: "profile", label: "Профиль" },
   { id: "faq", label: "FAQ" },
 ];
 
@@ -40,15 +42,6 @@ function getInitials(name: string) {
     .slice(0, 2)
     .map((part) => part[0]?.toLocaleUpperCase("ru"))
     .join("");
-}
-
-function completedLabel(value: number) {
-  const lastTwo = value % 100;
-  const last = value % 10;
-  if (lastTwo >= 11 && lastTwo <= 14) return "тренировок";
-  if (last === 1) return "тренировка";
-  if (last >= 2 && last <= 4) return "тренировки";
-  return "тренировок";
 }
 
 function periodRange(data: LeaderboardResponse | null, period: LeaderboardPeriod) {
@@ -214,6 +207,14 @@ export function App() {
             <LeaderboardPage user={user} token={token} onLogin={() => openAuth("login")} />
           ) : page === "workouts" ? (
             <WorkoutsPage user={user} token={token} onLogin={() => openAuth("login")} />
+          ) : page === "profile" ? (
+            <ProfilePage
+              user={user}
+              token={token}
+              loading={profileLoading}
+              onLogin={() => openAuth("login")}
+              onUserUpdated={setUser}
+            />
           ) : (
             <PlaceholderPage page={page} />
           )}
@@ -381,7 +382,7 @@ function LeaderboardPage({
         <div>
           <span className="eyebrow">Чертог достижений</span>
           <h1>Лидерборд</h1>
-          <p>Рейтинг по количеству завершённых тренировок.</p>
+          <p>Рейтинг по сумме очков за завершённые тренировки.</p>
         </div>
         <div className="period-summary">
           <span>Период</span>
@@ -415,7 +416,7 @@ function LeaderboardPage({
         <div className="table-heading" aria-hidden="true">
           <span>Место</span>
           <span>Участник</span>
-          <span>Завершено</span>
+          <span>Очки</span>
         </div>
 
         {loading ? (
@@ -453,8 +454,8 @@ function LeaderboardPage({
               <strong>{data.current_user.user.full_name}</strong>
             </div>
             <strong className="workout-count">
-              {data.current_user.completed_workouts}
-              <span>{completedLabel(data.current_user.completed_workouts)}</span>
+              {data.current_user.score}
+              <span>очков</span>
             </strong>
           </div>
         )}
@@ -492,8 +493,8 @@ function LeaderboardRow({
         </div>
       </div>
       <strong className="workout-count">
-        {entry.completed_workouts}
-        <span>{completedLabel(entry.completed_workouts)}</span>
+        {entry.score}
+        <span>очков</span>
       </strong>
     </li>
   );
@@ -536,7 +537,7 @@ function StatePanel({
   );
 }
 
-function PlaceholderPage({ page }: { page: Exclude<Page, "leaderboard" | "workouts"> }) {
+function PlaceholderPage({ page }: { page: Exclude<Page, "leaderboard" | "workouts" | "profile"> }) {
   const content = {
     habits: {
       eyebrow: "Ритм дня",
