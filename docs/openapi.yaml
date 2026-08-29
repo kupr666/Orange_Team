@@ -1008,7 +1008,7 @@ components:
           example: Europe/Moscow
         metric:
           type: string
-          enum: [completed_workouts_v1]
+          enum: [workout_score_v1]
         generated_at:
           type: string
           format: date-time

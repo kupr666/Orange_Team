@@ -24,7 +24,7 @@ func (r *LeaderboardRepository) GetLiveLeaderboard(
 	WITH scores AS (
 		SELECT
 			workouts.user_id,
-			COUNT(*)::BIGINT AS score,
+			COALESCE(SUM(workouts.workout_score), 0)::BIGINT AS score,
 			COUNT(*)::BIGINT AS completed_workouts,
 			MAX(workouts.completed_at) AS last_activity_at
 		FROM app.workouts AS workouts

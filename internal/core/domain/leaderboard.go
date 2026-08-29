@@ -15,7 +15,7 @@ const (
 	LeaderboardStatusPublished = "published"
 
 	LeaderboardCategoryWorkouts = "workouts"
-	LeaderboardScoringRule      = "completed_workouts_v1"
+	LeaderboardScoringRule      = "workout_score_v1"
 )
 
 type LeaderboardEntry struct {

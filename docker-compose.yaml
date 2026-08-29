@@ -21,3 +21,32 @@ services:
     command: tcp-listen:5432,fork,reuseaddr tcp-connect:app-postgres:5432
     ports:
     - "127.0.0.1:5432:5432"
+
+  loki:
+    image: grafana/loki:3.7.0
+    container_name: app-environment-loki
+    command: -config.file=/etc/loki/local-config.yaml
+    ports:
+      - "127.0.0.1:3100:3100"
+    restart: unless-stopped
+
+  alloy:
+    image: grafana/alloy:v1.18.1
+    container_name: app-environment-alloy
+    command:
+      - run
+      - --server.http.listen-addr=0.0.0.0:12345
+      - --storage.path=/var/lib/alloy/data
+      - /etc/alloy/config.alloy
+    volumes:
+      - ./configs/alloy/config.alloy:/etc/alloy/config.alloy:ro
+      - ./logs:/var/log/solo-leveling:ro,consistent
+      - alloy-data:/var/lib/alloy/data
+    ports:
+      - "127.0.0.1:12345:12345"
+    depends_on:
+      - loki
+    restart: unless-stopped
+
+volumes:
+  alloy-data:

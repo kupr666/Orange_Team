@@ -44,3 +44,21 @@ migrate-action:
 		-path /migrations \
 		-database "postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@app-postgres:5432/${POSTGRES_DB}?sslmode=disable" \
 		"$(action)" $(action_args)
+
+loki-up:
+	@docker compose up -d loki
+
+loki-logs:
+	@docker compose logs -f loki
+
+loki-stop:
+	@docker compose stop loki
+
+alloy-up:
+	@docker compose up -d loki alloy
+
+alloy-logs:
+	@docker compose logs -f alloy
+
+alloy-stop:
+	@docker compose stop alloy loki
