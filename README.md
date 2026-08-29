@@ -64,10 +64,7 @@ http://127.0.0.1:5050/api/v1
 Во втором терминале:
 
 ```bash
-cd frontend
-cp .env.example .env
-npm ci
-npm run dev
+make dev-frontend
 ```
 
 Открой в браузере:
@@ -92,9 +89,7 @@ make app-run
 
 ```bash
 # Терминал 2
-cd frontend
-npm ci
-npm run dev
+make dev-frontend
 ```
 
 ## Частые ошибки
