@@ -97,30 +97,30 @@ func CreateWorkoutExercise(
 
 func (workoutExercise *WorkoutExercise) Validate() error {
 	hasAnyWeightField := workoutExercise.Weight != nil || workoutExercise.Sets != nil || workoutExercise.Reps != nil
-    hasDuration := workoutExercise.Duration != nil
+	hasDuration := workoutExercise.Duration != nil
 
-    if hasAnyWeightField && hasDuration {
-        return fmt.Errorf(
-            "cannot provide both weight/sets/reps and duration: %w",
-            core_errors.ErrInvalidArgument,
-        )
-    }
+	if hasAnyWeightField && hasDuration {
+		return fmt.Errorf(
+			"cannot provide both weight/sets/reps and duration: %w",
+			core_errors.ErrInvalidArgument,
+		)
+	}
 
-    if !hasAnyWeightField && !hasDuration {
-        return fmt.Errorf(
-            "either (weight, sets, reps) or duration must be provided: %w",
-            core_errors.ErrInvalidArgument,
-        )
-    }
+	if !hasAnyWeightField && !hasDuration {
+		return fmt.Errorf(
+			"either (weight, sets, reps) or duration must be provided: %w",
+			core_errors.ErrInvalidArgument,
+		)
+	}
 
-    if hasAnyWeightField {
-        if workoutExercise.Weight == nil || workoutExercise.Sets == nil || workoutExercise.Reps == nil {
-            return fmt.Errorf(
-                "weight exercise requires weight, sets, reps: %w",
-                core_errors.ErrInvalidArgument,
-            )
-        }
-    }
+	if hasAnyWeightField {
+		if workoutExercise.Weight == nil || workoutExercise.Sets == nil || workoutExercise.Reps == nil {
+			return fmt.Errorf(
+				"weight exercise requires weight, sets, reps: %w",
+				core_errors.ErrInvalidArgument,
+			)
+		}
+	}
 
 	if workoutExercise.Weight != nil && *workoutExercise.Weight <= 0 {
 		return fmt.Errorf(
@@ -268,4 +268,9 @@ func (workoutExercise *WorkoutExercise) ValidateForWorkoutExerciseType(exerciseT
 		)
 	}
 	return nil
+}
+
+type WorkoutExerciseWithDifficulty struct {
+	WorkoutExercise
+	Difficulty int
 }
