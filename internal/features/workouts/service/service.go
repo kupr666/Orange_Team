@@ -14,15 +14,24 @@ type WorkoutExerciseReader interface {
 	) ([]domain.WorkoutExercise, error)
 }
 
+type UserRepository interface {
+	GetUser(
+		ctx context.Context,
+		userID uuid.UUID,
+	) (domain.User, error)
+}
+
 type WorkoutsService struct {
-	workoutsRepository WorkoutsRepository
+	workoutsRepository    WorkoutsRepository
 	workoutExerciseReader WorkoutExerciseReader
+	userRepository        UserRepository
 }
 
 type WorkoutsRepository interface {
 	CreateWorkout(
 		ctx context.Context,
 		userID uuid.UUID,
+		personalScoreCoefficient int,
 	) (domain.Workout, error)
 
 	GetWorkouts(
@@ -52,9 +61,11 @@ type WorkoutsRepository interface {
 func NewWorkoutsService(
 	workoutsRepository WorkoutsRepository,
 	workoutExerciseReader WorkoutExerciseReader,
+	userRepository UserRepository,
 ) *WorkoutsService {
 	return &WorkoutsService{
-		workoutsRepository: workoutsRepository,
+		workoutsRepository:    workoutsRepository,
 		workoutExerciseReader: workoutExerciseReader,
+		userRepository:        userRepository,
 	}
 }

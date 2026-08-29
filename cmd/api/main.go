@@ -83,6 +83,7 @@ func main() {
 	workoutsService := workouts_service.NewWorkoutsService(
 		workoutsRepository,
 		workoutExercisesRepo,
+		usersRepository,
 	)
 	workoutExercisesService := workout_exercises_service.NewWorkoutExercisesService(
 		workoutExercisesRepo,
