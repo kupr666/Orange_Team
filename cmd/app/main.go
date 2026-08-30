@@ -3,9 +3,12 @@ package main
 import (
 	"context"
 	"fmt"
+	"net/http"
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
+	"time"
 
 	api_docs "github.com/kupr666/Orange_Team/docs"
 	core_auth_jwt "github.com/kupr666/Orange_Team/internal/core/auth/jwt"
@@ -29,10 +32,6 @@ import (
 	users_postgres_repository "github.com/kupr666/Orange_Team/internal/features/users/repository/postgres"
 	users_service "github.com/kupr666/Orange_Team/internal/features/users/service"
 	users_transport_http "github.com/kupr666/Orange_Team/internal/features/users/transport/http"
-	web_fs_repository "github.com/kupr666/Orange_Team/internal/features/web/repository/fs"
-	web_service "github.com/kupr666/Orange_Team/internal/features/web/service"
-	web_transport_http "github.com/kupr666/Orange_Team/internal/features/web/transport/http"
-	web_transport_http_spa "github.com/kupr666/Orange_Team/internal/features/web/transport/http/spa"
 	workout_exercises_postgres_repository "github.com/kupr666/Orange_Team/internal/features/workout_exercises/repository/postgres"
 	workout_exercises_service "github.com/kupr666/Orange_Team/internal/features/workout_exercises/service"
 	workout_exercises_transport_http "github.com/kupr666/Orange_Team/internal/features/workout_exercises/transport/http"
@@ -74,9 +73,7 @@ func main() {
 	authenticationRepository := authentication_postgres_repository.NewAuthenticationRepository(pool)
 	usersRepository := users_postgres_repository.NewUsersRepository(pool)
 	leaderboardRepository := leaderboard_postgres_repository.NewLeaderboardRepository(pool)
-	webRepository := web_fs_repository.NewWebRepository()
 
-	// jwt manager (verifier)
 	jwtConfig := core_auth_jwt.NewConfigMust()
 	jwtManager, err := core_auth_jwt.NewManager(jwtConfig)
 	if err != nil {
@@ -84,13 +81,12 @@ func main() {
 		os.Exit(1)
 	}
 
-	// leaderboard
 	leaderboardConfig := leaderboard_service.NewConfigMust()
-	applicationLocation := leaderboardConfig.LocationMust()
 
 	log.Debug("initializing services")
 	exercisesService := exercises_service.NewExercisesService(exercisesRepository)
-	habitsService := habits_service.NewHabitsService(habitsRepository, applicationLocation)
+	// Исправлено: передаём time.UTC вторым аргументом
+	habitsService := habits_service.NewHabitsService(habitsRepository, time.UTC)
 	workoutsService := workouts_service.NewWorkoutsService(
 		workoutsRepository,
 		workoutExercisesRepo,
@@ -111,13 +107,8 @@ func main() {
 	usersService := users_service.NewUsersService(usersRepository)
 	leaderboardService := leaderboard_service.NewLeaderboardService(
 		leaderboardRepository,
-		applicationLocation,
+		leaderboardConfig.LocationMust(),
 	)
-	projectRoot := os.Getenv("PROJECT_ROOT")
-	if projectRoot == "" {
-		projectRoot = "."
-	}
-	webService := web_service.NewWebService(webRepository, projectRoot)
 
 	log.Debug("initializing HTTP handlers")
 	exercisesTransportHTTP := exercises_transport_http.NewExercisesHTTPHandler(exercisesService)
@@ -127,9 +118,7 @@ func main() {
 	authenticationTransportHTTP := authentication_transport_http.NewAuthenticationHTTPHandler(authenticationService)
 	usersTransportHTTP := users_transport_http.NewUsersHTTPHandler(usersService)
 	leaderboardTransportHTTP := leaderboard_transport_http.NewLeaderboardHTTPHandler(leaderboardService)
-	webTransportHTTP := web_transport_http.NewWebHTTPHandler(webService)
 
-	// leaderboard
 	leaderboardSnapshotWorker := leaderboard_worker.NewSnapshotWorker(
 		leaderboardService,
 		log,
@@ -158,15 +147,25 @@ func main() {
 	apiVersionRouterV1.RegisterRoutes(usersTransportHTTP.Routes(authenticationMiddleware)...)
 	apiVersionRouterV1.RegisterRoutes(workoutExercisesTransportHTTP.Routes(authenticationMiddleware)...)
 
-	httpServer.RegisterRouters(
-		apiVersionRouterV1,
-	)
+	httpServer.RegisterRouters(apiVersionRouterV1)
 	httpServer.RegisterRoutes(api_docs.Routes()...)
 
-	httpServer.RegisterRoutes(webTransportHTTP.Routes()...)
-
-	// Регистрируем SPA-fallback и статику (вынесено в отдельный пакет)
-	web_transport_http_spa.RegisterSPA(httpServer, "./frontend/dist")
+	// SPA-fallback без конфликтов с /api/v1/
+	staticFS := http.FileServer(http.Dir("./frontend/dist/client"))
+	spaHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if strings.HasPrefix(r.URL.Path, "/api/v1/") {
+			http.NotFound(w, r)
+			return
+		}
+		if strings.HasPrefix(r.URL.Path, "/static/") ||
+			strings.HasPrefix(r.URL.Path, "/assets/") ||
+			strings.Contains(r.URL.Path, ".") {
+			staticFS.ServeHTTP(w, r)
+			return
+		}
+		http.ServeFile(w, r, "./frontend/dist/client/index.html")
+	})
+	httpServer.Handle("/", spaHandler)
 
 	if err := httpServer.Run(ctx); err != nil {
 		log.Error("HTTP server run error", "error", err)

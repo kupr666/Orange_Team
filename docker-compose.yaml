@@ -79,5 +79,6 @@ services:
     depends_on:
       - app-postgres
     restart: unless-stopped
+
 volumes:
   alloy-data:

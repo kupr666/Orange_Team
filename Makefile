@@ -67,6 +67,16 @@ alloy-logs:
 alloy-stop:
 	@docker compose stop alloy loki
 
+# ===== pgAdmin =====
+pgadmin-up:
+	@docker compose up -d pgadmin
+
+pgadmin-down:
+	@docker compose down pgadmin
+
+pgadmin-logs:
+	@docker compose logs -f pgadmin
+
 # ===== Фронтенд =====
 .PHONY: dev-frontend
 dev-frontend:
@@ -85,7 +95,7 @@ build-frontend:
 # ===== Docker сборка и запуск бекенда =====
 app-build:
 	@echo "Сборка Docker-образа..."
-	docker build -t orange-team-backend:latest .
+	docker build -f cmd/app/Dockerfile -t orange-team-backend:latest .
 
 app-up: app-build
 	@echo "Запуск бекенда через docker-compose..."
@@ -100,29 +110,6 @@ app-logs:
 
 app-restart: app-down app-up
 
-# ===== pgAdmin =====
-pgadmin-up:
-	@docker compose up -d pgadmin
-
-pgadmin-down:
-	@docker compose down pgadmin
-
-pgadmin-logs:
-	@docker compose logs -f pgadmin
-
-.PHONY: apply-seed
-
-apply-seed:
-	@set -e; \
-	exercise_count="$$(docker compose exec -T app-postgres sh -c \
-		'psql -U "$$POSTGRES_USER" -d "$$POSTGRES_DB" -Atqc "SELECT COUNT(*) FROM app.exercises;"')"; \
-
-	if [ "$$exercise_count" -eq 0 ]; then \
-		docker compose exec -T app-postgres sh -c \
-			'psql -v ON_ERROR_STOP=1 -U "$$POSTGRES_USER" -d "$$POSTGRES_DB"' \
-			< "docs/Data base/Exercises seed.sql"; \
-	else \
-		echo "Error: app.exercises is not empty ($$exercise_count rows). Seed was not applied." >&2; \
-		exit 1; \
-	fi
-
+# ===== Полный запуск всего окружения (БД + бекенд + миграции) =====
+deploy: env-up migrate-up app-up
+	@echo "✅ Всё запущено! Открой http://localhost:5051"

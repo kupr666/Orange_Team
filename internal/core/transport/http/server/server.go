@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-
 	"net/http"
 
 	core_logger "github.com/kupr666/Orange_Team/internal/core/logger"
@@ -34,23 +33,24 @@ func NewHTTPServer(
 func (s *HTTPServer) RegisterRouters(routers ...*ApiVersionRouter) {
 	for _, router := range routers {
 		prefix := "/api/" + string(router.apiVersion)
-
 		s.mux.Handle(prefix+"/", http.StripPrefix(prefix, router.WithMiddleware()))
 	}
 }
 
 func (s *HTTPServer) RegisterRoutes(routes ...Route) {
 	for _, route := range routes {
-
-		// receive pattern, for instance: "POST /users", "GET /users{id}" and etc
 		pattern := fmt.Sprintf("%s %s", route.Method, route.Path)
-
 		s.mux.Handle(pattern, route.WithMiddleware())
 	}
 }
 
-func (s *HTTPServer) Run(ctx context.Context) error {
+// Handle регистрирует обработчик напрямую (без метода HTTP).
+// Используется для fallback-обработчиков, например SPA.
+func (s *HTTPServer) Handle(pattern string, handler http.Handler) {
+	s.mux.Handle(pattern, handler)
+}
 
+func (s *HTTPServer) Run(ctx context.Context) error {
 	mux := core_http_middleware.ChainMiddleware(s.mux, s.middleware...)
 	server := &http.Server{
 		Addr:    s.config.Addr,
@@ -65,7 +65,6 @@ func (s *HTTPServer) Run(ctx context.Context) error {
 		defer close(ch)
 
 		err := server.ListenAndServe()
-
 		if !errors.Is(err, http.ErrServerClosed) {
 			ch <- err
 		}
@@ -87,7 +86,6 @@ func (s *HTTPServer) Run(ctx context.Context) error {
 
 		if err := server.Shutdown(shutdownCtx); err != nil {
 			_ = server.Close()
-
 			return fmt.Errorf("shutdown HTTP server: %w", err)
 		}
 
