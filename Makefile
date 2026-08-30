@@ -1,11 +1,13 @@
 include .env
 export
 
-export PROJECT_ROOT=${shell pwd}
+export PROJECT_ROOT=$(shell pwd)
 
+# ===== Локальный запуск бекенда =====
 app-run:
 	@go run ./cmd/api
 
+# ===== Docker окружение (БД, миграции, порт-форвардер) =====
 env-up:
 	@docker compose up -d app-postgres
 
@@ -18,6 +20,7 @@ env-port-forward:
 env-port-close:
 	@docker compose down port-forwarder
 
+# ===== Миграции =====
 migrate-create:
 	@if [ -z "$(seq)" ]; then \
 		echo "Missing required parameter seq. Example: make migrate-create seq=init"; \
@@ -40,11 +43,12 @@ migrate-action:
 		echo "Missing required parameter action. Example: make migrate-action action=up action_args=1"; \
 		exit 1; \
 	fi; 
-	@docker compose run  --rm app-postgres-migrate \
+	@docker compose run --rm app-postgres-migrate \
 		-path /migrations \
 		-database "postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@app-postgres:5432/${POSTGRES_DB}?sslmode=disable" \
 		"$(action)" $(action_args)
 
+# ===== Локи / Аллой (логирование) =====
 loki-up:
 	@docker compose up -d loki
 
@@ -84,7 +88,7 @@ app-build:
 	docker build -t orange-team-backend:latest .
 
 app-up: app-build
-	@echo "Запуск бекенда..."
+	@echo "Запуск бекенда через docker-compose..."
 	docker compose up -d app
 
 app-down:
@@ -95,3 +99,7 @@ app-logs:
 	@docker compose logs -f app
 
 app-restart: app-down app-up
+
+# ===== Полный запуск всего окружения (БД + бекенд + миграции) =====
+deploy: env-up migrate-up app-up
+	@echo "✅ Всё запущено! Открой http://84.38.183.56:5050/"

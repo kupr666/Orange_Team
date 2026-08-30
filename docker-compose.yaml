@@ -63,7 +63,7 @@ services:
     volumes:
       - ./out/logs:/app/out/logs
     ports:
-      - "127.0.0.1:5050:5050"
+      - "5051:5050"
     depends_on:
       - app-postgres
     restart: unless-stopped
