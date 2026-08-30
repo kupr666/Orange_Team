@@ -28,4 +28,3 @@ type Row interface {
 type CommandTag interface {
 	RowsAffected() int64
 }
-

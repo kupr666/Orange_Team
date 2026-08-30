@@ -1,0 +1,2121 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="dark">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Orange Team</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Roboto+Mono:wght@300;400;500;700&display=swap" rel="stylesheet" />
+    <style>
+        /* (весь CSS тот же, что был, только добавим пару стилей для спиннера и фильтра) */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --bg: #0b0b12;
+            --bg-card: #12121f;
+            --bg-input: #1a1a2e;
+            --border: #2a2a4a;
+            --text: #d0d0f0;
+            --text-muted: #7a7aaa;
+            --text-dim: #4a4a6a;
+            --primary: #f04e9e;
+            --primary-glow: rgba(240, 78, 158, 0.4);
+            --secondary: #4ef0e0;
+            --secondary-glow: rgba(78, 240, 224, 0.3);
+            --accent: #a855f7;
+            --accent-glow: rgba(168, 85, 247, 0.3);
+            --success: #4ade80;
+            --success-glow: rgba(74, 222, 128, 0.3);
+            --danger: #f87171;
+            --danger-glow: rgba(248, 113, 113, 0.3);
+            --warning: #facc15;
+            --warning-glow: rgba(250, 204, 21, 0.3);
+            --shadow: 0 8px 32px rgba(0, 0, 0, 0.8), 0 0 60px rgba(240, 78, 158, 0.05);
+            --r: 6px;
+            --r-lg: 12px;
+            --font: 'Roboto Mono', monospace;
+            --font-head: 'Orbitron', sans-serif;
+        }
+
+        [data-theme="light"] {
+            --bg: #e8e4f0;
+            --bg-card: #f4f0fa;
+            --bg-input: #ddd8e8;
+            --border: #b8b0cc;
+            --text: #1a1a2e;
+            --text-muted: #5a5070;
+            --text-dim: #8a7a9e;
+            --primary: #d43d8a;
+            --primary-glow: rgba(212, 61, 138, 0.2);
+            --secondary: #1a9e8e;
+            --secondary-glow: rgba(26, 158, 142, 0.15);
+            --accent: #7c3aed;
+            --accent-glow: rgba(124, 58, 237, 0.15);
+            --shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+        }
+
+        body {
+            font-family: var(--font);
+            background: var(--bg);
+            color: var(--text);
+            font-size: 16px;
+            line-height: 1.6;
+            min-height: 100vh;
+            transition: background 0.3s, color 0.3s;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 9999;
+            background: repeating-linear-gradient(0deg,
+                    rgba(0, 255, 255, 0.02) 0px,
+                    rgba(0, 255, 255, 0.02) 2px,
+                    transparent 2px,
+                    transparent 6px);
+            opacity: 0.3;
+        }
+
+        body::after {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background: radial-gradient(circle at 20% 30%, rgba(240, 78, 158, 0.03) 0%, transparent 60%),
+                radial-gradient(circle at 80% 70%, rgba(78, 240, 224, 0.03) 0%, transparent 60%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: 4px;
+            box-shadow: 0 0 16px var(--primary-glow);
+        }
+
+        .app {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            min-height: 100vh;
+            position: relative;
+            z-index: 1;
+        }
+
+        .sidebar {
+            background: var(--bg-card);
+            border-right: 2px solid var(--border);
+            padding: 28px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 28px;
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            overflow-y: auto;
+            box-shadow: 4px 0 40px rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(4px);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 0 10px;
+        }
+
+        .logo-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 30px var(--primary-glow);
+            flex-shrink: 0;
+        }
+
+        .logo-icon svg {
+            width: 24px;
+            height: 24px;
+            fill: none;
+            stroke: #fff;
+            stroke-width: 2.5;
+            filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.3));
+        }
+
+        .logo-text {
+            font-family: var(--font-head);
+            font-size: 20px;
+            font-weight: 900;
+            letter-spacing: 2px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 30px rgba(240, 78, 158, 0.2);
+        }
+
+        .logo-version {
+            font-size: 12px;
+            color: var(--text-muted);
+            background: var(--bg-input);
+            padding: 0 8px;
+            border-radius: 4px;
+            border: 1px solid var(--border);
+            font-family: var(--font);
+            -webkit-text-fill-color: var(--text-muted);
+        }
+
+        .nav {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .nav-section-label {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--text-dim);
+            padding: 4px 14px 8px;
+            font-family: var(--font-head);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 12px 16px;
+            border-radius: var(--r);
+            border: none;
+            background: transparent;
+            color: var(--text-muted);
+            font-family: var(--font-head);
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: left;
+            width: 100%;
+            position: relative;
+            letter-spacing: 1px;
+        }
+
+        .nav-item:hover {
+            background: var(--bg-input);
+            color: var(--text);
+            box-shadow: 0 0 20px rgba(240, 78, 158, 0.05);
+        }
+
+        .nav-item.active {
+            color: var(--primary);
+            background: rgba(240, 78, 158, 0.08);
+            box-shadow: inset 0 0 30px rgba(240, 78, 158, 0.05);
+        }
+
+        .nav-item.active::before {
+            content: '▸';
+            position: absolute;
+            left: 4px;
+            color: var(--primary);
+            text-shadow: 0 0 16px var(--primary-glow);
+        }
+
+        .nav-item svg {
+            width: 20px;
+            height: 20px;
+            stroke: currentColor;
+            flex-shrink: 0;
+        }
+
+        .nav-item.logout-item {
+            margin-top: 8px;
+            border-top: 1px solid var(--border);
+            padding-top: 12px;
+            color: var(--danger);
+        }
+        .nav-item.logout-item:hover {
+            background: rgba(248, 113, 113, 0.08);
+            color: var(--danger);
+        }
+        .nav-item.logout-item.active::before {
+            color: var(--danger);
+            text-shadow: 0 0 16px var(--danger-glow);
+        }
+
+        .theme-toggle-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 16px;
+            border-radius: var(--r);
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            margin-top: auto;
+        }
+
+        .theme-toggle-label {
+            font-size: 13px;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-family: var(--font-head);
+            letter-spacing: 1px;
+        }
+
+        .theme-toggle-label svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 48px;
+            height: 26px;
+            cursor: pointer;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-track {
+            position: absolute;
+            inset: 0;
+            background: var(--bg);
+            border: 2px solid var(--border);
+            border-radius: 99px;
+            transition: all 0.25s;
+        }
+
+        .toggle-track::after {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: var(--text-dim);
+            transition: all 0.25s cubic-bezier(.34, 1.56, .64, 1);
+            box-shadow: 0 0 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .toggle-switch input:checked+.toggle-track {
+            background: var(--primary);
+            border-color: var(--primary);
+            box-shadow: 0 0 24px var(--primary-glow);
+        }
+
+        .toggle-switch input:checked+.toggle-track::after {
+            transform: translateX(22px);
+            background: #fff;
+        }
+
+        .main {
+            padding: 32px 40px;
+            overflow-y: auto;
+            background: transparent;
+        }
+
+        .tab {
+            display: none;
+        }
+
+        .tab.active {
+            display: block;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 24px;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 14px;
+        }
+
+        .section-title {
+            font-family: var(--font-head);
+            font-size: 28px;
+            font-weight: 900;
+            flex: 1;
+            letter-spacing: 2px;
+            text-shadow: 0 0 30px rgba(240, 78, 158, 0.15);
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 22px;
+            border-radius: var(--r);
+            border: 2px solid var(--border);
+            font-family: var(--font-head);
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            background: var(--bg-input);
+            color: var(--text);
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.4);
+        }
+
+        .btn svg {
+            width: 16px;
+            height: 16px;
+            stroke: currentColor;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: #0b0b12;
+            border-color: var(--primary);
+            box-shadow: 0 0 30px var(--primary-glow);
+        }
+
+        .btn-primary:hover {
+            filter: brightness(1.2);
+            box-shadow: 0 0 50px var(--primary-glow);
+            transform: scale(1.02);
+        }
+
+        .btn-secondary {
+            background: var(--bg-input);
+            color: var(--text);
+            border-color: var(--border);
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--text-muted);
+            background: var(--bg-card);
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: #0b0b12;
+            border-color: var(--danger);
+            box-shadow: 0 0 30px var(--danger-glow);
+        }
+
+        .btn-danger:hover {
+            filter: brightness(1.1);
+            box-shadow: 0 0 50px var(--danger-glow);
+        }
+
+        .btn-sm {
+            padding: 6px 14px;
+            font-size: 12px;
+        }
+
+        .btn-icon {
+            display: inline-flex;
+            align-items: center;
+            padding: 6px;
+            border: 1px solid transparent;
+            border-radius: 4px;
+            background: transparent;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .btn-icon:hover {
+            background: var(--bg-input);
+            color: var(--text);
+            border-color: var(--border);
+        }
+
+        .btn-icon.del:hover {
+            background: var(--danger);
+            color: #0b0b12;
+            border-color: var(--danger);
+            box-shadow: 0 0 20px var(--danger-glow);
+        }
+
+        .btn-icon svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        .filters-bar {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 16px 20px;
+            background: var(--bg-card);
+            border: 2px solid var(--border);
+            border-radius: var(--r-lg);
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .filter-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .filter-group label {
+            font-size: 14px;
+            color: var(--text-muted);
+            font-family: var(--font-head);
+            letter-spacing: 1px;
+        }
+
+        .input-sm {
+            padding: 8px 12px;
+            background: var(--bg-input);
+            border: 2px solid var(--border);
+            border-radius: var(--r);
+            color: var(--text);
+            font-family: var(--font);
+            font-size: 15px;
+            width: 130px;
+            outline: none;
+            transition: border-color 0.15s, box-shadow 0.15s;
+        }
+
+        .input-sm:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 20px var(--primary-glow);
+        }
+
+        .filter-spacer {
+            flex: 1;
+        }
+
+        .tasks-list,
+        .users-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .users-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 16px;
+        }
+
+        .task-card,
+        .user-card {
+            background: var(--bg-card);
+            border: 2px solid var(--border);
+            border-radius: var(--r-lg);
+            padding: 20px 24px;
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+            transition: border-color 0.15s, background 0.15s, box-shadow 0.15s;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+            position: relative;
+        }
+
+        .task-card:hover,
+        .user-card:hover {
+            border-color: var(--primary);
+            background: var(--bg-input);
+            box-shadow: 0 0 40px rgba(240, 78, 158, 0.06);
+        }
+
+        .task-body,
+        .user-body {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .task-title {
+            font-family: var(--font-head);
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 4px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            letter-spacing: 0.5px;
+        }
+
+        .task-desc {
+            font-size: 15px;
+            color: var(--text-muted);
+            margin-bottom: 10px;
+            overflow: hidden;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            line-clamp: 2;
+            -webkit-box-orient: vertical;
+        }
+
+        .task-meta,
+        .user-meta {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 10px;
+            border-radius: 16px;
+            font-size: 12px;
+            background: var(--bg-input);
+            color: var(--text-muted);
+            border: 1px solid var(--border);
+            font-family: var(--font);
+        }
+
+        .chip-success {
+            background: rgba(74, 222, 128, 0.12);
+            color: var(--success);
+            border-color: var(--success);
+        }
+
+        .chip-pending {
+            background: rgba(250, 204, 21, 0.12);
+            color: var(--warning);
+            border-color: var(--warning);
+        }
+
+        .chip-danger {
+            background: rgba(248, 113, 113, 0.12);
+            color: var(--danger);
+            border-color: var(--danger);
+        }
+
+        .chip-info {
+            background: rgba(78, 240, 224, 0.08);
+            color: var(--secondary);
+            border-color: var(--secondary);
+        }
+
+        .chip-version {
+            background: transparent;
+            border: 1px solid var(--border);
+            font-family: var(--font);
+        }
+
+        .task-actions {
+            display: flex;
+            gap: 4px;
+            opacity: 0;
+            transition: opacity 0.15s;
+        }
+
+        .task-card:hover .task-actions,
+        .user-card:hover .task-actions {
+            opacity: 1;
+        }
+
+        .user-name {
+            font-family: var(--font-head);
+            font-size: 18px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+
+        .user-phone {
+            font-size: 15px;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            max-width: 100%;
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+            font-family: var(--font-head);
+            letter-spacing: 1px;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 10px 14px;
+            background: var(--bg-input);
+            border: 2px solid var(--border);
+            border-radius: var(--r);
+            color: var(--text);
+            font-family: var(--font);
+            font-size: 16px;
+            outline: none;
+            transition: border-color 0.15s, box-shadow 0.15s;
+        }
+
+        .form-control:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 20px var(--primary-glow);
+        }
+
+        .form-control::placeholder {
+            color: var(--text-muted);
+        }
+
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(8px);
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.25s;
+        }
+
+        .modal-overlay.open {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .modal {
+            background: var(--bg-card);
+            border: 2px solid var(--border);
+            border-radius: var(--r-lg);
+            padding: 32px;
+            width: 100%;
+            max-width: 560px;
+            transform: translateY(18px) scale(0.98);
+            transition: transform 0.25s, background 0.3s, border-color 0.3s;
+            box-shadow: var(--shadow);
+        }
+
+        .modal-overlay.open .modal {
+            transform: none;
+        }
+
+        .modal-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 24px;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 12px;
+        }
+
+        .modal-title {
+            font-family: var(--font-head);
+            font-size: 22px;
+            font-weight: 900;
+            flex: 1;
+            letter-spacing: 1px;
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            margin-top: 24px;
+            padding-top: 20px;
+            border-top: 2px solid var(--border);
+        }
+
+        .toast-container {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            z-index: 200;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            max-width: 420px;
+        }
+
+        .toast {
+            padding: 14px 18px;
+            border-radius: var(--r);
+            font-size: 15px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: var(--shadow);
+            animation: toastIn 0.2s ease;
+            background: var(--bg-card);
+            border: 2px solid var(--border);
+            border-left-width: 6px;
+            font-family: var(--font);
+        }
+
+        .toast.success {
+            border-left-color: var(--success);
+            color: var(--success);
+        }
+        .toast.error {
+            border-left-color: var(--danger);
+            color: var(--danger);
+        }
+        .toast.info {
+            border-left-color: var(--primary);
+            color: var(--primary);
+        }
+        .toast.warning {
+            border-left-color: var(--warning);
+            color: var(--warning);
+        }
+        .toast-msg {
+            color: var(--text);
+            flex: 1;
+        }
+        .toast svg {
+            width: 18px;
+            height: 18px;
+            flex-shrink: 0;
+            stroke: currentColor;
+        }
+
+        @keyframes toastIn {
+            from {
+                transform: translateX(110%);
+                opacity: 0;
+            }
+        }
+        @keyframes toastOut {
+            to {
+                transform: translateX(110%);
+                opacity: 0;
+            }
+        }
+
+        .loading-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 300;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(4px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .loading-overlay.active {
+            display: flex;
+        }
+
+        .loading-overlay .spinner {
+            width: 48px;
+            height: 48px;
+            border: 4px solid var(--border);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        .loading-overlay .load-text {
+            font-family: var(--font-head);
+            color: var(--text-muted);
+            font-size: 16px;
+            letter-spacing: 2px;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .mobile-header {
+            display: none;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            background: var(--bg-card);
+            border-bottom: 2px solid var(--border);
+            padding: 10px 16px;
+            align-items: center;
+            gap: 12px;
+            backdrop-filter: blur(4px);
+        }
+
+        .mobile-header .logo-icon {
+            width: 36px;
+            height: 36px;
+        }
+        .mobile-header .logo-icon svg {
+            width: 20px;
+            height: 20px;
+        }
+        .mobile-header .logo-text {
+            font-family: var(--font-head);
+            font-size: 18px;
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hamburger-btn {
+            display: none;
+            align-items: center;
+            justify-content: center;
+            width: 38px;
+            height: 38px;
+            border: 2px solid var(--border);
+            border-radius: 4px;
+            background: var(--bg-input);
+            color: var(--text);
+            cursor: pointer;
+            margin-left: auto;
+        }
+        .hamburger-btn svg {
+            width: 22px;
+            height: 22px;
+            stroke: currentColor;
+        }
+
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 59;
+            backdrop-filter: blur(4px);
+        }
+        .sidebar-overlay.open {
+            display: block;
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .app {
+                grid-template-columns: 240px 1fr;
+            }
+            .main {
+                padding: 24px 20px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .app {
+                grid-template-columns: 1fr;
+            }
+            .mobile-header {
+                display: flex;
+            }
+            .hamburger-btn {
+                display: flex;
+            }
+            .sidebar {
+                position: fixed;
+                top: 0;
+                left: 0;
+                bottom: 0;
+                width: 260px;
+                z-index: 60;
+                transform: translateX(-100%);
+                transition: transform 0.25s cubic-bezier(.4, 0, .2, 1);
+            }
+            .sidebar.open {
+                transform: translateX(0);
+            }
+            .main {
+                padding: 16px;
+            }
+            .section-title {
+                font-size: 22px;
+            }
+            .btn {
+                padding: 8px 14px;
+                font-size: 12px;
+            }
+            .filters-bar {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 10px;
+            }
+            .filter-group {
+                flex-wrap: wrap;
+                gap: 6px;
+            }
+            .filter-group label {
+                font-size: 13px;
+            }
+            .input-sm {
+                width: 100%;
+                font-size: 14px;
+            }
+            .task-card,
+            .user-card {
+                padding: 14px 16px;
+                gap: 12px;
+            }
+            .task-title {
+                font-size: 16px;
+            }
+            .task-actions {
+                opacity: 1;
+            }
+            .users-grid {
+                grid-template-columns: 1fr;
+            }
+            .modal {
+                padding: 20px;
+                max-height: 90vh;
+                overflow-y: auto;
+            }
+            .modal-title {
+                font-size: 18px;
+            }
+            .toast-container {
+                bottom: 12px;
+                right: 12px;
+                left: 12px;
+                max-width: 100%;
+            }
+            .toast {
+                font-size: 14px;
+                padding: 12px 14px;
+                min-width: unset;
+            }
+            .nav-item {
+                padding: 10px 12px;
+                font-size: 13px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            .section-header {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .section-header .btn {
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="loading-overlay" id="loading-overlay">
+        <div class="spinner"></div>
+        <div class="load-text">Загрузка...</div>
+    </div>
+
+    <div class="app">
+        <!-- Mobile header -->
+        <div class="mobile-header">
+            <div class="logo-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <polyline points="9 11 12 14 22 4" />
+                    <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
+                </svg>
+            </div>
+            <span class="logo-text">Orange Team</span>
+            <button class="hamburger-btn" onclick="toggleMobileSidebar()" aria-label="Меню">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                    <line x1="3" y1="6" x2="21" y2="6" />
+                    <line x1="3" y1="12" x2="21" y2="12" />
+                    <line x1="3" y1="18" x2="21" y2="18" />
+                </svg>
+            </button>
+        </div>
+        <div class="sidebar-overlay" id="sidebar-overlay" onclick="closeMobileSidebar()"></div>
+
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="logo">
+                <div class="logo-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                        <polyline points="9 11 12 14 22 4" />
+                        <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
+                    </svg>
+                </div>
+                <span class="logo-text">Orange Team</span>
+                <span class="logo-version">v1</span>
+            </div>
+
+            <nav class="nav">
+                <span class="nav-section-label">Меню</span>
+                <button class="nav-item active" data-tab="auth" id="nav-auth" onclick="switchTab('auth')">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />
+                        <polyline points="10 17 15 12 10 7" />
+                        <line x1="15" y1="12" x2="3" y2="12" />
+                    </svg>
+                    Auth
+                </button>
+                <button class="nav-item" data-tab="profile" id="nav-profile" onclick="switchTab('profile')">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                        <circle cx="12" cy="7" r="4" />
+                    </svg>
+                    Profile
+                </button>
+                <button class="nav-item" data-tab="exercises" id="nav-exercises" onclick="switchTab('exercises')">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10" />
+                        <polyline points="12 6 12 12 16 14" />
+                    </svg>
+                    Exercises
+                </button>
+                <button class="nav-item" data-tab="workouts" id="nav-workouts" onclick="switchTab('workouts')">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+                    </svg>
+                    Workouts
+                </button>
+                <button class="nav-item" data-tab="leaderboard" id="nav-leaderboard" onclick="switchTab('leaderboard')">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 2L2 7l10 5 10-5-10-5z" />
+                        <path d="M2 17l10 5 10-5" />
+                        <path d="M2 12l10 5 10-5" />
+                    </svg>
+                    Leaderboard
+                </button>
+
+                <button class="nav-item logout-item" id="nav-logout" onclick="confirmLogout()" style="display:none;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                        <polyline points="16 17 21 12 16 7" />
+                        <line x1="21" y1="12" x2="9" y2="12" />
+                    </svg>
+                    Выйти
+                </button>
+            </nav>
+
+            <div class="theme-toggle-row">
+                <span class="theme-toggle-label" id="theme-label">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+                    </svg>
+                    Тёмная тема
+                </span>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="theme-toggle" onchange="toggleTheme(this.checked)" checked />
+                    <span class="toggle-track"></span>
+                </label>
+            </div>
+        </aside>
+
+        <!-- Main -->
+        <main class="main">
+            <!-- Auth -->
+            <section id="tab-auth" class="tab active">
+                <div class="section-header">
+                    <h1 class="section-title">Авторизация</h1>
+                </div>
+                <div class="auth-toggle" style="display:flex; gap:0.5rem; margin-bottom:1rem;">
+                    <button id="auth-show-register" class="btn btn-primary active" onclick="showAuthForm('register')">Регистрация</button>
+                    <button id="auth-show-login" class="btn btn-secondary" onclick="showAuthForm('login')">Вход</button>
+                </div>
+                <div id="auth-register-form" class="auth-form active">
+                    <h3>Регистрация</h3>
+                    <div class="form-group">
+                        <label class="form-label">Email</label>
+                        <input type="email" class="form-control" id="reg-email" placeholder="email@example.com" />
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Пароль</label>
+                        <input type="password" class="form-control" id="reg-password" placeholder="минимум 8 символов" />
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Полное имя</label>
+                        <input type="text" class="form-control" id="reg-fullname" placeholder="Иван Иванов" />
+                    </div>
+                    <button class="btn btn-primary" id="btn-register">Зарегистрироваться</button>
+                </div>
+                <div id="auth-login-form" class="auth-form" style="display:none;">
+                    <h3>Вход</h3>
+                    <div class="form-group">
+                        <label class="form-label">Email</label>
+                        <input type="email" class="form-control" id="login-email" placeholder="email@example.com" />
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Пароль</label>
+                        <input type="password" class="form-control" id="login-password" placeholder="пароль" />
+                    </div>
+                    <button class="btn btn-primary" id="btn-login">Войти</button>
+                </div>
+                <div id="auth-status" style="margin-top:1rem;"></div>
+            </section>
+
+            <!-- Profile -->
+            <section id="tab-profile" class="tab">
+                <div class="section-header">
+                    <h1 class="section-title">Мой профиль</h1>
+                    <button class="btn btn-danger" id="btn-delete-profile">Удалить аккаунт</button>
+                </div>
+                <div id="profile-info">
+                    <div class="form-group">
+                        <label class="form-label">Email</label>
+                        <span id="profile-email" style="display:block;padding:8px 0;"></span>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Полное имя</label>
+                        <input type="text" class="form-control" id="profile-fullname" placeholder="Полное имя" />
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Пол</label>
+                        <select class="form-control" id="profile-sex">
+                            <option value="">Не указан</option>
+                            <option value="male">Мужской</option>
+                            <option value="female">Женский</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Вес (г)</label>
+                        <input type="number" class="form-control" id="profile-weight" placeholder="Вес в граммах" />
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Рост (см)</label>
+                        <input type="number" class="form-control" id="profile-height" placeholder="Рост в см" />
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Дата рождения</label>
+                        <input type="date" class="form-control" id="profile-birthdate" />
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Счёт тренировок</label>
+                        <span id="profile-score-display" style="display:block;padding:8px 0;font-size:24px;font-weight:bold;color:var(--primary);">0</span>
+                    </div>
+                    <div style="display:flex; gap:12px; margin-top:12px;">
+                        <button class="btn btn-primary" id="btn-update-profile">Обновить профиль</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Exercises -->
+            <section id="tab-exercises" class="tab">
+                <div class="section-header">
+                    <h1 class="section-title">Каталог упражнений</h1>
+                    <button class="btn btn-secondary" onclick="loadExercises()">Обновить</button>
+                </div>
+                <div id="exercises-list" class="users-grid"></div>
+            </section>
+
+            <!-- Workouts -->
+            <section id="tab-workouts" class="tab">
+                <div class="section-header">
+                    <h1 class="section-title">Тренировки</h1>
+                    <button class="btn btn-primary" onclick="createWorkout()">Создать тренировку</button>
+                </div>
+
+                <!-- Фильтр по статусу -->
+                <div class="filters-bar">
+                    <div class="filter-group">
+                        <label>Статус</label>
+                        <select class="input-sm" id="wf-status" style="width:auto;" onchange="loadWorkouts()">
+                            <option value="all">Все</option>
+                            <option value="planned">Planned</option>
+                            <option value="in_progress">In progress</option>
+                            <option value="completed">Completed</option>
+                            <option value="cancelled">Cancelled</option>
+                        </select>
+                    </div>
+                    <div class="filter-spacer"></div>
+                    <!-- можно добавить ещё фильтры -->
+                </div>
+
+                <div id="workouts-list" class="tasks-list"></div>
+
+                <!-- Детали тренировки -->
+                <div id="workout-detail" style="display:none; margin-top:20px; background:var(--bg-card); border:2px solid var(--border); border-radius:var(--r-lg); padding:20px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                        <h3 style="font-family:var(--font-head);">Детали тренировки</h3>
+                        <button class="btn-icon" onclick="closeWorkoutDetail()">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <line x1="18" y1="6" x2="6" y2="18" />
+                                <line x1="6" y1="6" x2="18" y2="18" />
+                            </svg>
+                        </button>
+                    </div>
+                    <div id="workout-detail-content"></div>
+                    <h4 style="margin:16px 0 8px;">Упражнения</h4>
+                    <div id="workout-exercises-list" class="tasks-list"></div>
+                    <div style="margin-top:16px; display:flex; gap:12px; flex-wrap:wrap;">
+                        <button class="btn btn-primary" onclick="openAddExerciseModal()">Добавить упражнение</button>
+                        <button class="btn btn-secondary" id="btn-start-workout">Начать тренировку</button>
+                        <button class="btn btn-secondary" id="btn-complete-workout">Завершить тренировку</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Leaderboard -->
+            <section id="tab-leaderboard" class="tab">
+                <div class="section-header">
+                    <h1 class="section-title">Лидерборд</h1>
+                    <button class="btn btn-secondary" onclick="loadLeaderboard()">Обновить</button>
+                </div>
+                <div class="filters-bar">
+                    <div class="filter-group">
+                        <label>Период</label>
+                        <select class="input-sm" id="lb-period" style="width:auto;">
+                            <option value="daily">День</option>
+                            <option value="weekly">Неделя</option>
+                            <option value="monthly">Месяц</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>Лимит</label>
+                        <input type="number" class="input-sm" id="lb-limit" value="10" style="width:80px;" />
+                    </div>
+                    <div class="filter-spacer"></div>
+                    <button class="btn btn-secondary" onclick="loadLeaderboard()">Применить</button>
+                </div>
+                <div id="leaderboard-content"></div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Modal: Add/Edit exercise -->
+    <div class="modal-overlay" id="add-exercise-modal-overlay" onclick="closeModal('add-exercise-modal-overlay', event)">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 class="modal-title" id="exercise-modal-title">Добавить упражнение</h2>
+                <button class="btn-icon" onclick="closeModal('add-exercise-modal-overlay')">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18" />
+                        <line x1="6" y1="6" x2="18" y2="18" />
+                    </svg>
+                </button>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Упражнение</label>
+                <select class="form-control" id="we-exercise-select">
+                    <option value="">-- Выберите --</option>
+                </select>
+            </div>
+            <div id="we-fields"></div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('add-exercise-modal-overlay')">Отмена</button>
+                <button class="btn btn-primary" id="btn-add-exercise">Добавить</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Confirm delete -->
+    <div class="modal-overlay" id="confirm-modal-overlay" onclick="closeModal('confirm-modal-overlay', event)">
+        <div class="modal" style="max-width:440px">
+            <div class="modal-header">
+                <h2 class="modal-title" style="color:var(--danger)">
+                    <svg style="width:22px;height:22px;display:inline;margin-right:8px;vertical-align:-4px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+                        <line x1="12" y1="9" x2="12" y2="13" />
+                        <line x1="12" y1="17" x2="12.01" y2="17" />
+                    </svg>
+                    Подтверждение
+                </h2>
+            </div>
+            <p style="font-size:16px;color:var(--text-muted)" id="confirm-text">Вы уверены?</p>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('confirm-modal-overlay')">Отмена</button>
+                <button class="btn btn-danger" id="confirm-ok-btn">Удалить</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Confirm logout -->
+    <div class="modal-overlay" id="logout-modal-overlay" onclick="closeModal('logout-modal-overlay', event)">
+        <div class="modal" style="max-width:440px">
+            <div class="modal-header">
+                <h2 class="modal-title" style="color:var(--warning)">
+                    <svg style="width:22px;height:22px;display:inline;margin-right:8px;vertical-align:-4px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+                        <line x1="12" y1="9" x2="12" y2="13" />
+                        <line x1="12" y1="17" x2="12.01" y2="17" />
+                    </svg>
+                    Выход
+                </h2>
+            </div>
+            <p style="font-size:16px;color:var(--text-muted)">Вы уверены, что хотите выйти из аккаунта?</p>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('logout-modal-overlay')">Отмена</button>
+                <button class="btn btn-danger" id="logout-confirm-btn">Выйти</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast container -->
+    <div class="toast-container" id="toast-container"></div>
+
+    <script>
+        // ---------- Constants ----------
+        const API_BASE = 'http://localhost:5050/api/v1';
+
+        // ---------- DOM refs ----------
+        const authStatus = document.getElementById('auth-status');
+        const exercisesList = document.getElementById('exercises-list');
+        const workoutsList = document.getElementById('workouts-list');
+        const workoutDetail = document.getElementById('workout-detail');
+        const workoutDetailContent = document.getElementById('workout-detail-content');
+        const workoutExercisesList = document.getElementById('workout-exercises-list');
+
+        const profileFullname = document.getElementById('profile-fullname');
+        const profileSex = document.getElementById('profile-sex');
+        const profileWeight = document.getElementById('profile-weight');
+        const profileHeight = document.getElementById('profile-height');
+        const profileBirthdate = document.getElementById('profile-birthdate');
+        const profileEmail = document.getElementById('profile-email');
+        const profileScore = document.getElementById('profile-score-display');
+
+        const loadingOverlay = document.getElementById('loading-overlay');
+
+        let currentWorkoutId = null;
+        let currentUser = null;
+        let exerciseMap = {};
+        let confirmCallback = null;
+        let editingExerciseId = null; // для редактирования
+
+        // ---------- Loading overlay ----------
+        let loadingCounter = 0;
+
+        function showLoading() {
+            loadingCounter++;
+            loadingOverlay.classList.add('active');
+        }
+
+        function hideLoading() {
+            loadingCounter--;
+            if (loadingCounter <= 0) {
+                loadingCounter = 0;
+                loadingOverlay.classList.remove('active');
+            }
+        }
+
+        // ---------- Helpers ----------
+        function escapeHTML(value) {
+            return String(value).replace(/[&<>"']/g, character => ({
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#39;'
+            })[character]);
+        }
+
+        function showToast(text, type = 'info') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.innerHTML = `<span class="toast-msg">${text}</span>`;
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.style.animation = 'toastOut 0.2s ease forwards';
+                setTimeout(() => toast.remove(), 300);
+            }, 5000);
+        }
+
+        function getToken() { return localStorage.getItem('token'); }
+        function setToken(token) { localStorage.setItem('token', token); }
+        function clearToken() { localStorage.removeItem('token'); }
+
+        function headers() {
+            const h = { 'Content-Type': 'application/json' };
+            const token = getToken();
+            if (token) h['Authorization'] = `Bearer ${token}`;
+            return h;
+        }
+
+        async function apiFetch(endpoint, opts = {}) {
+            showLoading();
+            try {
+                const url = API_BASE + endpoint;
+                const res = await fetch(url, {
+                    ...opts,
+                    headers: { ...headers(), ...opts.headers },
+                });
+                if (!res.ok) {
+                    let errMsg = `HTTP ${res.status}`;
+                    try {
+                        const data = await res.json();
+                        errMsg = data.message || data.error || errMsg;
+                    } catch (_) {}
+                    throw new Error(errMsg);
+                }
+                if (res.status === 204 || res.headers.get('content-length') === '0') {
+                    return null;
+                }
+                return res.json();
+            } finally {
+                hideLoading();
+            }
+        }
+
+        function updateUIForUser(user) {
+            currentUser = user;
+            updateNavVisibility();
+        }
+
+        // ---------- Navigation visibility ----------
+        function updateNavVisibility() {
+            const token = getToken();
+            const isAuth = !!token;
+            document.getElementById('nav-auth').style.display = isAuth ? 'none' : 'flex';
+            document.getElementById('nav-logout').style.display = isAuth ? 'flex' : 'none';
+            if (isAuth && document.getElementById('tab-auth').classList.contains('active')) {
+                switchTab('profile');
+            }
+            if (!isAuth && !document.getElementById('tab-auth').classList.contains('active')) {
+                const activeTab = document.querySelector('.tab.active');
+                if (activeTab && activeTab.id !== 'tab-auth') {
+                    switchTab('auth');
+                }
+            }
+        }
+
+        // ---------- Tab switching ----------
+        function switchTab(tabId) {
+            document.querySelectorAll('.nav-item').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.tab === tabId);
+            });
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.toggle('active', tab.id === `tab-${tabId}`);
+            });
+            if (tabId === 'profile') loadProfile();
+            if (tabId === 'exercises') loadExercises();
+            if (tabId === 'workouts') loadWorkouts();
+            if (tabId === 'leaderboard') loadLeaderboard();
+            closeMobileSidebar();
+        }
+
+        // ---------- Logout with confirmation ----------
+        function confirmLogout() {
+            document.getElementById('logout-modal-overlay').classList.add('open');
+        }
+
+        document.getElementById('logout-confirm-btn').addEventListener('click', () => {
+            closeModal('logout-modal-overlay');
+            clearToken();
+            currentUser = null;
+            updateUIForUser(null);
+            showToast('Вы вышли из аккаунта.', 'info');
+            switchTab('auth');
+            updateNavVisibility();
+        });
+
+        // ---------- Mobile sidebar ----------
+        function toggleMobileSidebar() {
+            document.querySelector('.sidebar').classList.toggle('open');
+            document.getElementById('sidebar-overlay').classList.toggle('open');
+        }
+        function closeMobileSidebar() {
+            document.querySelector('.sidebar').classList.remove('open');
+            document.getElementById('sidebar-overlay').classList.remove('open');
+        }
+
+        // ---------- Theme toggle ----------
+        function toggleTheme(checked) {
+            document.documentElement.setAttribute('data-theme', checked ? 'dark' : 'light');
+            document.getElementById('theme-label').innerHTML = checked ?
+                `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" /></svg> Тёмная тема` :
+                `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5" /><line x1="12" y1="1" x2="12" y2="3" /><line x1="12" y1="21" x2="12" y2="23" /><line x1="4.22" y1="4.22" x2="5.64" y2="5.64" /><line x1="18.36" y1="18.36" x2="19.78" y2="19.78" /><line x1="1" y1="12" x2="3" y2="12" /><line x1="21" y1="12" x2="23" y2="12" /><line x1="4.22" y1="19.78" x2="5.64" y2="18.36" /><line x1="18.36" y1="5.64" x2="19.78" y2="4.22" /></svg> Светлая тема`;
+        }
+
+        // ---------- Auth forms toggle ----------
+        function showAuthForm(form) {
+            document.getElementById('auth-show-register').className = `btn ${form === 'register' ? 'btn-primary active' : 'btn-secondary'}`;
+            document.getElementById('auth-show-login').className = `btn ${form === 'login' ? 'btn-primary active' : 'btn-secondary'}`;
+            document.getElementById('auth-register-form').style.display = form === 'register' ? 'block' : 'none';
+            document.getElementById('auth-login-form').style.display = form === 'login' ? 'block' : 'none';
+        }
+
+        // ---------- Auth ----------
+        document.getElementById('btn-register').addEventListener('click', async () => {
+            const email = document.getElementById('reg-email').value.trim();
+            const password = document.getElementById('reg-password').value;
+            const fullName = document.getElementById('reg-fullname').value.trim();
+            try {
+                const data = await apiFetch('/register', {
+                    method: 'POST',
+                    body: JSON.stringify({ email, password, full_name: fullName })
+                });
+                showToast('Регистрация успешна! Войдите.', 'success');
+                authStatus.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+                showAuthForm('login');
+            } catch (err) {
+                showToast(err.message, 'error');
+            }
+        });
+
+        document.getElementById('btn-login').addEventListener('click', async () => {
+            const email = document.getElementById('login-email').value.trim();
+            const password = document.getElementById('login-password').value;
+            try {
+                const data = await apiFetch('/login', {
+                    method: 'POST',
+                    body: JSON.stringify({ email, password })
+                });
+                if (data.access_token) {
+                    setToken(data.access_token);
+                    showToast('Вход выполнен!', 'success');
+                    await loadCurrentUser();
+                    switchTab('profile');
+                    updateNavVisibility();
+                }
+            } catch (err) {
+                showToast(err.message, 'error');
+            }
+        });
+
+        async function loadCurrentUser() {
+            try {
+                const data = await apiFetch('/users/me');
+                currentUser = data;
+                updateUIForUser(currentUser);
+                return data;
+            } catch (err) {
+                console.warn('Failed to load user:', err);
+                return null;
+            }
+        }
+
+        // ---------- Profile ----------
+    async function loadProfile() {
+    const token = getToken();
+    if (!token) {
+        document.querySelector('#profile-info').innerHTML = '<p>Пожалуйста, войдите.</p>';
+        return;
+    }
+    try {
+        const data = await apiFetch('/users/me');
+        console.log('Profile data from server:', data); // ← диагностика
+        currentUser = data;
+        updateUIForUser(data);
+        profileEmail.textContent = data.email;
+        profileFullname.value = data.full_name || '';
+        profileSex.value = data.sex || '';
+        profileWeight.value = data.weight_grams || '';
+        profileHeight.value = data.height_cm || '';
+        profileBirthdate.value = data.birth_date || '';
+        profileScore.textContent = data.user_workout_score ?? 0; // используем ?? для null/undefined
+        // если поле называется иначе, например workout_score, замените
+        // но вы сказали, что user_workout_score – значит так и оставляем
+    } catch (err) {
+        document.querySelector('#profile-info').innerHTML = `<p style="color:var(--danger);">${err.message}</p>`;
+    }
+}
+
+        document.getElementById('btn-update-profile').addEventListener('click', async () => {
+            const fullName = profileFullname.value.trim() || undefined;
+            const sex = profileSex.value || undefined;
+            const weight = parseInt(profileWeight.value) || undefined;
+            const height = parseInt(profileHeight.value) || undefined;
+            const birthDate = profileBirthdate.value || undefined;
+            const payload = {};
+            if (fullName) payload.full_name = fullName;
+            if (sex) payload.sex = sex;
+            if (weight) payload.weight_grams = weight;
+            if (height) payload.height_cm = height;
+            if (birthDate) payload.birth_date = birthDate;
+            try {
+                await apiFetch('/users/me', { method: 'PATCH', body: JSON.stringify(payload) });
+                showToast('Профиль обновлён!', 'success');
+                loadProfile();
+            } catch (err) {
+                showToast(err.message, 'error');
+            }
+        });
+
+        document.getElementById('btn-delete-profile').addEventListener('click', async () => {
+            if (!confirm('Удалить аккаунт навсегда?')) return;
+            try {
+                await apiFetch('/users/me', { method: 'DELETE' });
+                clearToken();
+                currentUser = null;
+                updateUIForUser(null);
+                showToast('Аккаунт удалён.', 'info');
+                switchTab('auth');
+                updateNavVisibility();
+            } catch (err) {
+                showToast(err.message, 'error');
+            }
+        });
+
+        // ---------- Exercises ----------
+        async function loadExercises() {
+            try {
+                const data = await apiFetch('/exercises');
+                exerciseMap = {};
+                data.forEach(ex => { exerciseMap[ex.id] = ex; });
+
+                exercisesList.innerHTML = data.map(e => `
+                    <div class="user-card" style="cursor:default;">
+                        <div class="user-body" style="flex:1;">
+                            <div class="user-name">${e.name}</div>
+                            <div class="user-phone">${e.type} • сложность ${e.difficulty}</div>
+                            <div class="user-meta">
+                                <span class="chip">${e.description || '—'}</span>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+
+                const select = document.getElementById('we-exercise-select');
+                select.innerHTML = '<option value="">-- Выберите --</option>';
+                data.forEach(ex => {
+                    const opt = document.createElement('option');
+                    opt.value = ex.id;
+                    opt.textContent = `${ex.name} (${ex.type})`;
+                    opt.dataset.type = ex.type;
+                    select.appendChild(opt);
+                });
+            } catch (err) {
+                exercisesList.innerHTML = `<p style="color:var(--danger);">${err.message}</p>`;
+            }
+        }
+
+        // ---------- Workouts ----------
+        function formatWorkoutTitle(createdAt) {
+            const d = new Date(createdAt);
+            return `Тренировка от ${d.toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric' })} ${d.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })}`;
+        }
+
+        function getStatusChipClass(status) {
+            switch (status) {
+                case 'completed':
+                    return 'chip-success';
+                case 'in_progress':
+                    return 'chip-pending';
+                case 'cancelled':
+                    return 'chip-danger';
+                default:
+                    return 'chip-info';
+            }
+        }
+
+        async function loadWorkouts() {
+            try {
+                const data = await apiFetch('/workouts');
+                const statusFilter = document.getElementById('wf-status').value;
+                let filtered = data;
+                if (statusFilter !== 'all') {
+                    filtered = data.filter(w => w.status === statusFilter);
+                }
+                // Сортировка по дате (новые сверху)
+                filtered.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+
+                workoutsList.innerHTML = filtered.map(w => `
+                    <div class="task-card">
+                        <div class="task-body">
+                            <div class="task-title">${formatWorkoutTitle(w.created_at)}</div>
+                            <div class="task-desc">Статус: ${w.status}</div>
+                            <div class="task-meta">
+                                <span class="chip chip-version">Score: ${w.workout_score || 0}</span>
+                                <span class="chip ${getStatusChipClass(w.status)}">${w.status}</span>
+                            </div>
+                        </div>
+                        <div class="task-actions">
+                            <button class="btn-icon" onclick="viewWorkout('${w.id}')" title="Просмотр">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                            </button>
+                            <button class="btn-icon del" onclick="confirmDeleteWorkout('${w.id}')" title="Удалить">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (err) {
+                workoutsList.innerHTML = `<p style="color:var(--danger);">${err.message}</p>`;
+            }
+        }
+
+        window.viewWorkout = async (id) => {
+            currentWorkoutId = id;
+            try {
+                const data = await apiFetch(`/workouts/${id}`);
+                workoutDetailContent.innerHTML = `
+                    <p><strong>Статус:</strong> <span class="chip ${getStatusChipClass(data.status)}">${data.status}</span></p>
+                    <p><strong>Счёт:</strong> ${data.workout_score || 0}</p>
+                    <p><strong>Интенсивность:</strong> ${data.intensity || '-'}</p>
+                    <p><strong>Начало:</strong> ${data.started_at ? new Date(data.started_at).toLocaleString() : '-'}</p>
+                    <p><strong>Завершение:</strong> ${data.completed_at ? new Date(data.completed_at).toLocaleString() : '-'}</p>
+                `;
+                const exData = await apiFetch(`/workouts/${id}/exercises`);
+                workoutExercisesList.innerHTML = exData.map(ex => {
+                    const exercise = exerciseMap[ex.exercise_id];
+                    const name = exercise ? exercise.name : ex.exercise_id;
+                    return `
+                        <div class="task-card" style="padding:12px 16px;">
+                            <div class="task-body">
+                                <div class="task-title">${name}</div>
+                                <div class="task-desc">Нагрузка: ${ex.exercise_load}</div>
+                                <div class="task-meta">
+                                    <span class="chip ${ex.completed ? 'chip-success' : 'chip-pending'}">${ex.completed ? '✅ Выполнено' : '❌ Ожидает'}</span>
+                                </div>
+                            </div>
+                            <div class="task-actions">
+                                <button class="btn-icon" onclick="toggleExerciseComplete('${id}', '${ex.id}', ${!ex.completed})" title="${ex.completed ? 'Отменить' : 'Выполнить'}">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                                </button>
+                                <button class="btn-icon" onclick="openEditExerciseModal('${id}', '${ex.id}')" title="Редактировать">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5l4 4L7 21l-4 1 1-4L16.5 3.5z"/></svg>
+                                </button>
+                                <button class="btn-icon del" onclick="confirmDeleteWorkoutExercise('${id}', '${ex.id}')" title="Удалить">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+                workoutDetail.style.display = 'block';
+                document.getElementById('btn-start-workout').onclick = () => startWorkout(id);
+                document.getElementById('btn-complete-workout').onclick = () => completeWorkout(id);
+            } catch (err) {
+                showToast(err.message, 'error');
+            }
+        };
+
+        function closeWorkoutDetail() {
+            workoutDetail.style.display = 'none';
+        }
+
+        async function createWorkout() {
+            try {
+                await apiFetch('/workouts', { method: 'POST' });
+                showToast('Тренировка создана!', 'success');
+                loadWorkouts();
+            } catch (err) {
+                showToast(err.message, 'error');
+            }
+        }
+
+        async function startWorkout(id) {
+            try {
+                await apiFetch(`/workouts/${id}`, {
+                    method: 'PATCH',
+                    body: JSON.stringify({ status: 'in_progress' })
+                });
+                showToast('Тренировка начата!', 'success');
+                viewWorkout(id);
+                loadWorkouts();
+            } catch (err) {
+                showToast(err.message, 'error');
+            }
+        }
+
+        async function completeWorkout(id) {
+            const intensity = prompt('Интенсивность (1-10):', '5');
+            if (!intensity) return;
+            try {
+                await apiFetch(`/workouts/${id}`, {
+                    method: 'PATCH',
+                    body: JSON.stringify({ status: 'completed', intensity: parseInt(intensity) })
+                });
+                showToast('Тренировка завершена!', 'success');
+                viewWorkout(id);
+                loadWorkouts();
+            } catch (err) {
+                showToast(err.message, 'error');
+            }
+        }
+
+        async function toggleExerciseComplete(workoutId, exId, newCompleted) {
+            try {
+                await apiFetch(`/workouts/${workoutId}/exercises/${exId}`, {
+                    method: 'PATCH',
+                    body: JSON.stringify({ completed: newCompleted })
+                });
+                showToast('Упражнение обновлено', 'success');
+                viewWorkout(workoutId);
+                loadWorkouts();
+            } catch (err) {
+                showToast(err.message, 'error');
+            }
+        }
+
+        // ---------- Редактирование упражнения ----------
+        function openEditExerciseModal(workoutId, exerciseId) {
+            // Найти упражнение в списке
+            const list = document.querySelector('#workout-exercises-list');
+            // Но проще запросить данные с бекенда, но мы уже имеем их в viewWorkout
+            // Мы можем хранить последние данные упражнений в переменной.
+            // Для простоты перезапросим
+            (async () => {
+                try {
+                    const exData = await apiFetch(`/workouts/${workoutId}/exercises`);
+                    const ex = exData.find(e => e.id === exerciseId);
+                    if (!ex) { showToast('Упражнение не найдено', 'error'); return; }
+                    editingExerciseId = exerciseId;
+                    document.getElementById('exercise-modal-title').textContent = 'Редактировать упражнение';
+                    document.getElementById('btn-add-exercise').textContent = 'Сохранить';
+
+                    // Заполняем select
+                    const select = document.getElementById('we-exercise-select');
+                    // Выбираем нужный exercise_id, но select может не содержать опцию, если не загружен.
+                    // Загрузим упражнения, если их нет
+                    if (Object.keys(exerciseMap).length === 0) {
+                        await loadExercises();
+                    }
+                    // Устанавливаем значение
+                    select.value = ex.exercise_id;
+                    // Триггерим change, чтобы появились поля
+                    const ev = new Event('change');
+                    select.dispatchEvent(ev);
+
+                    // Заполняем поля значениями
+                    // После того как поля созданы, заполняем
+                    setTimeout(() => {
+                        if (ex.weight !== undefined && ex.weight !== null) {
+                            const w = document.getElementById('we-weight');
+                            if (w) w.value = ex.weight;
+                        }
+                        if (ex.sets !== undefined && ex.sets !== null) {
+                            const s = document.getElementById('we-sets');
+                            if (s) s.value = ex.sets;
+                        }
+                        if (ex.reps !== undefined && ex.reps !== null) {
+                            const r = document.getElementById('we-reps');
+                            if (r) r.value = ex.reps;
+                        }
+                        if (ex.duration !== undefined && ex.duration !== null) {
+                            const d = document.getElementById('we-duration');
+                            if (d) d.value = ex.duration;
+                        }
+                    }, 50);
+
+                    document.getElementById('add-exercise-modal-overlay').classList.add('open');
+                    // Сохраняем callback для сохранения
+                    window._editSaveCallback = async () => {
+                        const exercise_id = document.getElementById('we-exercise-select').value;
+                        if (!exercise_id) { showToast('Выберите упражнение', 'error'); return; }
+                        let weight = parseInt(document.getElementById('we-weight')?.value);
+                        if (isNaN(weight)) weight = undefined;
+                        let sets = parseInt(document.getElementById('we-sets')?.value);
+                        if (isNaN(sets)) sets = undefined;
+                        let reps = parseInt(document.getElementById('we-reps')?.value);
+                        if (isNaN(reps)) reps = undefined;
+                        let duration = parseInt(document.getElementById('we-duration')?.value);
+                        if (isNaN(duration)) duration = undefined;
+
+                        const payload = {};
+                        if (weight !== undefined) payload.weight = weight;
+                        if (sets !== undefined) payload.sets = sets;
+                        if (reps !== undefined) payload.reps = reps;
+                        if (duration !== undefined) payload.duration = duration;
+                        // completed не редактируем
+                        try {
+                            await apiFetch(`/workouts/${workoutId}/exercises/${exerciseId}`, {
+                                method: 'PATCH',
+                                body: JSON.stringify(payload)
+                            });
+                            showToast('Упражнение обновлено', 'success');
+                            closeModal('add-exercise-modal-overlay');
+                            viewWorkout(workoutId);
+                            loadWorkouts();
+                        } catch (err) {
+                            showToast(err.message, 'error');
+                        }
+                    };
+                    // Подменяем обработчик кнопки
+                    document.getElementById('btn-add-exercise').onclick = window._editSaveCallback;
+                } catch (err) {
+                    showToast(err.message, 'error');
+                }
+            })();
+        }
+
+        // ---------- Add exercise modal (новая) ----------
+        function openAddExerciseModal() {
+            if (!currentWorkoutId) { showToast('Сначала откройте тренировку', 'warning'); return; }
+            editingExerciseId = null;
+            document.getElementById('exercise-modal-title').textContent = 'Добавить упражнение';
+            document.getElementById('btn-add-exercise').textContent = 'Добавить';
+            document.getElementById('add-exercise-modal-overlay').classList.add('open');
+            document.getElementById('we-fields').innerHTML = '';
+            document.getElementById('we-exercise-select').value = '';
+            const ev = new Event('change');
+            document.getElementById('we-exercise-select').dispatchEvent(ev);
+            // Устанавливаем обработчик на добавление
+            document.getElementById('btn-add-exercise').onclick = async () => {
+                if (!currentWorkoutId) return;
+                const exercise_id = document.getElementById('we-exercise-select').value;
+                if (!exercise_id) { showToast('Выберите упражнение', 'error'); return; }
+                let weight = parseInt(document.getElementById('we-weight')?.value);
+                if (isNaN(weight)) weight = undefined;
+                let sets = parseInt(document.getElementById('we-sets')?.value);
+                if (isNaN(sets)) sets = undefined;
+                let reps = parseInt(document.getElementById('we-reps')?.value);
+                if (isNaN(reps)) reps = undefined;
+                let duration = parseInt(document.getElementById('we-duration')?.value);
+                if (isNaN(duration)) duration = undefined;
+
+                const payload = { exercise_id };
+                if (weight !== undefined) payload.weight = weight;
+                if (sets !== undefined) payload.sets = sets;
+                if (reps !== undefined) payload.reps = reps;
+                if (duration !== undefined) payload.duration = duration;
+                try {
+                    await apiFetch(`/workouts/${currentWorkoutId}/exercises`, {
+                        method: 'POST',
+                        body: JSON.stringify(payload)
+                    });
+                    showToast('Упражнение добавлено', 'success');
+                    closeModal('add-exercise-modal-overlay');
+                    viewWorkout(currentWorkoutId);
+                    loadWorkouts();
+                } catch (err) {
+                    showToast(err.message, 'error');
+                }
+            };
+        }
+
+        // ---------- Обработчик выбора упражнения (поля с дефолтами) ----------
+        document.getElementById('we-exercise-select').addEventListener('change', function() {
+            const selected = this.options[this.selectedIndex];
+            const type = selected.dataset.type;
+            const fieldsContainer = document.getElementById('we-fields');
+            fieldsContainer.innerHTML = '';
+            if (!type) return;
+            if (type === 'weight') {
+                fieldsContainer.innerHTML = `
+                    <div class="form-group"><label class="form-label">Вес (кг)</label><input type="number" class="form-control" id="we-weight" placeholder="Вес" value="10" /></div>
+                    <div class="form-group"><label class="form-label">Подходы</label><input type="number" class="form-control" id="we-sets" placeholder="Подходы" value="3" /></div>
+                    <div class="form-group"><label class="form-label">Повторы</label><input type="number" class="form-control" id="we-reps" placeholder="Повторы" value="10" /></div>
+                `;
+            } else if (type === 'duration') {
+                fieldsContainer.innerHTML = `
+                    <div class="form-group"><label class="form-label">Длительность (сек)</label><input type="number" class="form-control" id="we-duration" placeholder="Длительность" value="60" /></div>
+                `;
+            }
+        });
+
+        // ---------- Confirm dialogs ----------
+        function confirmDeleteWorkout(id) {
+            document.getElementById('confirm-text').textContent = 'Удалить тренировку? Это действие нельзя отменить.';
+            confirmCallback = async () => {
+                try {
+                    await apiFetch(`/workouts/${id}`, { method: 'DELETE' });
+                    showToast('Тренировка удалена', 'info');
+                    closeWorkoutDetail();
+                    loadWorkouts();
+                } catch (err) {
+                    showToast(err.message, 'error');
+                }
+            };
+            document.getElementById('confirm-modal-overlay').classList.add('open');
+        }
+
+        function confirmDeleteWorkoutExercise(workoutId, exId) {
+            document.getElementById('confirm-text').textContent = 'Удалить упражнение из тренировки? Это действие нельзя отменить.';
+            confirmCallback = async () => {
+                try {
+                    await apiFetch(`/workouts/${workoutId}/exercises/${exId}`, { method: 'DELETE' });
+                    showToast('Упражнение удалено', 'info');
+                    viewWorkout(workoutId);
+                    loadWorkouts();
+                } catch (err) {
+                    showToast(err.message, 'error');
+                }
+            };
+            document.getElementById('confirm-modal-overlay').classList.add('open');
+        }
+
+        document.getElementById('confirm-ok-btn').addEventListener('click', () => {
+            if (confirmCallback) {
+                confirmCallback();
+                confirmCallback = null;
+            }
+            closeModal('confirm-modal-overlay');
+        });
+
+        function closeModal(id, event) {
+            if (event && event.target !== event.currentTarget) return;
+            document.getElementById(id).classList.remove('open');
+        }
+
+        // ---------- Leaderboard ----------
+        async function loadLeaderboard() {
+            const period = document.getElementById('lb-period').value;
+            const limit = parseInt(document.getElementById('lb-limit').value) || 10;
+            const token = getToken();
+            if (!token) {
+                document.getElementById('leaderboard-content').innerHTML = '<p>Пожалуйста, войдите.</p>';
+                return;
+            }
+            try {
+                const userData = await apiFetch('/users/me');
+                const userId = userData.id;
+                const data = await apiFetch(`/leaderboard/${period}?user_id=${userId}&limit=${limit}`);
+                const html = `
+                    <p style="margin-bottom:12px;">Период: ${data.period} | Статус: ${data.status}</p>
+                    <div class="users-grid">
+                        ${data.items.map(item => `
+                            <div class="user-card" style="cursor:default;">
+                                <div class="user-body">
+                                    <div class="user-name">${item.rank || '—'} ${escapeHTML(item.user.full_name)} ${item.is_current_user ? '👤' : ''}</div>
+                                    <div class="user-phone">Счёт: ${item.score} pts</div>
+                                    <div class="user-meta">
+                                        <span class="chip">Тренировок: ${item.completed_workouts}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                    <div style="margin-top:16px; padding:16px; background:var(--bg-input); border-radius:var(--r);">
+                        <strong>Ваша позиция:</strong> ${data.current_user.rank || 'Не в рейтинге'} (${data.current_user.score || 0} pts)
+                    </div>
+                `;
+                document.getElementById('leaderboard-content').innerHTML = html;
+            } catch (err) {
+                document.getElementById('leaderboard-content').innerHTML = `<p style="color:var(--danger);">${err.message}</p>`;
+            }
+        }
+
+        // ---------- Init ----------
+        (async function init() {
+            if (getToken()) {
+                try {
+                    await loadCurrentUser();
+                } catch (e) {
+                    clearToken();
+                }
+            }
+            updateNavVisibility();
+            if (currentUser) {
+                switchTab('profile');
+            } else {
+                switchTab('auth');
+            }
+            await loadExercises();
+        })();
+    </script>
+</body>
+</html>

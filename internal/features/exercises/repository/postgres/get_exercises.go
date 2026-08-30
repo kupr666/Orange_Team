@@ -10,7 +10,6 @@ import (
 func (r *ExercisesRepository) GetExercises(
 	ctx context.Context,
 ) ([]domain.Exercise, error) {
-
 	ctx, cancel := context.WithTimeout(ctx, r.pool.OpTimeout())
 	defer cancel()
 
@@ -28,38 +27,35 @@ func (r *ExercisesRepository) GetExercises(
 		ORDER BY id ASC;
 	`
 
-	rows, err := r.pool.Query(ctx, query)
+	rows, err := r.pool.Query(ctx, query);
 	if err != nil {
-		return nil, fmt.Errorf("select exercises: %w", err)
+		return nil, fmt.Errorf(
+			"select exercises: %w",
+			err,
+		)
 	}
 	defer rows.Close()
 
 	var exercisesModels []ExerciseModel
-
 	for rows.Next() {
 		var exerciseModel ExerciseModel
-
-		err := rows.Scan(
-			&exerciseModel.ID,
-			&exerciseModel.Version,
-			&exerciseModel.Name,
-			&exerciseModel.Description,
-			&exerciseModel.Difficulty,
-			&exerciseModel.CreatedAt,
-			&exerciseModel.UpdatedAt,
-			&exerciseModel.Type,
-		)
-		if err != nil {
-			return nil, fmt.Errorf("scan exercises: %w", err)
+		if err := exerciseModel.Scan(rows); err != nil {
+			return nil, fmt.Errorf(
+				"scan exercises: %w",
+				err,
+			)
 		}
 
 		exercisesModels = append(exercisesModels, exerciseModel)
 	}
 	if err := rows.Err(); err != nil {
-		return nil, fmt.Errorf("next rows: %w", err)
+		return nil, fmt.Errorf(
+			"next rows: %w",
+			err,
+		)
 	}
 
-	exercisesDomains := exerciseDomainsFromModels(exercisesModels)
+	exercisesDomains := domainsFromModels(exercisesModels)
 
 	return exercisesDomains, nil
 }

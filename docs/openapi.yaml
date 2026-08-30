@@ -1,0 +1,1248 @@
+openapi: 3.0.3
+info:
+  title: Orange Team API
+  version: 1.0.0
+  description: |
+    HTTP API for authentication, users, habits, exercises, workouts, workout
+    exercises, and workout leaderboards.
+
+    Protected operations require an access token returned by `POST /login`.
+servers:
+  - url: /api/v1
+    description: Version 1 API
+
+tags:
+  - name: Authentication
+    description: User registration and login
+  - name: Users
+    description: Authenticated user profile
+  - name: Habits
+    description: Authenticated user's daily habits and streaks
+  - name: Exercises
+    description: Exercise catalog
+  - name: Workouts
+    description: Authenticated user workouts
+  - name: Workout exercises
+    description: Exercises attached to an authenticated user's workout
+  - name: Leaderboard
+    description: Live daily and published weekly/monthly workout leaderboards
+
+paths:
+  /register:
+    post:
+      tags: [Authentication]
+      summary: Register a user
+      operationId: registerUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RegisterUserRequest"
+            example:
+              email: user@example.com
+              password: strong-password
+              full_name: Alex Smith
+      responses:
+        "201":
+          description: User registered
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  /login:
+    post:
+      tags: [Authentication]
+      summary: Log in
+      operationId: login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginRequest"
+            example:
+              email: user@example.com
+              password: strong-password
+      responses:
+        "200":
+          description: Login succeeded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LoginResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  /users/me:
+    get:
+      tags: [Users]
+      summary: Get the authenticated user's profile
+      operationId: getCurrentUser
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Authenticated user profile
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+    patch:
+      tags: [Users]
+      summary: Patch the authenticated user's profile
+      operationId: patchCurrentUser
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PatchUserRequest"
+            example:
+              sex: male
+              weight_grams: 80000
+              birth_date: "1995-04-12T00:00:00Z"
+              height_cm: 180
+      responses:
+        "200":
+          description: Updated user profile
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+    delete:
+      tags: [Users]
+      summary: Delete the authenticated user
+      operationId: deleteCurrentUser
+      security:
+        - bearerAuth: []
+      responses:
+        "204":
+          description: User deleted
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  /habits:
+    get:
+      tags: [Habits]
+      summary: List the authenticated user's habits
+      operationId: getHabits
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Habit list as of the current UTC day
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Habit"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+    post:
+      tags: [Habits]
+      summary: Create a habit
+      operationId: createHabit
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateHabitRequest"
+            example:
+              name: Read every day
+              description: Read at least ten pages
+      responses:
+        "201":
+          description: Habit created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Habit"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  /habits/{habitId}:
+    parameters:
+      - $ref: "#/components/parameters/HabitID"
+    delete:
+      tags: [Habits]
+      summary: Delete a habit
+      operationId: deleteHabit
+      security:
+        - bearerAuth: []
+      responses:
+        "204":
+          description: Habit deleted
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  /habits/{habitId}/completions:
+    parameters:
+      - $ref: "#/components/parameters/HabitID"
+    post:
+      tags: [Habits]
+      summary: Mark a habit completed for the current UTC day
+      description: Repeating the request on the same UTC day does not increment the streak again.
+      operationId: completeHabit
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Updated habit
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Habit"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  /exercises:
+    get:
+      tags: [Exercises]
+      summary: List exercises
+      operationId: getExercises
+      responses:
+        "200":
+          description: Exercise list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Exercise"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+    post:
+      tags: [Exercises]
+      summary: Create an exercise
+      description: Requires an authenticated user with the `admin` role.
+      operationId: createExercise
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateExerciseRequest"
+            example:
+              name: Bench Press
+              description: Chest exercise
+              difficulty: 5
+              type: weight
+      responses:
+        "201":
+          description: Exercise created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Exercise"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  /workouts:
+    get:
+      tags: [Workouts]
+      summary: List the authenticated user's workouts
+      operationId: getWorkouts
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Workout list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Workout"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+    post:
+      tags: [Workouts]
+      summary: Create a planned workout
+      description: Creates a workout for the authenticated user. No request body is required.
+      operationId: createWorkout
+      security:
+        - bearerAuth: []
+      responses:
+        "201":
+          description: Workout created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Workout"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  /workouts/{workoutId}:
+    parameters:
+      - $ref: "#/components/parameters/WorkoutID"
+    get:
+      tags: [Workouts]
+      summary: Get a workout
+      operationId: getWorkout
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Workout
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Workout"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+    patch:
+      tags: [Workouts]
+      summary: Patch a workout
+      operationId: patchWorkout
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PatchWorkoutRequest"
+            examples:
+              startWorkout:
+                summary: Start a planned workout
+                value:
+                  status: in_progress
+              completeWorkout:
+                summary: Complete an in-progress workout
+                value:
+                  status: completed
+                  intensity: 7
+      responses:
+        "200":
+          description: Updated workout
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Workout"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+    delete:
+      tags: [Workouts]
+      summary: Delete a workout
+      operationId: deleteWorkout
+      security:
+        - bearerAuth: []
+      responses:
+        "204":
+          description: Workout deleted
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  /workouts/{workoutId}/exercises:
+    parameters:
+      - $ref: "#/components/parameters/WorkoutID"
+    get:
+      tags: [Workout exercises]
+      summary: List exercises attached to a workout
+      operationId: getWorkoutExercises
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Workout exercise list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/WorkoutExercise"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+    post:
+      tags: [Workout exercises]
+      summary: Attach an exercise to a workout
+      description: |
+        Weight exercises require `weight`, `sets`, and `reps`. Duration exercises
+        require `duration`. The two input forms cannot be combined.
+      operationId: createWorkoutExercise
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateWorkoutExerciseRequest"
+            examples:
+              weightExercise:
+                value:
+                  exercise_id: 11111111-1111-1111-1111-111111111111
+                  weight: 80
+                  sets: 4
+                  reps: 8
+                  completed: true
+              durationExercise:
+                value:
+                  exercise_id: 22222222-2222-2222-2222-222222222222
+                  duration: 900
+                  completed: false
+      responses:
+        "201":
+          description: Workout exercise created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WorkoutExercise"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  /workouts/{workoutId}/exercises/{workoutExerciseId}:
+    parameters:
+      - $ref: "#/components/parameters/WorkoutID"
+      - $ref: "#/components/parameters/WorkoutExerciseID"
+    patch:
+      tags: [Workout exercises]
+      summary: Patch an exercise attached to a workout
+      description: |
+        At least one field is required. `weight`, `sets`, `reps`, and `duration`
+        may be set to null; `completed` may not be null. The resulting fields must
+        still match the catalog exercise type.
+      operationId: patchWorkoutExercise
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PatchWorkoutExerciseRequest"
+            example:
+              completed: true
+      responses:
+        "200":
+          description: Updated workout exercise
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WorkoutExercise"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+    delete:
+      tags: [Workout exercises]
+      summary: Delete an exercise from a workout
+      operationId: deleteWorkoutExercise
+      security:
+        - bearerAuth: []
+      responses:
+        "204":
+          description: Workout exercise deleted
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  /leaderboard/daily:
+    get:
+      tags: [Leaderboard]
+      summary: Get the live leaderboard for the current day
+      operationId: getDailyLeaderboard
+      parameters:
+        - $ref: "#/components/parameters/LeaderboardUserID"
+        - $ref: "#/components/parameters/LeaderboardLimit"
+      responses:
+        "200":
+          description: Live daily leaderboard
+          headers:
+            Cache-Control:
+              description: The response is private and must not be stored.
+              schema:
+                type: string
+                example: private, no-store
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Leaderboard"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  /leaderboard/weekly:
+    get:
+      tags: [Leaderboard]
+      summary: Get the latest published weekly leaderboard
+      operationId: getWeeklyLeaderboard
+      parameters:
+        - $ref: "#/components/parameters/LeaderboardUserID"
+        - $ref: "#/components/parameters/LeaderboardLimit"
+      responses:
+        "200":
+          description: Latest completed-week snapshot
+          headers:
+            Cache-Control:
+              description: The response is private and must not be stored.
+              schema:
+                type: string
+                example: private, no-store
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Leaderboard"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  /leaderboard/monthly:
+    get:
+      tags: [Leaderboard]
+      summary: Get the latest published monthly leaderboard
+      operationId: getMonthlyLeaderboard
+      parameters:
+        - $ref: "#/components/parameters/LeaderboardUserID"
+        - $ref: "#/components/parameters/LeaderboardLimit"
+      responses:
+        "200":
+          description: Latest completed-month snapshot
+          headers:
+            Cache-Control:
+              description: The response is private and must not be stored.
+              schema:
+                type: string
+                example: private, no-store
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Leaderboard"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  parameters:
+    HabitID:
+      name: habitId
+      in: path
+      required: true
+      description: Habit UUID
+      schema:
+        type: string
+        format: uuid
+
+    WorkoutID:
+      name: workoutId
+      in: path
+      required: true
+      description: Workout UUID
+      schema:
+        type: string
+        format: uuid
+
+    WorkoutExerciseID:
+      name: workoutExerciseId
+      in: path
+      required: true
+      description: Workout exercise UUID
+      schema:
+        type: string
+        format: uuid
+
+    LeaderboardUserID:
+      name: user_id
+      in: query
+      required: true
+      description: User UUID used to identify the current leaderboard entry
+      schema:
+        type: string
+        format: uuid
+
+    LeaderboardLimit:
+      name: limit
+      in: query
+      required: false
+      description: Number of top leaderboard entries
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 50
+
+  schemas:
+    RegisterUserRequest:
+      type: object
+      required: [email, password, full_name]
+      properties:
+        email:
+          type: string
+          format: email
+          minLength: 5
+          maxLength: 30
+          description: Normalized to lowercase with surrounding whitespace removed.
+        password:
+          type: string
+          format: password
+          minLength: 8
+          maxLength: 72
+          description: Must contain between 8 and 72 bytes.
+        full_name:
+          type: string
+          minLength: 2
+          maxLength: 50
+          description: Leading and trailing whitespace is not allowed.
+
+    LoginRequest:
+      type: object
+      required: [email, password]
+      properties:
+        email:
+          type: string
+          format: email
+          minLength: 5
+          maxLength: 30
+          description: Normalized to lowercase with surrounding whitespace removed.
+        password:
+          type: string
+          format: password
+          minLength: 8
+          maxLength: 72
+          description: Must contain between 8 and 72 bytes.
+
+    LoginResponse:
+      type: object
+      required: [access_token, token_type]
+      properties:
+        access_token:
+          type: string
+          description: JWT access token.
+        token_type:
+          type: string
+          enum: [Bearer]
+
+    User:
+      type: object
+      required: [id, email, full_name, created_at, user_workout_score]
+      properties:
+        id:
+          type: string
+          format: uuid
+        email:
+          type: string
+          format: email
+        full_name:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        user_workout_score:
+          type: integer
+          minimum: 0
+        sex:
+          type: string
+          enum: [male, female]
+        weight_grams:
+          type: integer
+          minimum: 20000
+          maximum: 300000
+        birth_date:
+          type: string
+          format: date-time
+          description: Between 1900-01-01 and the current time.
+        height_cm:
+          type: integer
+          minimum: 100
+          maximum: 250
+
+    PatchUserRequest:
+      type: object
+      minProperties: 1
+      properties:
+        sex:
+          type: string
+          enum: [male, female]
+          nullable: true
+        weight_grams:
+          type: integer
+          minimum: 20000
+          maximum: 300000
+          nullable: true
+        birth_date:
+          type: string
+          format: date
+          nullable: true
+          description: Between 1900-01-01 and the current time, or null.
+        height_cm:
+          type: integer
+          minimum: 100
+          maximum: 250
+          nullable: true
+
+    CreateHabitRequest:
+      type: object
+      required: [name]
+      properties:
+        name:
+          type: string
+          minLength: 2
+          maxLength: 80
+          description: Leading and trailing spaces are not allowed.
+        description:
+          type: string
+          maxLength: 500
+          default: ""
+
+    Habit:
+      type: object
+      required:
+        - id
+        - version
+        - user_id
+        - name
+        - description
+        - current_streak
+        - last_completed_date
+        - completed_today
+        - created_at
+        - updated_at
+      properties:
+        id:
+          type: string
+          format: uuid
+        version:
+          type: integer
+          format: int64
+          minimum: 1
+        user_id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        description:
+          type: string
+        current_streak:
+          type: integer
+          minimum: 0
+          description: Consecutive UTC days completed; becomes zero after a missed day.
+        last_completed_date:
+          type: string
+          format: date
+          nullable: true
+        completed_today:
+          type: boolean
+          description: Whether the habit was completed on the current UTC day.
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    CreateExerciseRequest:
+      type: object
+      required: [name, description, difficulty, type]
+      properties:
+        name:
+          type: string
+          minLength: 3
+          maxLength: 100
+          pattern: "^[A-Za-zА-Яа-яёЁ ]+$"
+          description: Leading and trailing spaces are not allowed.
+          example: Bench Press
+        description:
+          type: string
+          minLength: 1
+          maxLength: 1000
+          pattern: "^[A-Za-zА-Яа-яёЁ ]+$"
+          description: Leading and trailing spaces are not allowed.
+          example: Chest exercise
+        difficulty:
+          type: integer
+          minimum: 1
+          maximum: 10
+        type:
+          type: string
+          enum: [weight, duration]
+
+    Exercise:
+      type: object
+      required: [id, version, name, description, difficulty, created_at, updated_at, type]
+      properties:
+        id:
+          type: string
+          format: uuid
+        version:
+          type: integer
+          format: int64
+          minimum: 1
+        name:
+          type: string
+        description:
+          type: string
+        difficulty:
+          type: integer
+          minimum: 1
+          maximum: 10
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+          nullable: true
+        type:
+          type: string
+          enum: [weight, duration]
+
+    PatchWorkoutRequest:
+      type: object
+      minProperties: 1
+      properties:
+        status:
+          type: string
+          enum: [planned, in_progress, completed, cancelled]
+        started_at:
+          type: string
+          format: date-time
+          nullable: true
+        completed_at:
+          type: string
+          format: date-time
+          nullable: true
+        intensity:
+          type: integer
+          minimum: 1
+          maximum: 10
+          nullable: true
+
+    Workout:
+      type: object
+      required: [id, version, user_id, status, started_at, completed_at, created_at, updated_at, workout_score, intensity, personal_score_coefficient]
+      properties:
+        id:
+          type: string
+          format: uuid
+        version:
+          type: integer
+          format: int64
+          minimum: 1
+        user_id:
+          type: string
+          format: uuid
+        status:
+          type: string
+          enum: [planned, in_progress, completed, cancelled]
+        started_at:
+          type: string
+          format: date-time
+          nullable: true
+        completed_at:
+          type: string
+          format: date-time
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        workout_score:
+          type: integer
+          minimum: 0
+          maximum: 10000
+        intensity:
+          type: integer
+          minimum: 1
+          maximum: 10
+          nullable: true
+        personal_score_coefficient:
+          type: integer
+          minimum: 1
+          maximum: 10
+
+    CreateWorkoutExerciseRequest:
+      type: object
+      required: [exercise_id]
+      oneOf:
+        - required: [weight, sets, reps]
+        - required: [duration]
+      properties:
+        exercise_id:
+          type: string
+          format: uuid
+        weight:
+          type: integer
+          minimum: 1
+        sets:
+          type: integer
+          minimum: 1
+        reps:
+          type: integer
+          minimum: 1
+        duration:
+          type: integer
+          minimum: 1
+          description: Duration in seconds.
+        completed:
+          type: boolean
+          default: false
+
+    PatchWorkoutExerciseRequest:
+      type: object
+      minProperties: 1
+      properties:
+        weight:
+          type: integer
+          minimum: 1
+          nullable: true
+        sets:
+          type: integer
+          minimum: 1
+          nullable: true
+        reps:
+          type: integer
+          minimum: 1
+          nullable: true
+        duration:
+          type: integer
+          minimum: 1
+          nullable: true
+          description: Duration in seconds.
+        completed:
+          type: boolean
+
+    WorkoutExercise:
+      type: object
+      required: [id, version, workout_id, exercise_id, completed, exercise_load, created_at]
+      properties:
+        id:
+          type: string
+          format: uuid
+        version:
+          type: integer
+          format: int64
+          minimum: 1
+        workout_id:
+          type: string
+          format: uuid
+        exercise_id:
+          type: string
+          format: uuid
+        weight:
+          type: integer
+          minimum: 1
+        sets:
+          type: integer
+          minimum: 1
+        reps:
+          type: integer
+          minimum: 1
+        duration:
+          type: integer
+          minimum: 1
+          description: Duration in seconds.
+        completed:
+          type: boolean
+        exercise_load:
+          type: integer
+          minimum: 0
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    LeaderboardUser:
+      type: object
+      required: [id, full_name]
+      properties:
+        id:
+          type: string
+          format: uuid
+        full_name:
+          type: string
+
+    LeaderboardEntry:
+      type: object
+      required: [rank, user, score, completed_workouts, last_activity_at, is_current_user]
+      properties:
+        rank:
+          type: integer
+          format: int64
+          nullable: true
+        user:
+          $ref: "#/components/schemas/LeaderboardUser"
+        score:
+          type: integer
+          format: int64
+          minimum: 0
+        completed_workouts:
+          type: integer
+          format: int64
+          minimum: 0
+        last_activity_at:
+          type: string
+          format: date-time
+          nullable: true
+        is_current_user:
+          type: boolean
+
+    CurrentUserLeaderboardEntry:
+      type: object
+      required: [rank, user, score, completed_workouts, last_activity_at, eligible, in_top]
+      properties:
+        rank:
+          type: integer
+          format: int64
+          nullable: true
+        user:
+          $ref: "#/components/schemas/LeaderboardUser"
+        score:
+          type: integer
+          format: int64
+          minimum: 0
+        completed_workouts:
+          type: integer
+          format: int64
+          minimum: 0
+        last_activity_at:
+          type: string
+          format: date-time
+          nullable: true
+        eligible:
+          type: boolean
+        in_top:
+          type: boolean
+
+    Leaderboard:
+      type: object
+      required: [period, status, period_start, period_end, timezone, metric, generated_at, next_refresh_at, items, current_user]
+      properties:
+        period:
+          type: string
+          enum: [daily, weekly, monthly]
+        status:
+          type: string
+          enum: [live, published]
+        period_start:
+          type: string
+          format: date-time
+        period_end:
+          type: string
+          format: date-time
+        timezone:
+          type: string
+          example: Europe/Moscow
+        metric:
+          type: string
+          enum: [workout_score_v1]
+        generated_at:
+          type: string
+          format: date-time
+        next_refresh_at:
+          type: string
+          format: date-time
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/LeaderboardEntry"
+        current_user:
+          $ref: "#/components/schemas/CurrentUserLeaderboardEntry"
+
+    Error:
+      type: object
+      required: [error, message]
+      properties:
+        error:
+          type: string
+          enum: [invalid argument, not found, conflict, unauthorized, forbidden, internal server error]
+        message:
+          type: string
+          example: failed to process request
+
+  responses:
+    BadRequest:
+      description: Invalid request
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    Unauthorized:
+      description: Valid Bearer JWT is required or login credentials are invalid
+      headers:
+        WWW-Authenticate:
+          schema:
+            type: string
+          example: Bearer
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    Forbidden:
+      description: The authenticated user does not have permission to perform the operation
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    Conflict:
+      description: Resource conflict or optimistic-locking conflict
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    InternalServerError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"

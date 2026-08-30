@@ -82,38 +82,51 @@ func (h *HTTPResponseHandler) HTMLResponse(htmlFile File) {
 //   - ErrInvalidArgument → 400
 //   - ErrNotFound        → 404
 //   - ErrConflict        → 409
+//   - ErrUnauthorized    → 401
+//   - ErrForbidden       → 403
 //   - остальное          → 500
 //
 // Каждый тип ошибки логируется на соответствующем уровне (Warn/Debug/Error).
 func (h *HTTPResponseHandler) ErrorResponse(err error, msg string) {
 	var (
-		statusCode int
-		logFunc    func(string, ...any)
+		statusCode  int
+		logFunc     func(string, ...any)
+		publicError string
 	)
 
 	switch {
 	case errors.Is(err, core_errors.ErrInvalidArgument):
 		statusCode = http.StatusBadRequest
 		logFunc = h.log.Warn
-
+		publicError = "invalid argument"
 	case errors.Is(err, core_errors.ErrNotFound):
 		statusCode = http.StatusNotFound
 		logFunc = h.log.Debug
-
+		publicError = "not found"
 	case errors.Is(err, core_errors.ErrConflict):
 		statusCode = http.StatusConflict
 		logFunc = h.log.Warn
-
+		publicError = "conflict"
+	case errors.Is(err, core_errors.ErrUnauthorized):
+		statusCode = http.StatusUnauthorized
+		logFunc = h.log.Debug
+		publicError = "unauthorized"
+		h.rw.Header().Set("WWW-Authenticate", "Bearer")
+	case errors.Is(err, core_errors.ErrForbidden):
+		statusCode = http.StatusForbidden
+		logFunc = h.log.Debug
+		publicError = "forbidden"
 	default:
 		statusCode = http.StatusInternalServerError
 		logFunc = h.log.Error
+		publicError = "internal server error"
 	}
 
 	logFunc(msg, slog.Any("error", err))
 
 	h.errorResponse(
 		statusCode,
-		err,
+		publicError,
 		msg,
 	)
 }
@@ -128,7 +141,7 @@ func (h *HTTPResponseHandler) PanicResponse(p any, msg string) {
 
 	h.errorResponse(
 		statusCode,
-		err,
+		"internal server error",
 		msg,
 	)
 }
@@ -136,11 +149,11 @@ func (h *HTTPResponseHandler) PanicResponse(p any, msg string) {
 // errorResponse — внутренний метод: собирает ErrorResponse и вызывает JSONResponse.
 func (h *HTTPResponseHandler) errorResponse(
 	statusCode int,
-	err error,
+	publicError string,
 	msg string,
 ) {
 	response := ErrorResponse{
-		Error:   err.Error(),
+		Error:   publicError,
 		Message: msg,
 	}
 

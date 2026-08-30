@@ -3,12 +3,14 @@ package exercises_postgres_repository
 import (
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/kupr666/Orange_Team/internal/core/domain"
+	core_postgres_pool "github.com/kupr666/Orange_Team/internal/core/repository/postgres/pool"
 )
 
 type ExerciseModel struct {
-	ID          int
-	Version     int64
+	ID          uuid.UUID
+	Version     int
 	Name        string
 	Description string
 	Difficulty  int
@@ -17,25 +19,38 @@ type ExerciseModel struct {
 	Type        string
 }
 
-func exerciseDomainFromModel(exerciseModel ExerciseModel) domain.Exercise {
+func domainFromModel(model ExerciseModel) domain.Exercise {
 	return domain.NewExercise(
-		exerciseModel.ID,
-		exerciseModel.Version,
-		exerciseModel.Name,
-		exerciseModel.Description,
-		exerciseModel.Difficulty,
-		exerciseModel.CreatedAt,
-		exerciseModel.UpdatedAt,
-		exerciseModel.Type,
+		model.ID,
+		model.Version,
+		model.Name,
+		model.Description,
+		model.Difficulty,
+		model.CreatedAt,
+		model.UpdatedAt,
+		model.Type,
 	)
 }
 
-func exerciseDomainsFromModels(exercises []ExerciseModel) []domain.Exercise {
-	exercisesDomains := make([]domain.Exercise, len(exercises))
+func domainsFromModels(models []ExerciseModel) []domain.Exercise {
+	domains := make([]domain.Exercise, len(models))
 
-	for i, model := range exercises {
-		exercisesDomains[i] = exerciseDomainFromModel(model)
+	for i, model := range models {
+		domains[i] = domainFromModel(model)
 	}
 
-	return exercisesDomains
+	return domains
+}
+
+func (m *ExerciseModel) Scan(row core_postgres_pool.Row) error {
+	return row.Scan(
+		&m.ID,
+		&m.Version,
+		&m.Name,
+		&m.Description,
+		&m.Difficulty,
+		&m.CreatedAt,
+		&m.UpdatedAt,
+		&m.Type,
+	)
 }
