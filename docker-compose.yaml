@@ -50,18 +50,18 @@ services:
 
   app:
     build:
-      context: .
-      dockerfile: Dockerfile
+      context: ${PROJECT_ROOT}
+      dockerfile: ${PROJECT_ROOT}/cmd/app/Dockerfile
     container_name: orange-team-backend
     env_file:
-      - .env
+      - ${PROJECT_ROOT}/.env
     environment:
       - HTTP_ADDR=:5050
       - POSTGRES_HOST=app-postgres
-      - LOGGER_FOLDER=/app/out/logs
+      - LOGGER_FOLDER=/app/logs
       - PROJECT_ROOT=/app
     volumes:
-      - ./out/logs:/app/out/logs
+      - ${PROJECT_ROOT}/logs:/app/logs
     ports:
       - "5051:5050"
     depends_on:
