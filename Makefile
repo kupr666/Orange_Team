@@ -63,6 +63,7 @@ alloy-logs:
 alloy-stop:
 	@docker compose stop alloy loki
 
+# ===== Фронтенд =====
 .PHONY: dev-frontend
 dev-frontend:
 	@echo "Переходим в frontend..."
@@ -72,3 +73,25 @@ dev-frontend:
 	npm ci && \
 	echo "Запускаем dev-сервер..." && \
 	npm run dev
+
+.PHONY: build-frontend
+build-frontend:
+	cd frontend && npm ci && npm run build
+
+# ===== Docker сборка и запуск бекенда =====
+app-build:
+	@echo "Сборка Docker-образа..."
+	docker build -t orange-team-backend:latest .
+
+app-up: app-build
+	@echo "Запуск бекенда..."
+	docker compose up -d app
+
+app-down:
+	@echo "Остановка бекенда..."
+	docker compose down app
+
+app-logs:
+	@docker compose logs -f app
+
+app-restart: app-down app-up

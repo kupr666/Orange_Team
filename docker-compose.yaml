@@ -48,5 +48,25 @@ services:
       - loki
     restart: unless-stopped
 
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: orange-team-backend
+    env_file:
+      - .env
+    environment:
+      - HTTP_ADDR=:5050
+      - POSTGRES_HOST=app-postgres
+      - LOGGER_FOLDER=/app/out/logs
+      - PROJECT_ROOT=/app
+    volumes:
+      - ./out/logs:/app/out/logs
+    ports:
+      - "127.0.0.1:5050:5050"
+    depends_on:
+      - app-postgres
+    restart: unless-stopped
+
 volumes:
   alloy-data:
