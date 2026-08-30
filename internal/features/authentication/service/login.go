@@ -65,20 +65,6 @@ func (s *AuthenticationService) Login(
 		return LoginResult{}, fmt.Errorf("copare password hash: %w", compareErr)
 	}
 
-	if err := bcrypt.CompareHashAndPassword(
-		[]byte(credentials.PasswordHash),
-		[]byte(password),
-	); err != nil {
-		if errors.Is(err, bcrypt.ErrMismatchedHashAndPassword) {
-			return LoginResult{}, errInvalidCredentials
-		}
-
-		return LoginResult{}, fmt.Errorf(
-			"compare password hash: %w",
-			err,
-		)
-	}
-
 	principal := core_auth.Principal{
 		UserID: credentials.UserID,
 		Role:   credentials.Role,

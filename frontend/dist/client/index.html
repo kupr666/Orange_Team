@@ -1421,6 +1421,16 @@
         }
 
         // ---------- Helpers ----------
+        function escapeHTML(value) {
+            return String(value).replace(/[&<>"']/g, character => ({
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#39;'
+            })[character]);
+        }
+
         function showToast(text, type = 'info') {
             const container = document.getElementById('toast-container');
             const toast = document.createElement('div');
@@ -2070,7 +2080,7 @@
                         ${data.items.map(item => `
                             <div class="user-card" style="cursor:default;">
                                 <div class="user-body">
-                                    <div class="user-name">${item.rank || '—'} ${item.user.full_name} ${item.is_current_user ? '👤' : ''}</div>
+                                    <div class="user-name">${item.rank || '—'} ${escapeHTML(item.user.full_name)} ${item.is_current_user ? '👤' : ''}</div>
                                     <div class="user-phone">Счёт: ${item.score} pts</div>
                                     <div class="user-meta">
                                         <span class="chip">Тренировок: ${item.completed_workouts}</span>
