@@ -109,3 +109,20 @@ pgadmin-down:
 
 pgadmin-logs:
 	@docker compose logs -f pgadmin
+
+.PHONY: apply-seed
+
+apply-seed:
+	@set -e; \
+	exercise_count="$$(docker compose exec -T app-postgres sh -c \
+		'psql -U "$$POSTGRES_USER" -d "$$POSTGRES_DB" -Atqc "SELECT COUNT(*) FROM app.exercises;"')"; \
+
+	if [ "$$exercise_count" -eq 0 ]; then \
+		docker compose exec -T app-postgres sh -c \
+			'psql -v ON_ERROR_STOP=1 -U "$$POSTGRES_USER" -d "$$POSTGRES_DB"' \
+			< "docs/Data base/Exercises seed.sql"; \
+	else \
+		echo "Error: app.exercises is not empty ($$exercise_count rows). Seed was not applied." >&2; \
+		exit 1; \
+	fi
+
