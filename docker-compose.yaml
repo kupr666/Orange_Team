@@ -68,5 +68,16 @@ services:
       - app-postgres
     restart: unless-stopped
 
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: app-pgadmin
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=admin@example.com
+      - PGADMIN_DEFAULT_PASSWORD=admin
+    ports:
+      - "127.0.0.1:5052:80"
+    depends_on:
+      - app-postgres
+    restart: unless-stopped
 volumes:
   alloy-data:

@@ -100,6 +100,12 @@ app-logs:
 
 app-restart: app-down app-up
 
-# ===== Полный запуск всего окружения (БД + бекенд + миграции) =====
-deploy: env-up migrate-up app-up
-	@echo "✅ Всё запущено! Открой http://84.38.183.56:5050/"
+# ===== pgAdmin =====
+pgadmin-up:
+	@docker compose up -d pgadmin
+
+pgadmin-down:
+	@docker compose down pgadmin
+
+pgadmin-logs:
+	@docker compose logs -f pgadmin
