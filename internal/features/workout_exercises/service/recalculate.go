@@ -9,8 +9,8 @@ import (
 
 const (
 	maximumWorkoutScore       = 10_000
-	scoreSaturationScale      = 10_000
-	maximumScaledLoad         = 10_000_000
+	scoreSaturationScale      = 100_000
+	maximumScaledLoad         = 100_000_000
 	minimumScoreCoefficient   = 1
 	maximumScoreCoefficient   = 10
 	minimumExerciseDifficulty = 1
