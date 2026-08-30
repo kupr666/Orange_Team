@@ -24,5 +24,5 @@ func (s *HabitsService) CreateHabit(
 		return domain.Habit{}, fmt.Errorf("create habit in repository: %w", err)
 	}
 
-	return created.ViewAt(s.now()), nil
+	return created.ViewAt(s.today()), nil
 }

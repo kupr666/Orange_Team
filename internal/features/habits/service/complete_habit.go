@@ -23,7 +23,7 @@ func (s *HabitsService) CompleteHabit(
 		return domain.Habit{}, fmt.Errorf("get habit from repository: %w", err)
 	}
 
-	today := s.now().UTC()
+	today := s.today()
 	completed, changed := habit.Complete(today)
 	if !changed {
 		return completed, nil

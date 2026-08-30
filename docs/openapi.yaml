@@ -812,7 +812,7 @@ components:
           nullable: true
         birth_date:
           type: string
-          format: date-time
+          format: date
           nullable: true
           description: Between 1900-01-01 and the current time, or null.
         height_cm:

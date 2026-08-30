@@ -19,9 +19,9 @@ func (s *HabitsService) GetHabits(ctx context.Context, userID uuid.UUID) ([]doma
 		return nil, fmt.Errorf("get habits from repository: %w", err)
 	}
 
-	now := s.now()
+	today := s.today()
 	for i := range habits {
-		habits[i] = habits[i].ViewAt(now)
+		habits[i] = habits[i].ViewAt(today)
 	}
 	return habits, nil
 }

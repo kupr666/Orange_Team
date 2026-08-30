@@ -86,10 +86,11 @@ func main() {
 
 	// leaderboard
 	leaderboardConfig := leaderboard_service.NewConfigMust()
+	applicationLocation := leaderboardConfig.LocationMust()
 
 	log.Debug("initializing services")
 	exercisesService := exercises_service.NewExercisesService(exercisesRepository)
-	habitsService := habits_service.NewHabitsService(habitsRepository)
+	habitsService := habits_service.NewHabitsService(habitsRepository, applicationLocation)
 	workoutsService := workouts_service.NewWorkoutsService(
 		workoutsRepository,
 		workoutExercisesRepo,
@@ -110,7 +111,7 @@ func main() {
 	usersService := users_service.NewUsersService(usersRepository)
 	leaderboardService := leaderboard_service.NewLeaderboardService(
 		leaderboardRepository,
-		leaderboardConfig.LocationMust(),
+		applicationLocation,
 	)
 	projectRoot := os.Getenv("PROJECT_ROOT")
 	if projectRoot == "" {
